@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, Mail, MapPin, GraduationCap, ExternalLink, Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowDown, Mail, MapPin, GraduationCap, ExternalLink, Download, Code2, Sparkles, Briefcase, Award } from "lucide-react";
 import {
   Modal,
   ModalTrigger,
@@ -16,6 +16,9 @@ import { BentoProjectCard } from "@/components/shared/bento-project-card";
 import { TechBadge } from "@/components/shared/tech-badge";
 import { ExperienceItem } from "@/components/shared/experience-item";
 import { ContactForm } from "@/components/shared/contact-form";
+import { LiveStatus } from "@/components/shared/live-status";
+import { TechTicker } from "@/components/shared/tech-ticker";
+import { MagneticPhoto } from "@/components/shared/magnetic-photo";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,12 +27,30 @@ import { techStack } from "@/data/tech-stack";
 import { experiences } from "@/data/experience";
 import { projects } from "@/data/projects";
 import { education, certifications } from "@/data/education";
-import { useTyping } from "@/hooks/use-typing";
+import { useTypingLoop } from "@/hooks/use-typing";
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning, I'm";
+  if (hour < 18) return "Good afternoon, I'm";
+  return "Good evening, I'm";
+}
 
 export default function Home() {
   const featuredProjects = projects.filter((p) => p.featured);
   const totalTechItems = techStack.reduce((acc, cat) => acc + cat.items.length, 0);
-  const { displayText: headline, isComplete: headlineComplete } = useTyping(personalInfo.headline, { speed: 45, startDelay: 400 });
+  const { displayText: headline } = useTypingLoop(personalInfo.headlines, {
+    typeSpeed: 55,
+    deleteSpeed: 30,
+    holdAfterType: 1600,
+    holdAfterDelete: 250,
+    startDelay: 500,
+  });
+  // Time-aware greeting: SSR-safe — render static fallback first, swap on mount
+  const [greeting, setGreeting] = useState("Hi, I'm");
+  useEffect(() => {
+    setGreeting(getGreeting());
+  }, []);
 
   return (
     <section className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
@@ -43,11 +64,12 @@ export default function Home() {
             delay={0}
           >
             <div className="hero-stagger">
-              <p className="text-sm text-muted-foreground">Hi, I&apos;m</p>
-              <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                {personalInfo.name}
+              <LiveStatus label={personalInfo.status.label} />
+              <p className="mt-2 text-sm text-muted-foreground">{greeting}</p>
+              <h1 className="mt-1 font-display text-3xl font-bold tracking-tighter sm:text-4xl lg:text-5xl">
+                <span className="hero-name-gradient">{personalInfo.name}</span>
               </h1>
-              <p className={cn("mt-2 text-lg text-accent-brand font-medium", !headlineComplete && "typing-cursor")}>
+              <p className="mt-2 text-lg text-accent-brand font-medium typing-cursor min-h-[1.75rem]">
                 {headline}
               </p>
               <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
@@ -87,20 +109,7 @@ export default function Home() {
           <BentoCard delay={80} animation="fade-in">
             <div className="flex flex-col items-center h-full">
               <div className="flex flex-1 items-center justify-center">
-                <div
-                  className="relative h-32 w-32 sm:h-36 sm:w-36 shrink-0 rounded-full bg-background overflow-hidden ring-2 ring-accent-brand/30 transition-transform duration-300 hover:scale-105"
-                  style={{ animation: "photo-glow 3s ease-in-out infinite" }}
-                >
-                  <Image
-                    src={personalInfo.profileImage}
-                    alt={personalInfo.name}
-                    width={288}
-                    height={288}
-                    className="h-full w-full object-cover object-top scale-125"
-                    priority
-                  />
-                  <div className="absolute inset-0 rounded-full shadow-[inset_0_0_20px_8px_rgba(0,0,0,0.4)] pointer-events-none" />
-                </div>
+                <MagneticPhoto src={personalInfo.profileImage} alt={personalInfo.name} />
               </div>
               <div className="mt-4 flex gap-1">
               {personalInfo.socialLinks.github && (
@@ -127,26 +136,44 @@ export default function Home() {
                 <Mail className="h-5 w-5" />
               </a>
             </div>
+            <div className="mt-3 w-full">
+              <TechTicker />
+            </div>
             </div>
           </BentoCard>
         </div>
 
         {/* ── Stats Bar ── */}
         <BentoCard delay={100} animation="fade-in">
-          <div className="flex items-center justify-around divide-x divide-border">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             {[
-              { value: String(projects.length), label: "Projects" },
-              { value: `${totalTechItems}+`, label: "Technologies" },
-              { value: String(experiences.length), label: "Internship" },
-              { value: String(certifications.length), label: "Certifications" },
-            ].map((stat) => (
-              <div key={stat.label} className="flex flex-1 flex-col items-center px-4 py-1">
-                <span className="text-2xl font-bold tracking-tight text-accent-brand">
-                  {stat.value}
-                </span>
-                <span className="text-xs text-muted-foreground">{stat.label}</span>
-              </div>
-            ))}
+              { value: String(projects.length), label: "Projects", icon: Code2, tone: "brand" as const },
+              { value: `${totalTechItems}+`, label: "Technologies", icon: Sparkles, tone: "warm" as const },
+              { value: String(experiences.length), label: "Internship", icon: Briefcase, tone: "brand" as const },
+              { value: String(certifications.length), label: "Certifications", icon: Award, tone: "warm" as const },
+            ].map((stat) => {
+              const Icon = stat.icon;
+              const isWarm = stat.tone === "warm";
+              return (
+                <div
+                  key={stat.label}
+                  className={cn(
+                    "group relative flex flex-col items-center gap-1 rounded-xl px-3 py-3 ring-1 transition-all duration-300 hover:-translate-y-0.5",
+                    isWarm
+                      ? "bg-accent-warm/5 ring-accent-warm/15 hover:ring-accent-warm/30 hover:shadow-md hover:shadow-accent-warm/10"
+                      : "bg-accent-brand/5 ring-accent-brand/15 hover:ring-accent-brand/30 hover:shadow-md hover:shadow-accent-brand/10"
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4", isWarm ? "text-accent-warm" : "text-accent-brand")} />
+                  <span className={cn("font-display text-2xl font-bold tracking-tighter sm:text-3xl", isWarm ? "text-accent-warm" : "text-accent-brand")}>
+                    {stat.value}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    {stat.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </BentoCard>
 
@@ -154,7 +181,7 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {/* About — dot pattern texture */}
           <BentoCard id="about" delay={0}>
-            <h2 className="text-xl font-bold tracking-tight">About Me</h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">About Me</h2>
             <div className="mt-1 h-1 w-10 rounded-full bg-gradient-to-r from-accent-brand to-accent-brand/40" />
             <p className="mt-1.5 text-xs text-muted-foreground">A bit about who I am</p>
             <div className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
@@ -166,7 +193,7 @@ export default function Home() {
 
           {/* Tech Stack */}
           <BentoCard id="skills" delay={100}>
-            <h2 className="text-xl font-bold tracking-tight">Tech Stack</h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">Tech Stack</h2>
             <div className="mt-1 h-1 w-10 rounded-full bg-gradient-to-r from-accent-brand to-accent-brand/40" />
             <p className="mt-1.5 text-xs text-muted-foreground">Technologies I work with</p>
             <div className="mt-3 space-y-3">
@@ -195,7 +222,7 @@ export default function Home() {
             id="experience"
             delay={0}
           >
-            <h2 className="text-xl font-bold tracking-tight">Experience</h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">Experience</h2>
             <div className="mt-1 h-1 w-10 rounded-full bg-gradient-to-r from-accent-brand to-accent-brand/40" />
             <p className="mt-1.5 text-xs text-muted-foreground">Where I&apos;ve worked</p>
             <div className="mt-4">
@@ -210,7 +237,7 @@ export default function Home() {
             id="education"
             delay={100}
           >
-            <h2 className="text-xl font-bold tracking-tight">Education</h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">Education</h2>
             <div className="mt-1 h-1 w-10 rounded-full bg-gradient-to-r from-accent-brand to-accent-brand/40" />
             <p className="mt-1.5 text-xs text-muted-foreground">My academic background</p>
             <div className="mt-4 space-y-3">
@@ -231,7 +258,7 @@ export default function Home() {
           <BentoCard
             delay={200}
           >
-            <h2 className="text-xl font-bold tracking-tight">Certifications</h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">Certifications</h2>
             <div className="mt-1 h-1 w-10 rounded-full bg-gradient-to-r from-accent-brand to-accent-brand/40" />
             <p className="mt-1.5 text-xs text-muted-foreground">Courses and achievements</p>
             <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -299,6 +326,7 @@ export default function Home() {
           cardClassName="bg-gradient-to-r from-accent-brand/10 via-accent-brand/5 to-accent-brand/10 dark:from-accent-brand/15 dark:via-accent-brand/5 dark:to-accent-brand/15 flex flex-col items-center justify-center text-center"
           id="contact"
           delay={0}
+          glowColor="none"
         >
           <h2 className="text-xl font-bold tracking-tight">Let&apos;s Connect</h2>
           <p className="mt-2 text-sm text-muted-foreground">

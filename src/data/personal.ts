@@ -1,6 +1,14 @@
 export const personalInfo = {
   name: "Aziz Tebbeng",
   headline: "Aspiring Full-Stack Developer & ML Enthusiast",
+  headlines: [
+    "Full-Stack Developer",
+    "ML Enthusiast",
+    "Computer Vision Engineer",
+  ],
+  status: {
+    label: "Available for opportunities",
+  },
   location: "Zamboanga City, Philippines",
   bio: [
     "I am a fourth-year Bachelor of Science in Information Technology student with a strong passion for web development and machine learning. I am currently completing my internship at Nexzys Intelligence under Vintazk Outsourcing, where I contribute to building full-stack digital solutions for local government systems.",

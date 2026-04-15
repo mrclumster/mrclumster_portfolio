@@ -50,7 +50,7 @@ export default function ResumePage() {
         <div className="space-y-8 print:space-y-5">
           {/* Header */}
           <header>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl print:text-2xl">
+            <h1 className="font-display text-3xl font-bold tracking-tighter sm:text-4xl print:text-2xl print:font-sans">
               {personalInfo.name}
             </h1>
             <p className="mt-1 text-lg text-accent-brand font-medium print:text-sm print:text-black">

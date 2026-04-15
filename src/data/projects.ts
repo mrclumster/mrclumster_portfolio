@@ -15,7 +15,7 @@ export const projects: Project[] = [
     title: "FishFresh",
     description:
       "A mobile-based computer vision system for real-time fish freshness assessment in Zamboanga City. Served as the Machine Learning Engineer, building the model and handling the computer vision component to help address uncertain fish freshness checks in post-harvest quality.",
-    image: "",
+    image: "/images/projects/fishfresh.jpg",
     icon: "🐟",
     tags: ["Python", "Computer Vision", "Machine Learning", "React Native"],
     githubUrl: "https://github.com/chirdnek/2025-CP_Fishfresh",
@@ -37,7 +37,7 @@ export const projects: Project[] = [
     title: "Portfolio Website",
     description:
       "Personal developer portfolio built with modern web technologies, featuring dark mode, responsive design, and SEO optimization.",
-    image: "",
+    image: "/images/projects/portfolio.bmp",
     icon: "💻",
     tags: ["Next.js", "TypeScript", "Tailwind CSS"],
     githubUrl: "https://github.com/mrclumster",

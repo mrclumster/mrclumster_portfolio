@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import {
   ModalDescription,
 } from "@/components/ui/modal";
 import { cn } from "@/lib/utils";
+import { useTilt } from "@/hooks/use-tilt";
 import type { Project } from "@/data/projects";
 
 interface BentoProjectCardProps {
@@ -19,23 +21,56 @@ interface BentoProjectCardProps {
 }
 
 export function BentoProjectCard({ project }: BentoProjectCardProps) {
+  const { ref: tiltRef, transform, handleMouseMove, handleMouseLeave } = useTilt({ max: 6 });
+  const pillUrl = project.githubUrl ?? project.liveUrl;
+
   return (
     <Modal>
+      {/* URL pill + tilt wrapper */}
+      <div
+        ref={tiltRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="group/card relative h-full"
+        style={{ transform, transition: "transform 200ms ease-out", transformStyle: "preserve-3d" }}
+      >
+        {pillUrl && (
+          <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 rounded-md bg-card ring-1 ring-foreground/15 px-2 py-1 text-[10px] font-mono text-muted-foreground shadow-lg max-w-[90%] whitespace-nowrap overflow-hidden text-ellipsis">
+            {pillUrl.replace(/^https?:\/\//, "")}
+          </div>
+        )}
       {/* Minimal card */}
-      <ModalTrigger className="flex h-full w-full flex-col rounded-lg bg-muted/30 ring-1 ring-foreground/5 transition-all duration-300 hover:ring-accent-brand/20 hover:bg-muted/50 text-left cursor-pointer overflow-hidden">
-        {/* Gradient header with large emoji */}
-        <div
-          className="flex items-center justify-center py-6"
-          style={
-            project.gradientColor
-              ? { background: `linear-gradient(135deg, ${project.gradientColor}15 0%, ${project.gradientColor}05 100%)` }
-              : undefined
-          }
-        >
-          {project.icon && (
-            <span className="text-4xl drop-shadow-sm">{project.icon}</span>
-          )}
-        </div>
+      <ModalTrigger className="group flex h-full w-full flex-col rounded-lg bg-muted/30 ring-1 ring-foreground/5 transition-all duration-300 hover:ring-accent-brand/20 hover:bg-muted/50 text-left cursor-pointer overflow-hidden">
+        {/* Header — image thumbnail or gradient emoji fallback */}
+        {project.image ? (
+          <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+            <Image
+              src={project.image}
+              alt={`${project.title} preview`}
+              fill
+              sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            {/* Bottom-fade overlay for legibility under the title */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-card/80 via-card/20 to-transparent" />
+            {project.icon && (
+              <span className="absolute top-2 left-2 text-lg drop-shadow-sm">{project.icon}</span>
+            )}
+          </div>
+        ) : (
+          <div
+            className="flex items-center justify-center py-6"
+            style={
+              project.gradientColor
+                ? { background: `linear-gradient(135deg, ${project.gradientColor}15 0%, ${project.gradientColor}05 100%)` }
+                : undefined
+            }
+          >
+            {project.icon && (
+              <span className="text-4xl drop-shadow-sm">{project.icon}</span>
+            )}
+          </div>
+        )}
         {/* Card body */}
         <div className="flex flex-1 flex-col p-3 pt-2">
           <h3 className="text-sm font-semibold">{project.title}</h3>
@@ -51,6 +86,7 @@ export function BentoProjectCard({ project }: BentoProjectCardProps) {
           </div>
         </div>
       </ModalTrigger>
+      </div>
 
       {/* Centered modal with full details */}
       <ModalContent>
