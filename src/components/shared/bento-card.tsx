@@ -34,6 +34,7 @@ export function BentoCard({
         id={id}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
+        data-bento-card=""
         className={cn(
           "group relative h-full rounded-xl bg-card/70 backdrop-blur-md text-card-foreground ring-1 ring-foreground/10 p-4 md:p-6 lg:p-8 overflow-hidden transition-[ring-color,box-shadow,transform] duration-300 hover:ring-accent-brand/25 hover:shadow-lg hover:shadow-accent-brand/10 hover:-translate-y-0.5",
           "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]",

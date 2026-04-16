@@ -4,7 +4,8 @@ export const personalInfo = {
   headlines: [
     "Full-Stack Developer",
     "ML Enthusiast",
-    "Computer Vision Engineer",
+    "Professional Bug Creator",
+    "Powered by Caffeine ☕",
   ],
   status: {
     label: "Available for opportunities",

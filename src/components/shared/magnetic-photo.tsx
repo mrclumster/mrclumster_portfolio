@@ -57,6 +57,29 @@ export function MagneticPhoto({ src, alt }: MagneticPhotoProps) {
         className="absolute -inset-2 rounded-full border border-dashed border-accent-brand/30 dark:border-accent-brand/40"
         style={{ animation: "ring-spin 20s linear infinite" }}
       />
+      {/* Face-detection brackets */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{ animation: "detect-pulse 2.5s ease-in-out infinite" }}
+      >
+        {/* Top-left */}
+        <span className="absolute top-0 left-0 h-4 w-4 border-t-2 border-l-2 border-accent-brand rounded-tl-sm" />
+        {/* Top-right */}
+        <span className="absolute top-0 right-0 h-4 w-4 border-t-2 border-r-2 border-accent-brand rounded-tr-sm" />
+        {/* Bottom-left */}
+        <span className="absolute bottom-0 left-0 h-4 w-4 border-b-2 border-l-2 border-accent-brand rounded-bl-sm" />
+        {/* Bottom-right */}
+        <span className="absolute bottom-0 right-0 h-4 w-4 border-b-2 border-r-2 border-accent-brand rounded-br-sm" />
+      </div>
+      {/* [ DETECTED ] label */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 font-mono text-[9px] tracking-widest text-accent-brand/70 whitespace-nowrap"
+        style={{ animation: "detect-pulse 2.5s ease-in-out infinite" }}
+      >
+        [ DETECTED ]
+      </div>
       {/* Photo with magnetic offset */}
       <div
         className="relative h-full w-full rounded-full bg-background overflow-hidden ring-2 ring-accent-brand/30 transition-transform duration-300 ease-out hover:scale-105"

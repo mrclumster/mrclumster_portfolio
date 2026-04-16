@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { Analytics } from "@vercel/analytics/next";
+import { PortfolioChrome } from "@/components/layout/portfolio-chrome";
 import "./globals.css";
 
 const inter = Inter({
@@ -91,10 +89,9 @@ export default function RootLayout({
               style={{ animation: "blob-drift-3 28s ease-in-out infinite" }}
             />
           </div>
-          <ScrollProgress />
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <PortfolioChrome>
+            <main className="flex-1">{children}</main>
+          </PortfolioChrome>
           <Analytics />
         </ThemeProvider>
       </body>

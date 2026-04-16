@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls c:/aziztebbeng/mrclumster_portfolio/node_modules/matter-js/src/*.d.ts)"
+    ]
+  }
+}

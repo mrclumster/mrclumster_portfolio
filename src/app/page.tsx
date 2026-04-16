@@ -19,6 +19,8 @@ import { ContactForm } from "@/components/shared/contact-form";
 import { LiveStatus } from "@/components/shared/live-status";
 import { TechTicker } from "@/components/shared/tech-ticker";
 import { MagneticPhoto } from "@/components/shared/magnetic-photo";
+import { CopyableEmail } from "@/components/shared/copyable-email";
+import { GithubCalendarClient } from "@/components/shared/github-calendar-client";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -76,10 +78,7 @@ export default function Home() {
                 <MapPin className="h-3.5 w-3.5" />
                 {personalInfo.location}
               </p>
-              <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                <Mail className="h-3.5 w-3.5" />
-                {personalInfo.email}
-              </p>
+              <CopyableEmail email={personalInfo.email} />
               <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <a
                   href="#projects"
@@ -188,6 +187,10 @@ export default function Home() {
               {personalInfo.bio.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
+            </div>
+            {/* GitHub contribution heatmap */}
+            <div className="mt-4 overflow-x-auto">
+              <GithubCalendarClient />
             </div>
           </BentoCard>
 
