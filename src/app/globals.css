@@ -373,3 +373,11 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Force the Phaser canvas to use hard pixel edges */
+canvas {
+  image-rendering: -moz-crisp-edges !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  image-rendering: pixelated !important;
+}

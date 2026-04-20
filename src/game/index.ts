@@ -3,34 +3,33 @@ import { PreloadScene } from "./scenes/PreloadScene";
 import { WorldScene } from "./scenes/WorldScene";
 import { UIScene } from "./scenes/UIScene";
 import { PhotoViewerScene } from "./scenes/PhotoViewerScene";
-import { CANVAS_W, CANVAS_H } from "./config";
+import { CANVAS_W, CANVAS_H, SCALE_FACTOR } from "./config";
 
-// index.ts
 export function createGame(
   parent: HTMLElement,
   onProgress: (v: number) => void,
   onReady: () => void,
   muted: boolean
 ): Phaser.Game {
-  
   const game = new Phaser.Game({
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL, 
     width: CANVAS_W,
     height: CANVAS_H,
+    zoom: SCALE_FACTOR,
     
-    // Put these at the root level (some Phaser versions prefer them here)
+    // --- AGGRESSIVE PIXEL ART SETTINGS ---
     pixelArt: true,
+    antialias: false,
     roundPixels: true,
     
-    parent,
-    backgroundColor: "#1a472a",
+    // --- LET PHASER HANDLE RESIZING (NOT CSS) ---
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: CANVAS_W,
-      height: CANVAS_H,
-      // Completely removed 'resolution' from here!
     },
+
+    parent,
+    backgroundColor: "#1a472a",
     physics: {
       default: "arcade",
       arcade: { gravity: { x: 0, y: 0 }, debug: false },
@@ -40,7 +39,6 @@ export function createGame(
     banner: false,
   });
 
-  // Wire up React callbacks via game inastance
   game._onProgress = onProgress;
   game._onReady = onReady;
 
