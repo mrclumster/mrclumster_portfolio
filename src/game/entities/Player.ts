@@ -12,10 +12,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setCollideWorldBounds(true);
+    this.setDepth(5);
 
-    // Shrink physics body for tighter collision
-    this.body!.setSize(10, 8);
-    this.body!.setOffset(3, 8);
+    // Scale 64px LPC frame to ~24px in the 320×240 game world (1.5 tiles tall)
+    this.setScale(0.375);
+
+    // Physics body in LOCAL (pre-scale) coords.
+    // 28×20 local → ~10×8 world pixels at the character's feet.
+    this.body!.setSize(28, 20);
+    this.body!.setOffset(18, 36);
+
+    // Capture keyboard globally so the user doesn't need to click the canvas first
+    scene.input.keyboard!.enableGlobalCapture();
 
     this.cursors = scene.input.keyboard!.createCursorKeys();
     this.wasd = {
@@ -34,20 +42,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     const anims = scene.anims;
 
-    // Walk-down: frames 0–2
-    anims.create({ key: "walk-down",  frames: anims.generateFrameNumbers("player", { start: 0,  end: 2  }), frameRate: 8, repeat: -1 });
-    // Walk-left: frames 3–5
-    anims.create({ key: "walk-left",  frames: anims.generateFrameNumbers("player", { start: 3,  end: 5  }), frameRate: 8, repeat: -1 });
-    // Walk-right: frames 6–8
-    anims.create({ key: "walk-right", frames: anims.generateFrameNumbers("player", { start: 6,  end: 8  }), frameRate: 8, repeat: -1 });
-    // Walk-up: frames 9–11
-    anims.create({ key: "walk-up",    frames: anims.generateFrameNumbers("player", { start: 9,  end: 11 }), frameRate: 8, repeat: -1 });
+    // Standard LPC layout: 64×64 frames, 24 cols (1536 / 64 = 24)
+    // Walk section at rows 8-11, direction order: up / left / down / right
+    // Each walk row has 9 frames (indices 0-8 within the row)
+    const COLS = 24;
+    const walkUp    = 8  * COLS; // 192
+    const walkLeft  = 9  * COLS; // 216
+    const walkDown  = 10 * COLS; // 240
+    const walkRight = 11 * COLS; // 264
 
-    // Idle frames (single, no loop)
-    anims.create({ key: "idle-down",  frames: [{ key: "player", frame: 1  }], frameRate: 1 });
-    anims.create({ key: "idle-left",  frames: [{ key: "player", frame: 4  }], frameRate: 1 });
-    anims.create({ key: "idle-right", frames: [{ key: "player", frame: 7  }], frameRate: 1 });
-    anims.create({ key: "idle-up",    frames: [{ key: "player", frame: 10 }], frameRate: 1 });
+    anims.create({ key: "walk-up",    frames: anims.generateFrameNumbers("player", { start: walkUp,    end: walkUp    + 8 }), frameRate: 8, repeat: -1 });
+    anims.create({ key: "walk-left",  frames: anims.generateFrameNumbers("player", { start: walkLeft,  end: walkLeft  + 8 }), frameRate: 8, repeat: -1 });
+    anims.create({ key: "walk-down",  frames: anims.generateFrameNumbers("player", { start: walkDown,  end: walkDown  + 8 }), frameRate: 8, repeat: -1 });
+    anims.create({ key: "walk-right", frames: anims.generateFrameNumbers("player", { start: walkRight, end: walkRight + 8 }), frameRate: 8, repeat: -1 });
+
+    // Idle: standing pose = frame 0 of each walk row
+    anims.create({ key: "idle-up",    frames: [{ key: "player", frame: walkUp    }], frameRate: 1 });
+    anims.create({ key: "idle-left",  frames: [{ key: "player", frame: walkLeft  }], frameRate: 1 });
+    anims.create({ key: "idle-down",  frames: [{ key: "player", frame: walkDown  }], frameRate: 1 });
+    anims.create({ key: "idle-right", frames: [{ key: "player", frame: walkRight }], frameRate: 1 });
   }
 
   update() {

@@ -8,8 +8,8 @@ export class UIScene extends Phaser.Scene {
   create() {
     // Day counter — top-center (placeholder until we wire day tracking)
     this.add
-      .text(160, 6, "AZIZ'S MANILA TOUR", {
-        fontSize: "6px",
+      .text(320, 12, "AZIZ'S MANILA TOUR", {
+        fontSize: "12px",
         color: "#ffffff",
         fontFamily: "'Press Start 2P', monospace",
       })

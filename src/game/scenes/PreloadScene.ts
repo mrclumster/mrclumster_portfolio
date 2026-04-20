@@ -21,18 +21,15 @@ export class PreloadScene extends Phaser.Scene {
       this.game._onProgress?.(value);
     });
 
-    // Tileset + tilemap
-    this.load.image("tiles", "/game/tilesets/lpc-base.png");
-    this.load.tilemapTiledJSON("world-map", "/game/tilesets/world-map.json");
-
-    // Player spritesheet: 48px wide × 64px tall sheet, 16×16 frames
+    // Player spritesheet: standard LPC format, 64×64 per frame
+    // 1536px wide = 24 cols, 4224px tall = 66 rows
     this.load.spritesheet("player", "/game/sprites/player.png", {
-      frameWidth: 16,
-      frameHeight: 16,
+      frameWidth: 64,
+      frameHeight: 64,
     });
 
     // Photo frame prop
-    this.load.image("photo-frame", "/game/sprites/photo-frame.png");
+    this.load.image("photo-frame", "/game/sprites/photo-frame.jpg");
 
     // Optional BGM (graceful fallback if missing)
     this.load.audio("bgm", "/game/audio/bgm-adventure.mp3");

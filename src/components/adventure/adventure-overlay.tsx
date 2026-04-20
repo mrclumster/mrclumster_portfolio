@@ -1,74 +1,68 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 interface AdventureOverlayProps {
-  locationName?: string;
   onMuteToggle?: () => void;
   muted?: boolean;
 }
 
-export function AdventureOverlay({
-  locationName,
-  onMuteToggle,
-  muted = true,
-}: AdventureOverlayProps) {
-  const router = useRouter();
-  const [visible, setVisible] = useState(false);
+// Shared button class — no backdrop-blur (it blurs the pixel-art canvas behind it)
+const BTN =
+  "pointer-events-auto rounded border-2 border-white/80 bg-black/80 " +
+  "px-3 py-2 text-[10px] text-white " +
+  "hover:bg-white/20 transition-colors cursor-pointer";
 
-  // Fade in on mount
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 500);
-    return () => clearTimeout(t);
-  }, []);
+export function AdventureOverlay({ onMuteToggle, muted = true }: AdventureOverlayProps) {
+  const router = useRouter();
 
   return (
     <div
       className="pointer-events-none fixed inset-0 z-[9000]"
       style={{ fontFamily: "var(--font-press-start-2p, 'Press Start 2P'), monospace" }}
     >
-      {/* Return button — bottom left */}
-      <button
+      {/* ← Portfolio — bottom left */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.45, ease: "easeOut" as const }}
         onClick={() => router.push("/")}
-        className="pointer-events-auto absolute bottom-4 left-4 flex items-center gap-2 rounded border-2 border-white/80 bg-black/70 px-3 py-2 text-[10px] text-white backdrop-blur-sm transition-opacity duration-300 hover:bg-white/20 cursor-pointer"
-        style={{ opacity: visible ? 1 : 0 }}
+        className={`${BTN} absolute bottom-4 left-4 flex items-center gap-2`}
         aria-label="Return to portfolio"
       >
         ← PORTFOLIO
-      </button>
+      </motion.button>
 
       {/* Sound toggle — bottom right */}
       {onMuteToggle && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65, duration: 0.45, ease: "easeOut" as const }}
           onClick={onMuteToggle}
-          className="pointer-events-auto absolute bottom-4 right-4 rounded border-2 border-white/80 bg-black/70 px-3 py-2 text-[10px] text-white backdrop-blur-sm transition-opacity duration-300 hover:bg-white/20 cursor-pointer"
-          style={{ opacity: visible ? 1 : 0 }}
+          className={`${BTN} absolute bottom-4 right-4`}
           aria-label={muted ? "Unmute music" : "Mute music"}
         >
           {muted ? "♪ OFF" : "♪ ON"}
-        </button>
-      )}
-
-      {/* Location name — top left, fades in when zone entered */}
-      {locationName && (
-        <div
-          className="absolute top-4 left-4 rounded border-2 border-white/60 bg-black/70 px-3 py-2 text-[9px] text-white/90 backdrop-blur-sm"
-          style={{ opacity: visible ? 1 : 0 }}
-        >
-          📍 {locationName}
-        </div>
+        </motion.button>
       )}
 
       {/* Controls hint — top right */}
-      <div
-        className="absolute top-4 right-4 rounded border border-white/30 bg-black/50 px-2 py-1.5 text-[8px] text-white/50 backdrop-blur-sm leading-relaxed"
-        style={{ opacity: visible ? 0.7 : 0 }}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8, duration: 0.45, ease: "easeOut" as const }}
+        className="absolute top-4 right-4 rounded border border-white/30
+                   bg-black/75 px-2 py-1.5 text-[8px] text-white/50
+                   leading-relaxed"
       >
-        WASD / ↑↓←→ MOVE
+        WASD / ↑↓←→&nbsp;&nbsp;MOVE
         <br />
-        Z / ENTER INTERACT
-      </div>
+        Z / ENTER&nbsp;&nbsp;&nbsp;&nbsp;INTERACT
+        <br />
+        TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALL PHOTOS
+      </motion.div>
     </div>
   );
 }
