@@ -12,6 +12,10 @@ export interface TripLocation {
   description: string;
   mapTileX: number;
   mapTileY: number;
+  // Real-world GPS coordinates — used by the Leaflet adventure map to drop
+  // pins at the actual location of each stop.
+  lat: number;
+  lng: number;
   photos: TripPhoto[]; // __ highlighted photos shown first in the viewer
 }
 
@@ -201,7 +205,8 @@ export const tripLocations: TripLocation[] = [
     day: 1,
     dayLabel: "DAY 1",
     description: "Departed Zamboanga early morning, arrived in Manila. The trip officially starts!",
-    mapTileX: 13, mapTileY: 8,
+    mapTileX: 10, mapTileY: 8,
+    lat: 14.5086, lng: 121.0194,
     photos: [
       p(1, "airport", "__2026_04_05_06_26_IMG_5982.JPG", "Early morning — departure day"),
       p(1, "airport", "__2026_04_05_08_14_IMG_6015.JPG", "Arriving in Manila"),
@@ -213,7 +218,8 @@ export const tripLocations: TripLocation[] = [
     day: 1,
     dayLabel: "DAY 1",
     description: "The Walled City — 500-year-old Spanish colonial streets and Fort Santiago.",
-    mapTileX: 23, mapTileY: 8,
+    mapTileX: 18, mapTileY: 14,
+    lat: 14.5906, lng: 120.9745,
     photos: [
       p(1, "intramuros", "__2026_04_05_14_06_IMG_6022.JPG", "Intramuros"),
       p(1, "intramuros", "__2026_04_05_15_27_IMG_6043.JPG", "The Walled City"),
@@ -225,7 +231,8 @@ export const tripLocations: TripLocation[] = [
     day: 1,
     dayLabel: "DAY 1",
     description: "One of Asia's largest malls, right on Manila Bay.",
-    mapTileX: 33, mapTileY: 8,
+    mapTileX: 27, mapTileY: 9,
+    lat: 14.5354, lng: 120.9824,
     photos: [
       p(1, "MOA", "__IMG_20260405_172123.jpg", "Mall of Asia"),
     ],
@@ -238,7 +245,8 @@ export const tripLocations: TripLocation[] = [
     day: 2,
     dayLabel: "DAY 2",
     description: "Home base for the trip — a dorm in QC where everyone stayed.",
-    mapTileX: 43, mapTileY: 17,
+    mapTileX: 48, mapTileY: 6,
+    lat: 14.654, lng: 121.0443,
     photos: [
       p(2, "DJM DORM", "__2026_04_06_07_06_IMG_6055.JPG", "Morning at DJM Dorm"),
     ],
@@ -249,7 +257,8 @@ export const tripLocations: TripLocation[] = [
     day: 2,
     dayLabel: "DAY 2",
     description: "Industrial tech company in Caloocan. Saw real-world engineering systems up close.",
-    mapTileX: 37, mapTileY: 20,
+    mapTileX: 56, mapTileY: 12,
+    lat: 14.676, lng: 120.9822,
     photos: [
       p(2, "Hytec Power Inc", "__2026_04_06_08_52_IMG_6059.JPG", "Hytec Power Inc."),
       p(2, "Hytec Power Inc", "__2026_04_06_09_25_IMG_6067.JPG", "Engineering systems"),
@@ -263,7 +272,8 @@ export const tripLocations: TripLocation[] = [
     day: 2,
     dayLabel: "DAY 2",
     description: "OpenText office in Makati at the iconic RCBC Plaza. Global tech company visit.",
-    mapTileX: 27, mapTileY: 21,
+    mapTileX: 51, mapTileY: 18,
+    lat: 14.562, lng: 121.0197,
     photos: [], // no highlights — viewer opens in ALL PHOTOS mode
   },
 
@@ -274,7 +284,8 @@ export const tripLocations: TripLocation[] = [
     day: 3,
     dayLabel: "DAY 3",
     description: "Metro Manila Development Authority in Pasig. Saw how Metro Manila's traffic is managed.",
-    mapTileX: 14, mapTileY: 32,
+    mapTileX: 12, mapTileY: 36,
+    lat: 14.5791, lng: 121.0487,
     photos: [
       p(3, "MMDA", "__2026_04_07_10_21_IMG_6124.JPG", "MMDA Headquarters"),
     ],
@@ -285,7 +296,8 @@ export const tripLocations: TripLocation[] = [
     day: 3,
     dayLabel: "DAY 3",
     description: "Night out at BGC High Street. Neon lights, street art, and the whole squad.",
-    mapTileX: 10, mapTileY: 36,
+    mapTileX: 20, mapTileY: 44,
+    lat: 14.5508, lng: 121.0465,
     photos: [
       p(3, "BGC", "__2026_04_07_21_16_IMG_6160.JPG", "BGC at night"),
       p(3, "BGC", "__2026_04_07_21_17_IMG_6388.JPG", "BGC High Street"),
@@ -301,7 +313,8 @@ export const tripLocations: TripLocation[] = [
     day: 4,
     dayLabel: "DAY 4",
     description: "Top Peg Animation Studio + Microsourcing Eastwood. Drew a cute cat. Proudest moment.",
-    mapTileX: 29, mapTileY: 45,
+    mapTileX: 52, mapTileY: 44,
+    lat: 14.611, lng: 121.0776,
     photos: [
       p(4, "photoDUMP only", "__IMG_20260408_004253.jpg",        "Late night"),
       p(4, "photoDUMP only", "__2026_04_08_10_38_IMG_6168.JPG",  "Top Peg Animation Studio"),
@@ -316,7 +329,8 @@ export const tripLocations: TripLocation[] = [
     day: 5,
     dayLabel: "DAY 5",
     description: "Tagaytay. Stood on a cliff with a breathtaking view of Taal Volcano.",
-    mapTileX: 44, mapTileY: 28,
+    mapTileX: 88, mapTileY: 40,
+    lat: 14.1204, lng: 120.9368,
     photos: [
       p(5, "Tagaytay", "__2026_04_09_08_05_IMG_6191.MOV", "People's Park — the view!"),
       p(5, "Tagaytay", "__2026_04_09_08_14_IMG_6217.MOV", "Taal Volcano video"),
@@ -329,7 +343,8 @@ export const tripLocations: TripLocation[] = [
     day: 5,
     dayLabel: "DAY 5",
     description: "Rides and fun with the group. The ferris wheel view over Taal Lake was unreal.",
-    mapTileX: 40, mapTileY: 24,
+    mapTileX: 82, mapTileY: 32,
+    lat: 14.0958, lng: 120.9376,
     photos: [
       p(5, "Skyranch", "__IMG_20260409_102235.jpg", "Sky Ranch Tagaytay"),
     ],
@@ -342,7 +357,8 @@ export const tripLocations: TripLocation[] = [
     day: 6,
     dayLabel: "DAY 6",
     description: "1am overnight bus from QC. 6 hours of mountains. Arrived in Baguio at dawn.",
-    mapTileX: 33, mapTileY: 15,
+    mapTileX: 82, mapTileY: 12,
+    lat: 16.4023, lng: 120.596,
     photos: [
       p(6, "PHOTO DUMP", "__2026_04_10_02_04_IMG_6399.JPG", "1am — on the overnight bus to Baguio"),
     ],
@@ -353,7 +369,8 @@ export const tripLocations: TripLocation[] = [
     day: 6,
     dayLabel: "DAY 6",
     description: "First stop in Baguio after arriving at dawn. Fresh strawberries straight from the field!",
-    mapTileX: 35, mapTileY: 12,
+    mapTileX: 90, mapTileY: 8,
+    lat: 16.4436, lng: 120.5884,
     photos: [
       p(6, "La Trinidad Strawberry Farm", "__2026_04_10_05_52_IMG_6402.MOV", "Arriving in Baguio"),
       p(6, "La Trinidad Strawberry Farm", "__2026_04_10_06_54_IMG_6414.JPG", "Strawberry Farm — La Trinidad"),
@@ -365,7 +382,8 @@ export const tripLocations: TripLocation[] = [
     day: 6,
     dayLabel: "DAY 6",
     description: "Chinese-Filipino temple in Baguio. Peaceful, colorful, and beautiful architecture.",
-    mapTileX: 38, mapTileY: 11,
+    mapTileX: 96, mapTileY: 6,
+    lat: 16.4378, lng: 120.5833,
     photos: [
       p(6, "Bell Church", "__2026_04_10_07_30_IMG_6446.JPG", "Bell Church entrance"),
       p(6, "Bell Church", "__2026_04_10_07_31_IMG_6448.JPG", "Bell Church"),
@@ -379,7 +397,8 @@ export const tripLocations: TripLocation[] = [
     day: 6,
     dayLabel: "DAY 6",
     description: "Philippine Military Academy — the most prestigious military school in the Philippines.",
-    mapTileX: 43, mapTileY: 11,
+    mapTileX: 103, mapTileY: 10,
+    lat: 16.3647, lng: 120.6183,
     photos: [
       p(6, "PMA", "__2026_04_10_13_45_IMG_6544.MOV", "Mines View Park"),
       p(6, "PMA", "__2026_04_10_13_49_IMG_6579.JPG", "Cordillera mountain view"),
@@ -391,7 +410,8 @@ export const tripLocations: TripLocation[] = [
     day: 6,
     dayLabel: "DAY 6",
     description: "Burnham Park, Session Road, pasalubong shopping. Last hours in Baguio.",
-    mapTileX: 47, mapTileY: 13,
+    mapTileX: 108, mapTileY: 15,
+    lat: 16.4118, lng: 120.5927,
     photos: [
       p(6, "PHOTO DUMP", "__2026_04_10_15_16_IMG_6654.JPG", "Burnham Park — last day in Baguio"),
     ],

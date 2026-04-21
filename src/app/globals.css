@@ -129,6 +129,7 @@
   --photo-glow-bright: rgba(80, 130, 255, 0.45);
 }
 
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -374,10 +375,9 @@
   }
 }
 
-/* Force the Phaser canvas to use hard pixel edges */
-canvas {
-  image-rendering: -moz-crisp-edges !important;
-  image-rendering: -webkit-optimize-contrast !important;
-  image-rendering: crisp-edges !important;
-  image-rendering: pixelated !important;
+
+/* Smooth rendering for /adventure — painted illustrations scale beautifully
+   with browser bilinear filtering (default). */
+.adventure-canvas-container canvas {
+  image-rendering: auto;
 }
