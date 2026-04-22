@@ -23,6 +23,7 @@ export interface Move {
 export interface Creature {
   id: string;
   name: string;
+  dexId: number;        // National Dex number — used for PokéAPI fetching
   level: number;
   maxHp: number;
   types: CreatureType[];
@@ -35,9 +36,10 @@ export interface Creature {
 export const CREATURES: Creature[] = [
   {
     id: "pikachu",
+    dexId: 25,
     name: "PIKACHU",
-    level: 10,
-    maxHp: 38,
+    level: 99,
+    maxHp: 220,
     types: ["electric"],
     description: "Cheeks store static. Sparks on greeting.",
     moves: [
@@ -51,9 +53,10 @@ export const CREATURES: Creature[] = [
   },
   {
     id: "charizard",
+    dexId: 6,
     name: "CHARIZARD",
-    level: 22,
-    maxHp: 64,
+    level: 99,
+    maxHp: 260,
     types: ["fire", "flying"],
     description: "Tail flame marks its life force. Breathes inferno.",
     moves: [
@@ -67,9 +70,10 @@ export const CREATURES: Creature[] = [
   },
   {
     id: "bulbasaur",
+    dexId: 1,
     name: "BULBASAUR",
-    level: 12,
-    maxHp: 44,
+    level: 99,
+    maxHp: 260,
     types: ["grass", "poison"],
     description: "A seed on its back grows with sun.",
     moves: [
@@ -83,9 +87,10 @@ export const CREATURES: Creature[] = [
   },
   {
     id: "psyduck",
+    dexId: 54,
     name: "PSYDUCK",
-    level: 14,
-    maxHp: 46,
+    level: 99,
+    maxHp: 260,
     types: ["water"],
     description: "A constant headache fuels its psychic fits.",
     moves: [
@@ -99,9 +104,10 @@ export const CREATURES: Creature[] = [
   },
   {
     id: "gengar",
+    dexId: 94,
     name: "GENGAR",
-    level: 25,
-    maxHp: 60,
+    level: 99,
+    maxHp: 220,
     types: ["ghost", "poison"],
     description: "Hides in shadow. Steals warmth from rooms.",
     moves: [
@@ -115,9 +121,10 @@ export const CREATURES: Creature[] = [
   },
   {
     id: "squirtle",
+    dexId: 7,
     name: "SQUIRTLE",
-    level: 10,
-    maxHp: 44,
+    level: 99,
+    maxHp: 260,
     types: ["water"],
     description: "A water starter. Retreats into its shell when scared.",
     moves: [
@@ -131,9 +138,10 @@ export const CREATURES: Creature[] = [
   },
   {
     id: "snorlax",
+    dexId: 143,
     name: "SNORLAX",
-    level: 28,
-    maxHp: 100,
+    level: 99,
+    maxHp: 320,
     types: ["normal"],
     description: "Sleeps 20 hours a day. Eats almost everything.",
     moves: [
@@ -229,8 +237,12 @@ export function computeDamage(
 ): { damage: number; effectiveness: string } {
   if (move.power === 0) return { damage: 0, effectiveness: "" };
   const { multiplier, message } = effectiveness(move.type, defender.types);
-  const base = Math.floor((move.power * (attacker.level / 10 + 1)) / 2);
+  // Flat, level-independent scaling. All creatures are L99 so level is purely
+  // cosmetic — balance lives entirely in move power, STAB, and type matchup.
+  // Tuned so a full battle takes 4-8 turns: ~40 dmg per neutral hit vs 220-320 HP.
+  const stab = attacker.types.includes(move.type) ? 1.3 : 1;
+  const base = move.power * 1.4;
   const roll = 0.85 + Math.random() * 0.15;
-  const damage = Math.max(1, Math.floor(base * multiplier * roll));
+  const damage = Math.max(1, Math.floor(base * multiplier * stab * roll));
   return { damage: multiplier === 0 ? 0 : damage, effectiveness: message };
 }

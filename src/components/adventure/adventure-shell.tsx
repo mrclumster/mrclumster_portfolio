@@ -9,28 +9,37 @@ import { ZoneBanner } from "./zone-banner";
 import { DayBanner } from "./day-banner";
 import { PhotoViewerOverlay } from "./photo-viewer-overlay";
 import { ConsoleFrame } from "./console-frame";
-import { TitleScreen, DaySelectMenu, DayOverworld } from "./adventure-screens";
+import { DaySelectMenu, DayOverworld } from "./adventure-screens";
 import { StarterSelect } from "./starter-select";
 import { BattleScene } from "./battle-scene";
 import { ArenaScreen } from "./arena-screen";
+import { PassportBoot } from "./boot-sequence";
 import { getCreature, CREATURES, assignDayBosses } from "./creatures";
+import { prewarmCreatureCache } from "./poke-api";
+import { audio } from "./audio";
 
-type Screen = "title" | "starter" | "menu" | "world" | "arena" | "battle";
+type Screen = "boot" | "title" | "starter" | "menu" | "world" | "arena" | "battle";
+const BOOTED_KEY = "adventure-booted"; // sessionStorage — skip boot after first time
 type BattleReturn = "arena" | "world";
 
 const STARTER_KEY     = "adventure-starter";
 const DEFEATED_KEY    = "adventure-defeated-wilds";
 
 function isMobileOrTouch() {
+  // Only block devices narrower than a modern phone — everything 360+ can play
   if (typeof window === "undefined") return false;
-  return window.innerWidth < 480;
+  return window.innerWidth < 360;
 }
 
 export function AdventureShell() {
   const [mounted, setMounted]     = useState(false);
   const [mobile, setMobile]       = useState(false);
   const [ready, setReady]         = useState(false);
-  const [screen, setScreen]       = useState<Screen>("title");
+  const [screen, setScreen]       = useState<Screen>(() => {
+    // Skip boot+splash on subsequent screens within the same tab session
+    if (typeof window !== "undefined" && sessionStorage.getItem(BOOTED_KEY)) return "title";
+    return "boot";
+  });
   const [activeDay, setActiveDay] = useState<number>(1);
   const [visited, setVisited]     = useState<Set<number>>(new Set());
   const [starterId, setStarterId]     = useState<string | null>(null);
@@ -49,16 +58,21 @@ export function AdventureShell() {
     if (saved && CREATURES.some((c) => c.id === saved)) setStarterId(saved);
     else if (saved) localStorage.removeItem(STARTER_KEY);
 
-    // Restore defeated wilds
+    // Restore defeated wilds — sessionStorage so state resets on tab close
     if (typeof window !== "undefined") {
-      const raw = localStorage.getItem(DEFEATED_KEY);
+      const raw = sessionStorage.getItem(DEFEATED_KEY);
       if (raw) {
         try {
           const arr: number[] = JSON.parse(raw);
           setDefeatedWilds(new Set(arr));
         } catch {}
       }
+      // Clear any legacy localStorage entry from older builds
+      localStorage.removeItem(DEFEATED_KEY);
     }
+
+    // Pre-warm PokéAPI data in the background so the first battle has live data
+    prewarmCreatureCache(CREATURES.map((c) => c.dexId));
 
     // Boot animation ends quickly — show the console immediately
     const t = setTimeout(() => setReady(true), 500);
@@ -72,6 +86,22 @@ export function AdventureShell() {
       window.removeEventListener("adventure-video-play", handleVideoPlay);
     };
   }, []);
+
+  // Sync BGM with current screen
+  useEffect(() => {
+    if (screen === "title" || screen === "starter" || screen === "menu" || screen === "arena") {
+      audio.playBgm("menu");
+    } else if (screen === "world") {
+      audio.playBgm("overworld");
+    } else if (screen === "battle") {
+      audio.playBgm("battle");
+    }
+  }, [screen]);
+
+  // Sync mute toggle with audio manager
+  useEffect(() => {
+    audio.setMuted(muted);
+  }, [muted]);
 
   // ESC / B = back one level
   useEffect(() => {
@@ -100,13 +130,29 @@ export function AdventureShell() {
 
   return (
     <>
-      <ConsoleFrame>
+      <ConsoleFrame muted={muted} onMuteToggle={() => setMuted((m) => !m)}>
         <AnimatePresence mode="wait">
+          {screen === "boot" && (
+            <motion.div key="boot" className="absolute inset-0"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}>
+              <PassportBoot
+                cinematic
+                onDone={() => {
+                  if (typeof window !== "undefined") sessionStorage.setItem(BOOTED_KEY, "1");
+                  setScreen(starterId ? "menu" : "starter");
+                }}
+              />
+            </motion.div>
+          )}
           {screen === "title" && (
             <motion.div key="title" className="absolute inset-0"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}>
-              <TitleScreen onStart={() => setScreen(starterId ? "menu" : "starter")} />
+              <PassportBoot
+                cinematic={false}
+                onDone={() => setScreen(starterId ? "menu" : "starter")}
+              />
             </motion.div>
           )}
           {screen === "starter" && (
@@ -183,7 +229,7 @@ export function AdventureShell() {
                     setDefeatedWilds((prev) => {
                       const next = new Set(prev).add(activeDay);
                       if (typeof window !== "undefined") {
-                        localStorage.setItem(DEFEATED_KEY, JSON.stringify(Array.from(next)));
+                        sessionStorage.setItem(DEFEATED_KEY, JSON.stringify(Array.from(next)));
                       }
                       return next;
                     });
@@ -204,7 +250,7 @@ export function AdventureShell() {
 
       {ready && (
         <>
-          <AdventureOverlay muted={muted} onMuteToggle={() => setMuted((m) => !m)} />
+          <AdventureOverlay />
 
           <div className="pointer-events-none fixed inset-0 z-[9001]">
             <ZoneBanner />

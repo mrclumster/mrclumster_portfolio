@@ -365,6 +365,49 @@ import {
   PineTree, StrawberryPatch, Pagoda, Flagpole,
   Cloud, Sun, Moon, Stars, Seagull, Butterfly, FallingLeaves, FogLayer,
   HorizonMountains, HorizonCity, HorizonPines,
+  // Phase 6 additions
+  BeachUmbrella, WaveCrest, NeonSign, ConfettiRain, LogStack,
+  SmallVolcano, SnowFall, StrawberryRow,
+  // Phase 8C density pack
+  Ship, LifeguardChair, Bench, BikeRack, BusStop, Fountain,
+  Tent, PicnicTable, Waterfall, Telescope, RockFormation,
+  Lantern, StoneBridge, Snowman, FlowerCluster,
+  // Phase 9B Day 1 pixel-art pack
+  AirportTerminal, ControlTower, IntramurosGate, StoneWall,
+  ShoppingMall, PixelPalm, HotAirBalloon, ShoppingBag,
+  AccentCreature,
+  // Pixel-art filler pack
+  PixelMailbox, PixelFireHydrant, PixelStreetSign, PixelCrate,
+  PixelCobble, RoadTile, PixelBush, PixelLampPost,
+  // Phase 10 pixel-tile background bands
+  SkyBand, WaterBand, SandBand, ShorelineTile,
+  // Day 2 rainy-urban pack
+  PixelDorm, PixelFactory2, PixelOfficeTower2,
+  Puddle, RainOverlay, OvercastSkyBand, CityscapeBand, WetPavementBand,
+  // Day 3 neon cyberpunk pack
+  NeonSkyBand, NeonCityBand, NeonStreetBand,
+  MMDAHq, BGCTowerA, BGCTowerB, BillboardTV, NeonShopSign,
+  NeonPulse, NeonSparkle,
+  // Day 4 countryside + river + studio pack
+  CountrysideSkyBand, RollingHillsBand, MeadowBand, RiverBand,
+  RicePaddyStack, BambooHut, Carabao, WoodenArchBridge, WillowTree,
+  LilyPadFrog, Duck, TinyWaterfall, Reeds, Scarecrow,
+  AnimationStudio, Easel, StudioCat, StudioLogoSign,
+  Kite, FloatingCel, FireflySwarm, PaintSplatter,
+  // Day 5 carnival pack
+  CarnivalSkyBand, HighlandHorizonBand, CarnivalGroundBand,
+  BigFerrisWheel, VikingShip, RollerCoaster, Carousel, SwingRide,
+  TicketBooth, CarnivalStall, CottonCandyCart, BalloonBunch,
+  RisingBalloon, ConfettiBurst, CarnivalCrowd,
+  // Day 5 split terrain
+  ParkGatewayArch, CliffRailing,
+  // Day 6 Baguio highland 5-zone pack
+  DawnMistSkyBand, PineRidgeBand, ForestFloorBand, SignpostPointer,
+  BusStation, ParkedBus, TravelerGroup,
+  StrawberryTrellisRow, HarvestCart, JamStall,
+  BellPagoda, StoneLion, IncenseBrazier, TempleBell,
+  ParadeGround, PHFlagpole, Cannon, GuardPost,
+  OvalLake, SwanBoat, IceCreamCart,
 } from "./scene-sprites";
 
 // Wild Pokémon position per day (hidden-ish spots)
@@ -515,32 +558,63 @@ export function DayOverworld({
     };
   }, [nearestId, viewerOpen, onBack, onVisit, nearWild, fightDialog, fightChoice, onEncounterWild]);
 
+  // Internal ref for lastDir — avoids calling setLastDir every tick
+  const lastDirRef = useRef<"up" | "down" | "left" | "right">("down");
+  useEffect(() => { lastDirRef.current = lastDir; }, [lastDir]);
+
   useEffect(() => {
-    let raf = 0;
-    const step = () => {
-      if (!viewerOpen) {
+    if (viewerOpen) return;
+    let alive = true;
+    let rafId = 0;
+    let lastTime = 0;
+    const STEP_MS = 1000 / 60;
+
+    const step = (time: number) => {
+      if (!alive) return;
+      // Throttle to ~60Hz; skip frames when browser fires too fast
+      if (time - lastTime >= STEP_MS) {
+        lastTime = time;
+
         const k = keys.current;
         let dx = 0, dy = 0;
         if (k["w"] || k["arrowup"])    dy -= 1;
         if (k["s"] || k["arrowdown"])  dy += 1;
         if (k["a"] || k["arrowleft"])  dx -= 1;
         if (k["d"] || k["arrowright"]) dx += 1;
+
         if (dx !== 0 || dy !== 0) {
           const len = Math.hypot(dx, dy);
-          dx = (dx / len) * PLAYER_SPEED;
-          dy = (dy / len) * PLAYER_SPEED;
-          setPos(([x, y]) => [
-            Math.max(50, Math.min(WORLD_W - 50, x + dx)),
-            Math.max(50, Math.min(WORLD_H - 50, y + dy)),
-          ]);
-          if (Math.abs(dx) > Math.abs(dy)) setLastDir(dx > 0 ? "right" : "left");
-          else                              setLastDir(dy > 0 ? "down"  : "up");
+          const ndx = (dx / len) * PLAYER_SPEED;
+          const ndy = (dy / len) * PLAYER_SPEED;
+
+          setPos((prev) => {
+            const [x, y] = prev;
+            const nx = Math.max(50, Math.min(WORLD_W - 50, x + ndx));
+            const ny = Math.max(50, Math.min(WORLD_H - 50, y + ndy));
+            // Return SAME array reference when clamped so React skips render
+            if (nx === x && ny === y) return prev;
+            return [nx, ny];
+          });
+
+          // Only call setLastDir when the direction actually changes
+          const newDir: "up" | "down" | "left" | "right" =
+            Math.abs(ndx) > Math.abs(ndy)
+              ? (ndx > 0 ? "right" : "left")
+              : (ndy > 0 ? "down" : "up");
+          if (newDir !== lastDirRef.current) {
+            lastDirRef.current = newDir;
+            setLastDir(newDir);
+          }
         }
       }
-      raf = requestAnimationFrame(step);
+      rafId = requestAnimationFrame(step);
     };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+
+    rafId = requestAnimationFrame(step);
+    return () => {
+      alive = false;
+      cancelAnimationFrame(rafId);
+    };
   }, [viewerOpen]);
 
   useEffect(() => {
@@ -590,30 +664,93 @@ export function DayOverworld({
   // Per-day accent colour for screen-edge glow
   const accent = DAY_COLORS[day];
 
-  return (
-    <div
-      className="absolute inset-0"
-      style={{
+  // All 6 days now use the pixel-tile backdrop
+  const isTiledBg = day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6;
+  const wrapperStyle: React.CSSProperties = isTiledBg
+    ? {
+        background: "#0a1020",
+        boxShadow: `inset 0 0 30px ${accent}55, inset 0 0 6px ${accent}`,
+      }
+    : {
         background: `linear-gradient(to bottom, ${theme.sky} 0%, ${theme.sky} 30%, ${theme.ground} 30%, ${theme.accent} 100%)`,
         boxShadow: `inset 0 0 30px ${accent}55, inset 0 0 6px ${accent}`,
-      }}
-    >
-      <svg viewBox={`0 0 ${WORLD_W} ${WORLD_H}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-        {/* Per-day sky layer */}
-        <DaySky day={day} />
+      };
+
+  return (
+    <div className="absolute inset-0" style={wrapperStyle}>
+      <svg
+        viewBox={`0 0 ${WORLD_W} ${WORLD_H}`}
+        className="w-full h-full"
+        preserveAspectRatio="xMidYMid meet"
+        shapeRendering="crispEdges"
+      >
+        {/* Pixel-tile background bands — per-day composition */}
+        {day === 1 && (
+          <g>
+            <SkyBand       width={WORLD_W} top={0}   bottom={200} />
+            <WaterBand     width={WORLD_W} top={200} bottom={420} />
+            <SandBand      width={WORLD_W} top={420} bottom={WORLD_H} />
+            <ShorelineTile width={WORLD_W} y={420} />
+          </g>
+        )}
+        {day === 2 && (
+          <g>
+            <OvercastSkyBand width={WORLD_W} top={0}   bottom={200} />
+            <CityscapeBand   width={WORLD_W} top={180} bottom={340} />
+            <WetPavementBand width={WORLD_W} top={340} bottom={WORLD_H} />
+          </g>
+        )}
+        {day === 3 && (
+          <g>
+            <NeonSkyBand    width={WORLD_W} top={0}   bottom={220} />
+            <NeonCityBand   width={WORLD_W} top={200} bottom={360} />
+            <NeonStreetBand width={WORLD_W} top={360} bottom={WORLD_H} />
+          </g>
+        )}
+        {day === 4 && (
+          <g>
+            <CountrysideSkyBand width={WORLD_W} top={0}   bottom={220} />
+            <RollingHillsBand   width={WORLD_W} top={180} bottom={360} />
+            <MeadowBand         width={WORLD_W} top={340} bottom={WORLD_H} />
+            {/* Horizontal river flowing through the middle */}
+            <RiverBand x={0} y={500} width={WORLD_W} height={50} />
+          </g>
+        )}
+        {day === 5 && (
+          <g>
+            <CarnivalSkyBand     width={WORLD_W} top={0}   bottom={200} />
+            <HighlandHorizonBand width={WORLD_W} top={180} bottom={340} />
+            {/* Left half — People's Park meadow (x: 0 → 470) */}
+            <MeadowBand          x={0}   width={470} top={320} bottom={WORLD_H} />
+            {/* Right half — Sky Ranch carnival concourse (x: 470 → 900) */}
+            <CarnivalGroundBand  x={470} width={430} top={320} bottom={WORLD_H} />
+          </g>
+        )}
+        {day === 6 && (
+          <g>
+            <DawnMistSkyBand width={WORLD_W} top={0}   bottom={220} />
+            <PineRidgeBand   width={WORLD_W} top={180} bottom={340} />
+            <ForestFloorBand width={WORLD_W} top={320} bottom={WORLD_H} />
+          </g>
+        )}
+
+        {/* Per-day sky layer (non-Day-1 days still use DaySky) */}
+        {!isTiledBg && <DaySky day={day} />}
 
         {/* Per-day horizon silhouette */}
-        <DayHorizon day={day} />
+        {!isTiledBg && <DayHorizon day={day} />}
 
-        {/* Zone puddle — organic blob tint */}
-        <path
-          d="M 80 280 Q 300 240 550 270 Q 800 320 820 470 Q 780 600 500 620 Q 220 600 80 500 Z"
-          fill={theme.zone}
-          opacity="0.65"
-        />
+        {/* Zone puddle — organic blob tint (skip on Day 1; tiles indicate walkable area) */}
+        {!isTiledBg && (
+          <path
+            d="M 80 280 Q 300 240 550 270 Q 800 320 820 470 Q 780 600 500 620 Q 220 600 80 500 Z"
+            fill={theme.zone}
+            opacity="0.65"
+          />
+        )}
 
-        {/* Decorations */}
-        {decor.map((d, i) => (
+        {/* Procedural decor scatter (skip on Day 1 — we use hand-tuned placement) */}
+        {!isTiledBg && decor.map((d, i) => (
           <DecorSprite key={i} type={d.type} x={d.x} y={d.y} theme={layout.theme} />
         ))}
 
@@ -640,22 +777,55 @@ export function DayOverworld({
                   <animate attributeName="r" values="36;48;36" dur="1s" repeatCount="indefinite" />
                 </circle>
               )}
-              <PokeBall x={pin.x} y={pin.y} size={isNear ? 40 : 32} />
-              {/* Name sign */}
-              <g transform={`translate(${pin.x}, ${pin.y + 44})`}>
-                <rect x={-95} y={0} width="190" height="34" fill={POKE.dialogBg} stroke="#000" strokeWidth="3" rx="4" />
-                <rect x={-90} y={5} width="180" height="24" fill="none" stroke={POKE.dialogBorderInner} strokeWidth="2" />
-                <text
-                  x={0}
-                  y={22}
-                  textAnchor="middle"
-                  fontSize="14"
-                  fill={POKE.text}
-                  fontFamily="'Press Start 2P', monospace"
-                >
-                  {loc?.name.toUpperCase().slice(0, 14)}
-                </text>
-              </g>
+              <PokeBall x={pin.x} y={pin.y} size={isNear ? 88 : 72} />
+              {/* Name tag — only visible when player is near, floats ABOVE the pin.
+                  Includes the location name + a little "A" button hint on the right. */}
+              {isNear && loc && !viewerOpen && (() => {
+                const fullName = loc.name.toUpperCase();
+                // Text width + A-badge + padding
+                const textW = fullName.length * 10;
+                const tagW  = Math.max(150, textW + 46);
+                const textX = -tagW / 2 + 12;
+                const badgeX = tagW / 2 - 18;
+                return (
+                  <motion.g
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <g transform={`translate(${pin.x}, ${pin.y - 70})`}>
+                      {/* Main pill */}
+                      <rect x={-tagW / 2}     y={-16} width={tagW}     height={28} fill={POKE.dialogBg} stroke="#000" strokeWidth="2.5" rx="4" />
+                      <rect x={-tagW / 2 + 3} y={-13} width={tagW - 6} height="2"  fill={POKE.dialogBorderInner} />
+                      {/* Location name (left-aligned) */}
+                      <text
+                        x={textX}
+                        y={3}
+                        fontSize="9"
+                        fill={POKE.text}
+                        fontFamily="'Press Start 2P', monospace"
+                      >
+                        {fullName}
+                      </text>
+                      {/* A-button badge on the right */}
+                      <circle cx={badgeX} cy={-2} r="9" fill="#c73030" stroke="#000" strokeWidth="2" />
+                      <circle cx={badgeX - 2} cy={-4} r="2.5" fill="#ffffff" opacity="0.5" />
+                      <text
+                        x={badgeX}
+                        y={2}
+                        textAnchor="middle"
+                        fontSize="9"
+                        fill="#ffffff"
+                        fontFamily="'Press Start 2P', monospace"
+                      >
+                        A
+                      </text>
+                      {/* Triangular tail pointing down at the pin */}
+                      <path d="M -6 12 L 6 12 L 0 20 Z" fill={POKE.dialogBg} stroke="#000" strokeWidth="2" />
+                    </g>
+                  </motion.g>
+                );
+              })()}
             </g>
           );
         })}
@@ -666,28 +836,27 @@ export function DayOverworld({
         {/* Wild Pokémon waiting on the map — stays after defeat (re-challengeable) */}
         {wildCreature && (
           <g transform={`translate(${wildPos[0]}, ${wildPos[1]})`}>
-            <ellipse cx="0" cy="28" rx="24" ry="6" fill="#000" opacity="0.4" />
+            <ellipse cx="0" cy="44" rx="36" ry="7" fill="#000" opacity="0.4" />
             <motion.g
-              animate={{ y: [-2, 2, -2] }}
+              animate={{ y: [-3, 3, -3] }}
               transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
             >
-              <foreignObject x={-32} y={-32} width="64" height="64">
+              <foreignObject x={-48} y={-52} width="96" height="96">
                 <div style={{
-                  width: 64, height: 64,
-                  // Faint wild sprite slightly once defeated so you can tell
+                  width: 96, height: 96,
                   opacity: wildDefeated ? 0.7 : 1,
                   filter: wildDefeated ? "grayscale(0.3)" : "none",
                 }}>
-                  {wildCreature.renderSprite(64, { animated: true })}
+                  {wildCreature.renderSprite(96, { animated: true })}
                 </div>
               </foreignObject>
             </motion.g>
 
             {/* ✓ badge if already defeated */}
             {wildDefeated && (
-              <g transform="translate(22, -24)">
-                <circle cx="0" cy="0" r="10" fill="#40d040" stroke="#000" strokeWidth="2" />
-                <text x="0" y="4" textAnchor="middle" fontSize="11" fill="#000"
+              <g transform="translate(36, -38)">
+                <circle cx="0" cy="0" r="13" fill="#40d040" stroke="#000" strokeWidth="2.5" />
+                <text x="0" y="5" textAnchor="middle" fontSize="14" fill="#000"
                       fontFamily="'Press Start 2P', monospace" fontWeight="bold">✓</text>
               </g>
             )}
@@ -698,8 +867,8 @@ export function DayOverworld({
                 animate={{ y: [-4, -10, -4] }}
                 transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
               >
-                <rect x={-14} y={-58} width="28" height="22" fill="#000" stroke="#ffe066" strokeWidth="2" rx="2" />
-                <text x={0} y={-41} textAnchor="middle" fontSize="14" fill="#ffe066"
+                <rect x={-18} y={-82} width="36" height="26" fill="#000" stroke="#ffe066" strokeWidth="2.5" rx="3" />
+                <text x={0} y={-62} textAnchor="middle" fontSize="16" fill="#ffe066"
                       fontFamily="'Press Start 2P', monospace" fontWeight="bold">
                   {wildDefeated ? "!?" : "!"}
                 </text>
@@ -708,41 +877,30 @@ export function DayOverworld({
           </g>
         )}
 
-        {/* Hero — chosen starter creature (mirrored to face walk direction) */}
-        <motion.g
-          animate={{ x: pos[0], y: pos[1] }}
-          transition={{ type: "tween", ease: "linear", duration: 0.05 }}
-        >
-          <ellipse cx="0" cy="28" rx="20" ry="5" fill="#000" opacity="0.45" />
+        {/* Hero — direct transform (no tween) for smooth 60fps motion.
+            foreignObject is 120×120 with extra padding so ears/tails never clip. */}
+        <g transform={`translate(${pos[0]}, ${pos[1]})`}>
+          <ellipse cx="0" cy="46" rx="32" ry="7" fill="#000" opacity="0.45" />
           {heroCreature ? (
-            <foreignObject x={-28} y={-36} width="56" height="64">
+            <foreignObject x={-60} y={-70} width="120" height="120">
               <div style={{
-                width: 56, height: 64,
+                width: 120, height: 120,
                 transform: lastDir === "left" ? "scaleX(-1)" : "scaleX(1)",
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                paddingBottom: 6,
               }}>
-                {heroCreature.renderSprite(56)}
+                {heroCreature.renderSprite(96, { animated: true })}
               </div>
             </foreignObject>
           ) : (
-            <g transform="scale(2)">
+            <g transform="scale(3)">
               <TrainerOverworld dir={lastDir} />
             </g>
           )}
-        </motion.g>
+        </g>
 
-        {/* Interact prompt — classic Pokémon dialog (BIG) */}
-        {nearestId && !viewerOpen && (() => {
-          const pin = layout.pins.find((p) => p.id === nearestId)!;
-          return (
-            <g transform={`translate(${pin.x}, ${pin.y - 80})`}>
-              <rect x={-80} y={-24} width="160" height="40" fill={POKE.dialogBg} stroke="#000" strokeWidth="3" rx="4" />
-              <rect x={-74} y={-18} width="148" height="28" fill="none" stroke={POKE.dialogBorderInner} strokeWidth="2" />
-              <text x={0} y={4} textAnchor="middle" fontSize="18" fill={POKE.text} fontFamily="'Press Start 2P', monospace">
-                PRESS A
-              </text>
-            </g>
-          );
-        })()}
       </svg>
 
       {/* Top status bar — Pokémon dialog box */}
@@ -862,31 +1020,63 @@ function DecorSprite({ type, x, y, theme }: { type: string; x: number; y: number
 }
 
 // ─── Pokéball pin ────────────────────────────────────────────────────────
+// Animated, glowing, floating Pokéball that reads clearly as interactable.
+// Loads the real PokéAPI items sprite via raw GitHub URL; falls back to
+// an inline SVG Pokéball if the network is unavailable.
+const POKEBALL_ITEM_URL =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+
 function PokeBall({ x, y, size }: { x: number; y: number; size: number }) {
   const r = size / 2;
+  const glowR = size * 0.85;
   return (
     <g>
-      {/* Red top half */}
-      <path
-        d={`M ${x - r} ${y} A ${r} ${r} 0 0 1 ${x + r} ${y}`}
-        fill={POKE.red}
-        stroke="#000"
-        strokeWidth="1.5"
-      />
-      {/* White bottom half */}
-      <path
-        d={`M ${x - r} ${y} A ${r} ${r} 0 0 0 ${x + r} ${y}`}
-        fill="#ffffff"
-        stroke="#000"
-        strokeWidth="1.5"
-      />
-      {/* Middle band */}
-      <rect x={x - r} y={y - 1} width={r * 2} height="2" fill="#000" />
-      {/* Center button */}
-      <circle cx={x} cy={y} r="2.5" fill="#ffffff" stroke="#000" strokeWidth="1" />
-      <circle cx={x} cy={y} r="1" fill="#c8c8c8" />
+      {/* Pulsing golden glow ring */}
+      <circle cx={x} cy={y} r={glowR} fill="#ffe066" opacity="0.25">
+        <animate attributeName="r" values={`${glowR};${glowR * 1.35};${glowR}`} dur="1.6s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.25;0;0.25" dur="1.6s" repeatCount="indefinite" />
+      </circle>
+      {/* Static glow halo */}
+      <circle cx={x} cy={y} r={r * 1.15} fill="#ffe066" opacity="0.3" />
+      {/* Drop shadow below */}
+      <ellipse cx={x} cy={y + r + 4} rx={r * 0.9} ry={r * 0.2} fill="#000" opacity="0.35" />
+      {/* Animated sprite — bobs up/down */}
+      <motion.g
+        animate={{ y: [0, -4, 0] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <foreignObject x={x - r} y={y - r} width={size} height={size}>
+          <img
+            src={POKEBALL_ITEM_URL}
+            alt=""
+            width={size}
+            height={size}
+            draggable={false}
+            style={{
+              width: size,
+              height: size,
+              imageRendering: "pixelated",
+              filter: "drop-shadow(0 3px 3px rgba(0,0,0,0.6))",
+            }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).outerHTML = fallbackPokeballSvg(size);
+            }}
+          />
+        </foreignObject>
+      </motion.g>
     </g>
   );
+}
+
+// Inline SVG fallback when PokéAPI CDN is unreachable
+function fallbackPokeballSvg(size: number): string {
+  const r = size / 2;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <path d="M 0 ${r} A ${r} ${r} 0 0 1 ${size} ${r}" fill="${POKE.red}" stroke="#000" stroke-width="2"/>
+    <path d="M 0 ${r} A ${r} ${r} 0 0 0 ${size} ${r}" fill="#fff" stroke="#000" stroke-width="2"/>
+    <rect x="0" y="${r - 2}" width="${size}" height="4" fill="#000"/>
+    <circle cx="${r}" cy="${r}" r="${r * 0.2}" fill="#fff" stroke="#000" stroke-width="1.5"/>
+  </svg>`;
 }
 
 // ─── Trainer sprite in overworld ─────────────────────────────────────────
@@ -1010,70 +1200,451 @@ function DayLandmarks({ day }: { day: number }) {
     case 1:
       return (
         <g>
-          <Plane x={0} y={100} animate />
-          <PalmTree x={120} y={500} />
-          <PalmTree x={80} y={600} />
-          <PalmTree x={780} y={520} />
-          <Lighthouse x={420} y={360} />
-          <MOAGlobe x={760} y={540} />
+          {/* ── SKY (y 0-200): plane + 2 balloons, clouds from WaveCrest-less tiles ── */}
+          <Plane x={0} y={70} animate />
+          <HotAirBalloon x={0} y={110} delay={8} />
+          <HotAirBalloon x={0} y={150} delay={22} />
+
+          {/* ── HORIZON (y 200-260): 2 ships staggered on the bay ── */}
+          <Ship x={180} y={240} />
+          <Ship x={720} y={250} />
+
+          {/* ── LANDMARK ROW (y 340-440): one cluster per pin zone ── */}
+          {/* Airport cluster x=100-260 */}
+          <ControlTower   x={100} y={420} />
+          <AirportTerminal x={220} y={400} />
+          {/* Intramuros cluster x=380-540 */}
+          <StoneWall      x={340} y={340} length={60} />
+          <IntramurosGate x={450} y={330} />
+          <StoneWall      x={510} y={340} length={60} />
+          {/* MOA cluster x=620-820 */}
+          <ShoppingMall x={700} y={420} />
+          <MOAGlobe     x={830} y={540} />
+
+          {/* ── MAIN ROAD + BRANCHES (y=450-540) ── */}
+          <RoadTile x={0}   y={460} width={120} />
+          <RoadTile x={120} y={460} width={120} />
+          <RoadTile x={240} y={460} width={120} />
+          <RoadTile x={360} y={460} width={120} />
+          <RoadTile x={480} y={460} width={120} />
+          <RoadTile x={600} y={460} width={120} />
+          <RoadTile x={720} y={460} width={120} />
+          <RoadTile x={840} y={460} width={60} />
+          {/* Vertical branches up to landmark row */}
+          <RoadTile x={200} y={440} width={20} vertical />
+          <RoadTile x={450} y={380} width={80} vertical />
+          <RoadTile x={700} y={440} width={20} vertical />
+          {/* Cobblestone at each intersection */}
+          <PixelCobble x={200} y={460} />
+          <PixelCobble x={450} y={460} />
+          <PixelCobble x={700} y={460} />
+
+          {/* ── PIN-ROW INFRASTRUCTURE (y=470-530) ── */}
+          {/* One sign + one hydrant flanking each cluster */}
+          <PixelStreetSign x={130} y={505} label="TAXI" bg="#ffcc30" />
+          <PixelFireHydrant x={280} y={495} />
+          <PixelStreetSign x={555} y={505} label="FORT" bg="#4080c8" />
+          <PixelFireHydrant x={380} y={495} />
+          <PixelStreetSign x={620} y={505} label="MALL" bg="#c94040" />
+          <PixelFireHydrant x={790} y={495} />
+
+          {/* Sudowoodo cameo — near the Intramuros wall but off the road */}
+          <AccentCreature x={400} y={490} dexId={185} size={48} />
+
+          {/* ── DECOR ROW 1 (y=540-620): palms + benches + mailboxes ── */}
+          {/* Palms evenly spaced, avoiding landmark x-ranges */}
+          <PixelPalm x={50}  y={560} />
+          <PixelPalm x={340} y={560} />
+          <PixelPalm x={580} y={560} />
+          <PixelPalm x={880} y={560} />
+          {/* One bench per cluster */}
+          <Bench x={140} y={600} />
+          <Bench x={540} y={600} />
+          <Bench x={760} y={600} />
+          {/* One mailbox per cluster */}
+          <PixelMailbox x={260} y={600} />
+          <PixelMailbox x={650} y={600} />
+          <PixelMailbox x={880} y={600} />
+
+          {/* ── DECOR ROW 2 (y=620-700): umbrellas + lifeguards + flowers ── */}
+          <BeachUmbrella x={80}  y={670} />
+          <BeachUmbrella x={220} y={670} />
+          <BeachUmbrella x={500} y={670} />
+          <BeachUmbrella x={720} y={670} />
+          <BeachUmbrella x={860} y={670} />
+          <LifeguardChair x={380} y={660} />
+          {/* Flower clusters ONLY in leftover gaps */}
+          <FlowerCluster x={30}  y={630} />
+          <FlowerCluster x={440} y={650} />
+          <FlowerCluster x={620} y={640} />
+          <FlowerCluster x={830} y={630} />
+          <PixelBush x={160} y={645} />
+          <PixelBush x={580} y={645} />
         </g>
       );
     case 2:
       return (
         <g>
-          <ApartmentBuilding x={230} y={370} />
-          <Factory x={490} y={370} />
-          <OfficeTower x={700} y={460} h={110} />
-          <StreetLamp x={150} y={560} />
-          <StreetLamp x={380} y={580} />
-          <StreetLamp x={600} y={570} />
-          <Car x={0} y={570} color="#4080c8" animate />
+          {/* ── LANDMARK ROW (y 260-420) — three wide buildings behind pins ── */}
+          {/* DJM Dorm cluster x=150-350 */}
+          <PixelDorm x={250} y={340} />
+          {/* Hytec Factory cluster x=400-600 */}
+          <PixelFactory2 x={500} y={360} />
+          {/* OpenText Office cluster x=650-830 */}
+          <PixelOfficeTower2 x={720} y={380} />
+
+          {/* ── ROADS (y 460-540) ── */}
+          <RoadTile x={0}   y={500} width={120} />
+          <RoadTile x={120} y={500} width={120} />
+          <RoadTile x={240} y={500} width={120} />
+          <RoadTile x={360} y={500} width={120} />
+          <RoadTile x={480} y={500} width={120} />
+          <RoadTile x={600} y={500} width={120} />
+          <RoadTile x={720} y={500} width={120} />
+          <RoadTile x={840} y={500} width={60} />
+          {/* Vertical branches to each pin */}
+          <RoadTile x={250} y={420} width={80} vertical />
+          <RoadTile x={500} y={420} width={80} vertical />
+          <RoadTile x={720} y={460} width={40} vertical />
+          <PixelCobble x={250} y={500} />
+          <PixelCobble x={500} y={500} />
+          <PixelCobble x={720} y={500} />
+
+          {/* ── PIN-ROW INFRASTRUCTURE ── */}
+          <PixelStreetSign x={170} y={480} label="DORM" bg="#4080c8" />
+          <BusStop x={330} y={480} />
+          <PixelStreetSign x={420} y={480} label="FACTORY" bg="#c94040" />
+          <PixelFireHydrant x={610} y={470} />
+          <PixelStreetSign x={640} y={480} label="OFFICE" bg="#ffb000" />
+
+          {/* Puddles on the wet pavement */}
+          <Puddle x={100} y={540} w={36} />
+          <Puddle x={400} y={550} w={28} />
+          <Puddle x={550} y={540} w={40} />
+          <Puddle x={820} y={555} w={32} />
+
+          {/* Animated cars */}
+          <Car x={0} y={540} color="#4080c8" animate />
+          <Car x={0} y={580} color="#e0a040" animate />
+
+          {/* ── DECOR ROW 1 (y 570-620): lamps, benches, bike racks ── */}
+          <PixelLampPost x={80}  y={560} />
+          <PixelLampPost x={380} y={560} />
+          <PixelLampPost x={620} y={560} />
+          <PixelLampPost x={870} y={560} />
+          <Bench x={200} y={610} />
+          <Bench x={460} y={610} />
+          <Bench x={780} y={610} />
+          <BikeRack x={140} y={615} />
+          <BikeRack x={680} y={615} />
+
+          {/* ── DECOR ROW 2 (y 630-700): crates, mailbox, flower clusters ── */}
+          <PixelMailbox x={300} y={650} />
+          <PixelMailbox x={700} y={650} />
+          <PixelCrate x={50}  y={660} />
+          <PixelCrate x={530} y={660} />
+          <PixelCrate x={860} y={660} />
+          <FlowerCluster x={40}  y={630} />
+          <FlowerCluster x={240} y={650} />
+          <FlowerCluster x={500} y={640} />
+          <FlowerCluster x={600} y={670} />
+          <FlowerCluster x={830} y={640} />
+
+          {/* ── RAIN OVERLAY — over every other element ── */}
+          <RainOverlay width={WORLD_W} height={WORLD_H} density={90} />
         </g>
       );
     case 3:
       return (
         <g>
-          <Skyscraper x={110} y={520} h={160} />
-          <Skyscraper x={780} y={520} h={140} />
-          <Skyscraper x={450} y={520} h={180} />
-          <NeonBillboard x={260} y={380} text="BGC!" />
-          <NeonBillboard x={700} y={380} text="AZIZ" />
-          <TrafficLight x={400} y={510} />
-          <Car x={0} y={540} color="#e03030" animate />
+          {/* ── LANDMARK ROW: MMDA (left cluster) + BGC towers (right cluster) ── */}
+          {/* MMDA cluster x=180-330 */}
+          <MMDAHq x={260} y={380} />
+          {/* BGC plaza x=520-820 — two towers */}
+          <BGCTowerA x={640} y={380} />
+          <BGCTowerB x={800} y={380} />
+
+          {/* ── ROADS (y=470-540) ── */}
+          <RoadTile x={0}   y={500} width={120} />
+          <RoadTile x={120} y={500} width={120} />
+          <RoadTile x={240} y={500} width={120} />
+          <RoadTile x={360} y={500} width={120} />
+          <RoadTile x={480} y={500} width={120} />
+          <RoadTile x={600} y={500} width={120} />
+          <RoadTile x={720} y={500} width={120} />
+          <RoadTile x={840} y={500} width={60} />
+          <RoadTile x={260} y={440} width={60} vertical />
+          <RoadTile x={640} y={440} width={60} vertical />
+          <PixelCobble x={260} y={500} />
+          <PixelCobble x={640} y={500} />
+
+          {/* ── BILLBOARDS + NEON SIGNS (y 440-520) ── */}
+          <BillboardTV x={120} y={472} />
+          <BillboardTV x={470} y={472} />
+          <BillboardTV x={870} y={472} />
+          <NeonShopSign x={180} y={525} text="OPEN" color="#ff2ec8" />
+          <NeonShopSign x={360} y={525} text="KTV"  color="#00e0ff" />
+          <NeonShopSign x={550} y={525} text="24HR" color="#ffe066" />
+          <NeonShopSign x={740} y={525} text="SUSHI" color="#ff60d0" />
+
+          {/* ── TRAFFIC + CARS ── */}
+          <TrafficLight x={400} y={488} />
+          <TrafficLight x={720} y={488} />
+          <Car x={0} y={512} color="#ff2ec8" animate />
+          <Car x={0} y={560} color="#00e0ff" animate />
+
+          {/* ── DECOR ROW 1 (y 560-620): streetlamps + benches ── */}
+          <PixelLampPost x={60}  y={580} />
+          <PixelLampPost x={320} y={580} />
+          <PixelLampPost x={580} y={580} />
+          <PixelLampPost x={860} y={580} />
+          <Bench x={180} y={610} />
+          <Bench x={460} y={610} />
+          <Bench x={760} y={610} />
+
+          {/* ── DECOR ROW 2 (y 630-690): fire hydrants, mailbox, crates ── */}
+          <PixelFireHydrant x={100} y={660} />
+          <PixelFireHydrant x={420} y={660} />
+          <PixelFireHydrant x={820} y={660} />
+          <PixelMailbox x={240} y={650} />
+          <PixelMailbox x={660} y={650} />
+          <PixelCrate x={520} y={670} />
+          <PixelCrate x={540} y={684} />
+
+          {/* ── AMBIENT OVERLAYS (on top of everything except pins/hero) ── */}
+          <NeonSparkle width={WORLD_W} height={WORLD_H} count={40} />
+          <NeonPulse   width={WORLD_W} height={WORLD_H} />
         </g>
       );
     case 4:
       return (
         <g>
-          <LogBridge x={300} y={440} />
-          <MushroomCluster x={150} y={420} />
-          <MushroomCluster x={650} y={500} />
-          <Pond x={200} y={520} />
-          <WoodenFence x={420} y={540} segments={4} />
-          <WoodenFence x={620} y={540} segments={3} />
+          {/* ── SKY LAYER — kite drifting + floating animation cels ── */}
+          <Kite x={0} y={90} delay={2} />
+          <Kite x={0} y={150} delay={20} />
+          <FloatingCel x={200} y={250} delay={0}  duration={18} />
+          <FloatingCel x={500} y={220} delay={4}  duration={22} />
+          <FloatingCel x={760} y={270} delay={8}  duration={20} />
+
+          {/* ── HILL-LINE BACKDROP DETAILS (behind landmarks) ── */}
+          <TinyWaterfall x={860} y={400} />
+          <WillowTree x={60}  y={440} />
+          <WillowTree x={880} y={450} />
+
+          {/* ── LANDMARK ROW (y 340-440) ── */}
+          {/* Rice paddy cluster x=100-260 */}
+          <RicePaddyStack x={170} y={390} />
+          <BambooHut x={80}  y={440} />
+          <Scarecrow x={260} y={420} />
+          {/* Animation studio — centred behind Day 4 Photo Dump pin at (500,400) */}
+          <AnimationStudio x={500} y={400} />
+          <StudioLogoSign x={420} y={430} />
+          <Easel          x={590} y={430} />
+          {/* Right cluster — river-valley vibe + carabao */}
+          <Carabao x={750} y={440} />
+          <WillowTree x={820} y={450} />
+
+          {/* ── ROAD going from left edge toward the pin + from pin toward the bridge ── */}
+          <RoadTile x={0}   y={470} width={120} />
+          <RoadTile x={120} y={470} width={120} />
+          <RoadTile x={240} y={470} width={120} />
+          <RoadTile x={360} y={470} width={120} />
+          <RoadTile x={500} y={440} width={40}  vertical />
+          <RoadTile x={620} y={470} width={120} />
+          <RoadTile x={740} y={470} width={120} />
+          <RoadTile x={860} y={470} width={40} />
+          <PixelCobble x={500} y={470} />
+
+          {/* ── RIVER CROSSING — wooden bridge spanning the river at y=500 ── */}
+          <WoodenArchBridge x={410} y={510} width={180} />
+
+          {/* ── RIVER LIFE (inside the river band y 500-550) ── */}
+          <LilyPadFrog x={120}  y={530} />
+          <LilyPadFrog x={680}  y={535} />
+          <LilyPadFrog x={820}  y={525} />
+          <Reeds x={40}   y={540} />
+          <Reeds x={240}  y={545} />
+          <Reeds x={620}  y={545} />
+          <Reeds x={840}  y={540} />
+          <Duck  x={0}    y={520} delay={0} />
+          <Duck  x={0}    y={532} delay={14} />
+
+          {/* ── PIN-ROW PROPS (around the pin at (500,400) and wild (700,500)) ── */}
+          <PaintSplatter x={440} y={460} color="#ff6080" />
+          <PaintSplatter x={560} y={460} color="#50c8d0" />
+          <PaintSplatter x={410} y={478} color="#ffe066" />
+          <PaintSplatter x={590} y={478} color="#a080f0" />
+
+          {/* ── FOREGROUND (y 580-700) — meadow decorations ── */}
+          <PixelPalm x={50}  y={600} />
+          <PixelPalm x={150} y={660} />
+          <PixelPalm x={280} y={600} />
+          <PixelPalm x={400} y={650} />
+          <PixelPalm x={600} y={640} />
+          <PixelPalm x={820} y={600} />
+          <Bench x={220} y={640} />
+          <Bench x={500} y={640} />
+          <Bench x={700} y={640} />
+          <PicnicTable x={360} y={660} />
+          <PicnicTable x={760} y={660} />
+          <WoodenFence x={80}  y={690} segments={5} />
+          <WoodenFence x={310} y={690} segments={5} />
+          <WoodenFence x={540} y={690} segments={5} />
+          <WoodenFence x={780} y={690} segments={5} />
+          <MushroomCluster x={460} y={620} />
+          <MushroomCluster x={640} y={620} />
+          <FlowerCluster x={30}  y={660} />
+          <FlowerCluster x={250} y={680} />
+          <FlowerCluster x={480} y={680} />
+          <FlowerCluster x={690} y={680} />
+          <FlowerCluster x={870} y={660} />
+
+          {/* ── CREATIVE AMBIENT — studio cat wandering + fireflies ── */}
+          <StudioCat x={0} y={600} delay={3} />
+          <StudioCat x={0} y={655} delay={18} />
+          <FireflySwarm width={WORLD_W} height={WORLD_H} count={26} top={400} />
         </g>
       );
     case 5:
       return (
         <g>
-          <FerrisWheel x={200} y={400} />
-          <Gazebo x={500} y={520} />
-          <PineTree x={120} y={560} />
-          <PineTree x={780} y={540} />
-          <PineTree x={720} y={600} />
+          {/* ── SKY LAYER — rising balloons + confetti ONLY above right half ── */}
+          <RisingBalloon x={540}  color="#40c860" delay={4}  duration={24} />
+          <RisingBalloon x={640}  color="#ffa030" delay={8}  duration={26} />
+          <RisingBalloon x={720}  color="#ffe040" delay={14} duration={20} />
+          <RisingBalloon x={800}  color="#4090e0" delay={18} duration={22} />
+          <RisingBalloon x={860}  color="#c060e0" delay={12} duration={25} />
+          <ConfettiBurst x={560}  y={110} delay={0} />
+          <ConfettiBurst x={720}  y={90}  delay={1.4} />
+          <ConfettiBurst x={850}  y={120} delay={2.8} />
+
+          {/* ════════ LEFT HALF — PEOPLE'S PARK HIGHLAND (x 0-470) ════════ */}
+
+          {/* Distant scenery on the left cliff */}
+          <Waterfall x={60} y={420} />
+          <RockFormation x={140} y={420} />
+          <RockFormation x={220} y={460} />
+
+          {/* Pine ridge above the viewing deck */}
+          <PineTree x={40}  y={380} />
+          <PineTree x={190} y={380} />
+          <PineTree x={260} y={420} />
+
+          {/* People's Park viewing area (tagaytay pin at 350,420) */}
+          <Gazebo x={360} y={460} />
+          <Telescope x={300} y={490} />
+          <Bench x={430} y={560} />
+
+          {/* Wooden cliff railing along the bottom of the viewing deck */}
+          <CliffRailing x={40}  y={600} segments={6} />
+          <CliffRailing x={260} y={600} segments={6} />
+
+          {/* Quiet foreground fillers — pines + flowers, no crowds */}
+          <PineTree x={80}  y={620} />
+          <PineTree x={400} y={630} />
+          <FlowerCluster x={20}  y={670} />
+          <FlowerCluster x={160} y={685} />
+          <FlowerCluster x={320} y={680} />
+
+          {/* ════════ DIVIDER — PARK GATEWAY ARCH @ x=470 ════════ */}
+          <ParkGatewayArch x={470} y={380} />
+
+          {/* ════════ RIGHT HALF — SKY RANCH CARNIVAL (x 500-880) ════════ */}
+
+          {/* BIG Ferris Wheel — centrepiece far right (peaks above the arch) */}
+          <BigFerrisWheel x={830} y={290} />
+
+          {/* Viking ship + carousel + swing + ticket booth cluster */}
+          <TicketBooth x={530} y={380} />
+          <Carousel    x={620} y={420} />
+          <VikingShip  x={720} y={380} />
+          <SwingRide   x={780} y={400} />
+
+          {/* Roller Coaster — fits inside the right half */}
+          <RollerCoaster x={520} y={560} width={360} />
+
+          {/* Balloon bunches flanking the arch entry */}
+          <BalloonBunch x={510} y={540} />
+          <BalloonBunch x={890} y={540} />
+
+          {/* Food stalls + cotton candy carts along the concourse */}
+          <CarnivalStall   x={540} y={620} color="#ff4060" label="HOT DOG" />
+          <CottonCandyCart x={640} y={620} />
+          <CarnivalStall   x={720} y={620} color="#ffa030" label="POPCORN" />
+          <CottonCandyCart x={810} y={620} />
+          <CarnivalStall   x={880} y={620} color="#40c0e0" label="TREATS" />
+
+          {/* Carnival crowds — only on the right half */}
+          <CarnivalCrowd x={520} y={670} count={6} />
+          <CarnivalCrowd x={660} y={675} count={6} />
+          <CarnivalCrowd x={800} y={670} count={5} />
+
+          {/* Right-half flower accents (small bits of green between the chaos) */}
+          <FlowerCluster x={560} y={685} />
+          <FlowerCluster x={750} y={690} />
         </g>
       );
     case 6:
       return (
         <g>
-          <Pagoda x={500} y={370} />
-          <StrawberryPatch x={370} y={380} />
-          <Flagpole x={670} y={410} />
-          <PineTree x={120} y={500} />
-          <PineTree x={150} y={580} />
-          <PineTree x={810} y={500} />
-          <PineTree x={780} y={600} />
-          <PineTree x={260} y={540} />
+          {/* ════════ ZONE 1 — BUS TERMINAL (x=0-240) behind baguio pin (200,380) ════════ */}
+          <BusStation    x={180} y={340} />
+          <ParkedBus     x={60}  y={430} />
+          <TravelerGroup x={140} y={460} />
+          <PineTree x={40}  y={450} />
+          <PineTree x={260} y={470} />
+          <SignpostPointer x={230} y={490} label="FARM" direction="right" bg="#c06828" />
+
+          {/* ════════ ZONE 2 — STRAWBERRY FIELD (x=260-460) behind strawberry pin (370,300) ════════ */}
+          <JamStall x={300} y={340} />
+          <StrawberryTrellisRow x={280} y={380} width={160} />
+          <StrawberryTrellisRow x={280} y={420} width={160} />
+          <HarvestCart x={420} y={460} />
+          <Scarecrow x={340} y={430} />
+          <SignpostPointer x={450} y={490} label="TEMPLE" direction="right" bg="#c04040" />
+
+          {/* ════════ ZONE 3 — BELL TEMPLE (x=460-620) behind bell-church pin (530,270) ════════ */}
+          <BellPagoda x={540} y={340} />
+          <StoneLion x={488} y={410} facing="right" />
+          <StoneLion x={592} y={410} facing="left" />
+          <IncenseBrazier x={540} y={420} />
+          <TempleBell x={475} y={400} />
+          <Lantern x={500} y={360} color="#e04040" />
+          <Lantern x={580} y={360} color="#ffcc40" />
+          <SignpostPointer x={625} y={490} label="PMA" direction="right" bg="#305070" />
+
+          {/* ════════ ZONE 4 — PMA PARADE (x=620-820) behind pma pin (690,340) ════════ */}
+          <GuardPost x={640} y={380} />
+          <ParadeGround x={655} y={410} width={160} />
+          <PHFlagpole x={720} y={410} />
+          <Cannon x={680} y={460} />
+          <Cannon x={770} y={460} />
+          <SignpostPointer x={820} y={490} label="PARK" direction="right" bg="#40a060" />
+
+          {/* ════════ ZONE 5 — BURNHAM PARK (x=380-800, lower band) behind day6-dump pin (560,460) ════════ */}
+          <OvalLake x={400} y={500} width={320} height={90} />
+          <SwanBoat x={440} y={534} delay={0} />
+          <SwanBoat x={500} y={554} delay={8} />
+          <IceCreamCart x={820} y={580} />
+
+          {/* ════════ FOREGROUND — pines + rocks + flowers fill the frame ════════ */}
+          <PineTree x={20}  y={500} />
+          <PineTree x={80}  y={630} />
+          <RockFormation x={340} y={640} />
+          <PineTree x={240} y={610} />
+          <PineTree x={360} y={600} />
+          <PineTree x={860} y={480} />
+          <PineTree x={820} y={640} />
+          <RockFormation x={760} y={620} />
+          <Snowman x={130} y={650} />
+          <Snowman x={700} y={650} />
+          <FlowerCluster x={40}  y={680} />
+          <FlowerCluster x={180} y={685} />
+          <FlowerCluster x={300} y={680} />
+          <FlowerCluster x={480} y={685} />
+          <FlowerCluster x={640} y={680} />
+          <FlowerCluster x={780} y={685} />
+          <FlowerCluster x={880} y={680} />
         </g>
       );
   }
@@ -1099,6 +1670,7 @@ function DayFloaters({ day }: { day: number }) {
           <rect x="0" y="0" width={WORLD_W} height={WORLD_H} fill="#ff2ec8" opacity="0">
             <animate attributeName="opacity" values="0;0.04;0" dur="3s" repeatCount="indefinite" />
           </rect>
+          <ConfettiRain count={16} />
         </g>
       );
     case 4:
@@ -1114,7 +1686,8 @@ function DayFloaters({ day }: { day: number }) {
     case 6:
       return (
         <g>
-          <FallingLeaves count={12} color="#e08840" />
+          <FallingLeaves count={8} color="#e08840" />
+          <SnowFall count={14} />
           <FogLayer y={600} color="#c8b8d8" />
         </g>
       );

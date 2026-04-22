@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Hide the floating "N" dev indicator that overlaps the on-screen A button
+  devIndicators: false,
 };
 
 export default nextConfig;
