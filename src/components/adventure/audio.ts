@@ -28,6 +28,19 @@ class AudioManager {
   private muted = true; // start muted; UI toggles it on user gesture
   private volume = 0.35;
 
+  setVolume(v: number) {
+    this.volume = Math.max(0, Math.min(1, v));
+    if (this.muted) return;
+    // Crossfade all playing tracks to the new target volume
+    for (const [key, t] of this.bgmTracks) {
+      if (!t.howl) continue;
+      if (key === this.currentBgm) {
+        t.howl.fade(t.howl.volume(), this.volume, 200);
+      }
+    }
+  }
+  getVolume() { return this.volume; }
+
   private ensureTrack(key: BgmKey): Track {
     const existing = this.bgmTracks.get(key);
     if (existing) return existing;
@@ -111,7 +124,9 @@ class AudioManager {
   playSfx(url: string, volume = 0.4) {
     if (this.muted) return;
     try {
-      const h = new Howl({ src: [url], volume, html5: true });
+      // Use Web Audio (default) — matches BGM backend so mobile doesn't stutter
+      // when switching between html5 and Web Audio contexts.
+      const h = new Howl({ src: [url], volume });
       h.play();
     } catch { /* ignore */ }
   }

@@ -8,6 +8,8 @@ interface Props {
   children: ReactNode;
   muted?: boolean;
   onMuteToggle?: () => void;
+  volume?: number;
+  onVolumeChange?: (v: number) => void;
 }
 
 // BSIT jacket-green palette — forest green dominant, white accent line
@@ -40,7 +42,13 @@ const releaseHold = (key: string, code: string) => {
 const BAR_HEIGHT         = 210; // desktop
 const BAR_HEIGHT_MOBILE  = 260; // mobile — taller so the two-row layout fits
 
-export function ConsoleFrame({ children, muted = true, onMuteToggle }: Props) {
+export function ConsoleFrame({
+  children,
+  muted = true,
+  onMuteToggle,
+  volume = 0.35,
+  onVolumeChange,
+}: Props) {
   const router = useRouter();
   const { isMobile } = useIsMobile();
   const barH       = isMobile ? BAR_HEIGHT_MOBILE : BAR_HEIGHT;
@@ -120,7 +128,6 @@ export function ConsoleFrame({ children, muted = true, onMuteToggle }: Props) {
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
           alignItems: "center",
-          justifyContent: isMobile ? "space-between" : "space-between",
           gap: isMobile ? 8 : 0,
         }}
       >
@@ -133,16 +140,21 @@ export function ConsoleFrame({ children, muted = true, onMuteToggle }: Props) {
         {/* ── MOBILE ROW 1: cartridge label banner ─────────────── */}
         {isMobile && <CartridgeLabel mobile />}
 
-        {/* ── CONTROLS ROW ─────────────────────────────────────── */}
+        {/* ── CONTROLS ROW — 3-col grid so the center stays viewport-centered
+              regardless of D-pad / A-B cluster widths ────────────────── */}
         <div
-          className="flex items-center w-full"
+          className="w-full"
           style={{
-            justifyContent: "space-between",
+            display: "grid",
+            gridTemplateColumns: "1fr auto 1fr",
+            alignItems: "center",
             flex: isMobile ? "1 1 auto" : undefined,
           }}
         >
-          {/* LEFT: D-pad cluster */}
-          <DpadWell size={dpadSize} />
+          {/* LEFT: D-pad cluster anchored to left of its grid column */}
+          <div style={{ justifySelf: "start" }}>
+            <DpadWell size={dpadSize} />
+          </div>
 
           {/* CENTER: on desktop, cartridge + pills + icons stack here.
               On mobile, cartridge lives up top so this column only holds
@@ -173,6 +185,13 @@ export function ConsoleFrame({ children, muted = true, onMuteToggle }: Props) {
                   ♪
                 </IconButton>
               )}
+              {!isMobile && onVolumeChange && (
+                <VolumeSlider
+                  value={volume}
+                  muted={muted}
+                  onChange={onVolumeChange}
+                />
+              )}
               {!isMobile && (
                 <IconButton title="Fullscreen" onClick={() => setDocked(false)} mobile={isMobile}>
                   ⛶
@@ -181,14 +200,16 @@ export function ConsoleFrame({ children, muted = true, onMuteToggle }: Props) {
             </div>
           </div>
 
-          {/* RIGHT: A/B buttons with GBA geometry */}
-          <ButtonCluster
-            aSize={aSize}
-            bSize={bSize}
-            mobile={isMobile}
-            onA={() => emit("Enter", "Enter")}
-            onB={() => emit("Escape", "Escape")}
-          />
+          {/* RIGHT: A/B buttons anchored to right of grid column */}
+          <div style={{ justifySelf: "end" }}>
+            <ButtonCluster
+              aSize={aSize}
+              bSize={bSize}
+              mobile={isMobile}
+              onA={() => emit("Enter", "Enter")}
+              onB={() => emit("Escape", "Escape")}
+            />
+          </div>
         </div>
       </div>
 
@@ -366,7 +387,7 @@ function CartridgeLabel({ mobile }: { mobile: boolean }) {
           textShadow: "1px 1px 0 rgba(200, 160, 48, 0.35)",
         }}
       >
-        {mobile ? "AZIZ BOY" : "AZIZ BOY ADVANCE"}
+        @MRCLUMSTER
       </div>
       {/* Hairline divider */}
       <div
@@ -384,7 +405,7 @@ function CartridgeLabel({ mobile }: { mobile: boolean }) {
           letterSpacing: 2,
         }}
       >
-        © MRCLUMSTER · 2026
+        © 2026
       </div>
     </div>
   );
@@ -487,5 +508,43 @@ function ButtonCluster({
         <ActionButton label="A" colorBg="#c73030" onPress={onA} size={aSize} />
       </div>
     </div>
+  );
+}
+
+// ── Compact pixel volume slider (desktop only) ─────────────────────────
+function VolumeSlider({
+  value, muted, onChange,
+}: { value: number; muted: boolean; onChange: (v: number) => void }) {
+  return (
+    <label
+      className="flex items-center gap-1.5 select-none"
+      style={{
+        height: 22,
+        padding: "0 8px",
+        background: "linear-gradient(180deg, #1a2550 0%, #0a1230 100%)",
+        border: "1.5px solid #e8d9a0",
+        borderRadius: 4,
+        opacity: muted ? 0.5 : 1,
+        transition: "opacity 0.2s",
+      }}
+      title="BGM volume"
+    >
+      <span style={{ color: "#e8d9a0", fontSize: 8, letterSpacing: 1 }}>VOL</span>
+      <input
+        type="range"
+        min={0}
+        max={1}
+        step={0.02}
+        value={value}
+        disabled={muted}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="pixel-volume-slider"
+        style={{
+          width: 64,
+          accentColor: "#ffd93a",
+          cursor: muted ? "not-allowed" : "pointer",
+        }}
+      />
+    </label>
   );
 }

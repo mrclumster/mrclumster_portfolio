@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { allFxUrls } from "./move-fx";
 import { CREATURES } from "./creatures";
 import { useIsMobile } from "./use-is-mobile";
+import { CHECKPOINT_COUNT, DAY_COUNT } from "./adventure-screens";
 
 // ───────────────────────────────────────────────────────────────────────────
 // PassportBoot — a single cinematic boot sequence themed around a passport
@@ -27,25 +28,16 @@ import { useIsMobile } from "./use-is-mobile";
 
 const HANDLE = "@mrclumster";
 
-const STAMPS = [
-  { label: "MANILA",   color: "#d03030", angle: -12, delay: 1.0 },
-  { label: "BAGUIO",   color: "#2060c0", angle:   8, delay: 1.4 },
-  { label: "TAGAYTAY", color: "#3a8a40", angle:  -5, delay: 1.8 },
-];
-
 // ── Props ────────────────────────────────────────────────────────────────
-// cinematic=true  → full boot sequence (passport drops, flips, stamps slam, passport lifts, text reveals)
-// cinematic=false → skip straight to the final resting state (used when we come back to the
-//                   title screen from the menu — the user has already seen the intro once)
-export function PassportBoot({
-  onDone,
-  cinematic = true,
-}: { onDone: () => void; cinematic?: boolean }) {
-  const { isMobile } = useIsMobile();
-  const [canFinish, setCanFinish] = useState(!cinematic);
-  const [finished,  setFinished]  = useState(false);
+// Title screen — cream passport-themed background with an interactive
+// scrapbook (polaroids, stickies, Pokémon silhouettes, corner stamps).
+// Press ENTER to advance to starter select / menu.
+export function PassportBoot({ onDone }: { onDone: () => void }) {
+  useIsMobile(); // keep the hook call so downstream children stay in sync on resize
+  const [finished, setFinished] = useState(false);
 
-  // Preload assets silently in the background
+  // Preload assets silently in the background so the first battle / creature
+  // sprite appearances are instant.
   useEffect(() => {
     const manifest = [
       ...allFxUrls(),
@@ -59,13 +51,6 @@ export function PassportBoot({
     }
   }, []);
 
-  // Unlock "PRESS START" after the cinematic settles (or immediately if skipped)
-  useEffect(() => {
-    if (!cinematic) return;
-    const t = setTimeout(() => setCanFinish(true), 2600);
-    return () => clearTimeout(t);
-  }, [cinematic]);
-
   // Any keypress / click skips or completes
   useEffect(() => {
     const advance = () => {
@@ -74,17 +59,12 @@ export function PassportBoot({
       setTimeout(onDone, 320);
     };
     const onKey = (e: KeyboardEvent) => {
-      // Only the Enter key (or the on-screen START button which dispatches Enter)
-      // advances from the title. Everything else is ignored so random typing /
-      // Alt-Tab / etc. don't accidentally start the game.
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key !== "Enter") return;
       advance();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [finished, onDone]);
 
   return (
@@ -104,53 +84,22 @@ export function PassportBoot({
       {/* Subtle paper texture lines */}
       <PaperGrid />
 
-      {/* Cinematic-only plane sweep */}
-      {cinematic && <PaperPlane />}
-
-      {/* Full interactive title scrapbook — only on the resting title screen */}
-      {!cinematic && <TitleScrapbook />}
-
-      {/* Passport — only rendered during the boot cinematic. When we come back
-          to this screen from the menu, the passport stays "gone" and only the
-          title text remains on the cream background */}
-      {cinematic && (() => {
-        const passportScale = isMobile ? 0.6 : 1;
-        return (
-          <AnimatePresence>
-            <motion.div
-              key="passport"
-              initial={{ y: -400, scale: 0.85 * passportScale, opacity: 0, rotate: -4 }}
-              animate={{
-                y:       [-400, 0,    0,   0,   0,   0,   -800],
-                scale:   [0.85 * passportScale, passportScale, passportScale, passportScale, passportScale, passportScale, 1.1 * passportScale],
-                opacity: [0,     1,    1,   1,   1,   1,    0  ],
-                rotate:  [-4,    0,    0,   0,   0,   0,    3  ],
-              }}
-              transition={{
-                duration: 2.5,
-                times:    [0, 0.12, 0.28, 0.44, 0.6, 0.88, 1],
-                ease: "easeInOut",
-              }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <PassportOpen />
-            </motion.div>
-          </AnimatePresence>
-        );
-      })()}
+      {/* Interactive title scrapbook — drifting clouds / birds / pokémon
+          silhouettes + draggable polaroids, stickies, ID card, etc. */}
+      <TitleScrapbook />
 
       {/* "@mrclumster" reveal — with mouse parallax tilt on title screen */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={canFinish ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: "easeOut" }}
         className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
       >
-        <TitleFrame show={canFinish && !cinematic}>
-          <LogoWithParallax cinematic={cinematic} />
+        <TitleFrame show>
+          <LogoWithParallax />
           <motion.div
             initial={{ scaleX: 0 }}
-            animate={canFinish ? { scaleX: 1 } : { scaleX: 0 }}
+            animate={{ scaleX: 1 }}
             transition={{ duration: 0.5, delay: 0.25 }}
             style={{ width: 160, height: 4, background: "#d03030", marginTop: 12 }}
           />
@@ -158,25 +107,23 @@ export function PassportBoot({
         </TitleFrame>
       </motion.div>
 
-      {/* Blinking "PRESS START" once cinematic is done */}
-      <AnimatePresence>
-        {canFinish && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0.3, 1] }}
-            transition={{
-              duration: 1.2,
-              delay: cinematic ? 0.8 : 0,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-            className="absolute bottom-12 left-0 right-0 flex justify-center text-[12px] pointer-events-none"
-            style={{ color: "#1a2550", letterSpacing: "3px", textShadow: "2px 2px 0 #d0303044" }}
-          >
-            PRESS START
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Blinking "PRESS START" prompt — truly viewport-centered */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 0.3, 1] }}
+        transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse" }}
+        className="absolute text-[12px] pointer-events-none whitespace-nowrap"
+        style={{
+          bottom: 48,
+          left: "50%",
+          transform: "translateX(-50%)",
+          color: "#1a2550",
+          letterSpacing: "3px",
+          textShadow: "2px 2px 0 #d0303044",
+        }}
+      >
+        PRESS START
+      </motion.div>
     </motion.div>
   );
 }
@@ -269,18 +216,18 @@ function TaglineLines() {
         A PIXELATED GAME EDITION
       </div>
       <div className="mt-2" style={{ ...base, fontSize: isMobile ? 7 : 9 }}>
-        6 DAYS · 16 CHECKPOINTS
+        {DAY_COUNT} DAYS · {CHECKPOINT_COUNT} CHECKPOINTS
       </div>
     </>
   );
 }
 
 // ── Logo with mouse-parallax tilt ───────────────────────────────────────
-function LogoWithParallax({ cinematic }: { cinematic: boolean }) {
+function LogoWithParallax() {
   const { isMobile, isTouch } = useIsMobile();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   useEffect(() => {
-    if (cinematic || isTouch) return;
+    if (isTouch) return;
     const onMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth) - 0.5;
       const ny = (e.clientY / window.innerHeight) - 0.5;
@@ -288,7 +235,7 @@ function LogoWithParallax({ cinematic }: { cinematic: boolean }) {
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
-  }, [cinematic, isTouch]);
+  }, [isTouch]);
   return (
     <motion.div
       animate={{
@@ -329,7 +276,13 @@ function useMouseNormalized() {
 
 // ── The full interactive title scrapbook ─────────────────────────────────
 function TitleScrapbook() {
+  // Defer rendering until after hydration so SSR/dev-mode timing races can't
+  // drop this subtree on first paint (on reload the chunks are cached and
+  // everything works — this guarantees first visit matches).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const m = useMouseNormalized();
+  if (!mounted) return null;
   return (
     <>
       {/* Ambient motion layer */}
@@ -616,8 +569,8 @@ function ScrapbookProps({ mouseX, mouseY }: { mouseX: number; mouseY: number }) 
     depth: number;
     mobile?: boolean;
   }> = [
-    { id: "pol-d1",        node: <Polaroid     scene="palm"     caption="MANILA · D1" videoSrc="/adventure/scrapbook/mnl.MOV" />, top: "8%",   left: "4%",   angle: -9,  depth: 0.8, mobile: true  },
-    { id: "pol-d6",        node: <Polaroid     scene="mountain" caption="BAGUIO · D6" imageSrc="/adventure/scrapbook/baguio.JPG" />, bottom: "8%",  left: "4%",   angle: 8,   depth: 0.8, mobile: true  },
+    { id: "pol-d1",        node: <Polaroid     scene="palm"     caption="MANILA · D1" videoSrc="/adventure/scrapbook/mnl.mov" />, top: "8%",   left: "4%",   angle: -9,  depth: 0.8, mobile: true  },
+    { id: "pol-d6",        node: <Polaroid     scene="mountain" caption="BAGUIO · D6" imageSrc="/adventure/scrapbook/baguio.jpg" />, bottom: "8%",  left: "4%",   angle: 8,   depth: 0.8, mobile: true  },
     { id: "tk-zam-mnl",    node: <Ticket       from="ZAM" to="MNL" />,                      top: "24%",  left: "22%",  angle: 5,   depth: 0.5, mobile: true  },
     { id: "tk-mnl-zam",    node: <Ticket       from="MNL" to="ZAM" />,                      top: "45%",  left: "3%",   angle: 12,  depth: 0.6, mobile: true  },
     { id: "postcard",      node: <Postcard     />,                                          top: "6%",   right: "4%",  angle: 7,   depth: 0.7, mobile: true  },
@@ -1065,200 +1018,3 @@ function PaperGrid() {
   );
 }
 
-// ── Paper plane sweep ──────────────────────────────────────────────────
-function PaperPlane() {
-  return (
-    <motion.svg
-      initial={{ x: "-30%", y: "40vh", opacity: 0, rotate: -8 }}
-      animate={{ x: "130%",  y: "10vh", opacity: [0, 0.85, 0.9, 0], rotate: 8 }}
-      transition={{ duration: 2.2, delay: 0.2, ease: "easeInOut" }}
-      width={60}
-      height={60}
-      viewBox="0 0 24 24"
-      className="absolute pointer-events-none"
-      style={{ filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.18))" }}
-    >
-      {/* pixel paper plane */}
-      <polygon points="1,12 22,2 16,13 22,14 9,22" fill="#ffffff" stroke="#1a2550" strokeWidth="1" />
-      <polygon points="16,13 9,22 11,15" fill="#d9d9e0" stroke="#1a2550" strokeWidth="1" />
-    </motion.svg>
-  );
-}
-
-// ── The opened passport: inner pages + stamps ───────────────────────────
-function PassportOpen() {
-  return (
-    <div className="relative" style={{ width: 520, height: 340 }}>
-      {/* Shadow beneath */}
-      <div
-        className="absolute"
-        style={{
-          left: 20, right: 20, bottom: -14, height: 18,
-          background: "rgba(0,0,0,0.25)",
-          filter: "blur(10px)",
-          borderRadius: "50%",
-        }}
-      />
-
-      {/* Book spine — dark centre seam */}
-      <div
-        className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
-        style={{
-          width: 4,
-          background: "linear-gradient(to bottom, #8a7040, #5c4a28, #8a7040)",
-          zIndex: 3,
-        }}
-      />
-
-      {/* Left page */}
-      <PassportPage side="left" />
-      {/* Right page */}
-      <PassportPage side="right" />
-
-      {/* Stamps land on top of pages */}
-      {STAMPS.map((s, i) => (
-        <InkStamp key={s.label} {...s} index={i} />
-      ))}
-
-      {/* Outer border of the open passport */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          border: "4px solid #1a2550",
-          borderRadius: 6,
-          boxShadow: "inset 0 0 0 2px #faf3df, 0 4px 0 rgba(0,0,0,0.3)",
-        }}
-      />
-    </div>
-  );
-}
-
-function PassportPage({ side }: { side: "left" | "right" }) {
-  const isLeft = side === "left";
-  return (
-    <div
-      className="absolute top-0 bottom-0"
-      style={{
-        left:  isLeft ? 0   : "50%",
-        right: isLeft ? "50%" : 0,
-        background:
-          "linear-gradient(135deg, #fbf3d9 0%, #f3e5bd 100%)",
-        boxShadow: isLeft
-          ? "inset -14px 0 18px rgba(0,0,0,0.2)"
-          : "inset 14px 0 18px rgba(0,0,0,0.2)",
-        overflow: "hidden",
-      }}
-    >
-      {/* Decorative header line */}
-      <div
-        className="absolute top-4 left-4 right-4 text-[7px]"
-        style={{ color: "#6a5a30", letterSpacing: "2px" }}
-      >
-        {isLeft ? "REPUBLIKA NG PILIPINAS" : "PASSPORT · PASAPORTE"}
-      </div>
-      <div
-        className="absolute"
-        style={{
-          top: 18, left: 14, right: 14,
-          height: 2, background: "#c8a850",
-        }}
-      />
-
-      {/* Form-like lines */}
-      {[0, 1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="absolute"
-          style={{
-            left: 18, right: 18,
-            bottom: 30 + i * 22,
-            height: 1,
-            background: "rgba(120,90,40,0.25)",
-          }}
-        />
-      ))}
-
-      {/* Tiny seal — only on left page */}
-      {isLeft && (
-        <div
-          className="absolute"
-          style={{
-            top: 36, left: 16,
-            width: 58, height: 58,
-            borderRadius: "50%",
-            border: "2px solid #c8a850",
-            background:
-              "radial-gradient(circle, rgba(200,168,80,0.2) 0%, transparent 70%)",
-          }}
-        >
-          <div
-            className="absolute inset-2 text-[6px] flex items-center justify-center"
-            style={{ color: "#6a5a30", letterSpacing: "1px", textAlign: "center" }}
-          >
-            PH<br/>SEAL
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Stamp slam with ink burst ───────────────────────────────────────────
-function InkStamp({
-  label, color, angle, delay, index,
-}: { label: string; color: string; angle: number; delay: number; index: number }) {
-  // Alternate left/right page for visual balance
-  const left  = index === 0 ? "22%" : index === 1 ? "60%" : "30%";
-  const top   = index === 0 ? "38%" : index === 1 ? "52%" : "64%";
-
-  return (
-    <>
-      {/* Ink spatter particles — small dots scattering on slam */}
-      {[...Array(6)].map((_, p) => (
-        <motion.div
-          key={p}
-          initial={{ opacity: 0, x: 0, y: 0, scale: 1 }}
-          animate={{
-            opacity: [0, 0.9, 0],
-            x: (Math.random() - 0.5) * 80,
-            y: (Math.random() - 0.5) * 80,
-            scale: [0.8, 0.4],
-          }}
-          transition={{ duration: 0.5, delay, ease: "easeOut" }}
-          className="absolute rounded-full"
-          style={{
-            left, top,
-            width: 5, height: 5,
-            background: color,
-            translate: "-50% -50%",
-          }}
-        />
-      ))}
-
-      {/* The stamp itself — slams with a scale punch */}
-      <motion.div
-        initial={{ opacity: 0, scale: 3, rotate: angle }}
-        animate={{ opacity: [0, 1, 1], scale: [3, 0.9, 1.05, 1], rotate: angle }}
-        transition={{ duration: 0.35, delay, ease: "easeOut", times: [0, 0.4, 0.7, 1] }}
-        className="absolute"
-        style={{
-          left, top,
-          translate: "-50% -50%",
-          border: `3px solid ${color}`,
-          color,
-          padding: "8px 18px",
-          fontSize: 14,
-          letterSpacing: "3px",
-          fontFamily: "'Press Start 2P', monospace",
-          background: "rgba(255,255,240,0.0)",
-          // Slightly imperfect rubber-stamp ink look
-          boxShadow: `inset 0 0 0 2px ${color}22, 0 0 0 1px ${color}44`,
-          opacity: 0.92,
-          textShadow: `1px 1px 0 ${color}66`,
-        }}
-      >
-        {label}
-      </motion.div>
-    </>
-  );
-}

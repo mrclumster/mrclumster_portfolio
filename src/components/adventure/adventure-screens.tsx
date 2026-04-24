@@ -49,155 +49,6 @@ export const DAY_META: Record<number, { title: string; tagline: string }> = {
 };
 
 // ──────────────────────────────────────────────────────────────────────────
-// TITLE SCREEN — Pokémon logo style
-// ──────────────────────────────────────────────────────────────────────────
-export function TitleScreen({ onStart }: { onStart: () => void }) {
-  useEffect(() => {
-    const go = (e: KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " " || e.key === "z" || e.key === "Z") onStart();
-    };
-    window.addEventListener("keydown", go);
-    return () => window.removeEventListener("keydown", go);
-  }, [onStart]);
-
-  return (
-    <div
-      className="absolute inset-0 flex flex-col items-center justify-center text-center select-none cursor-pointer"
-      onClick={onStart}
-      style={{ background: "linear-gradient(to bottom, #4c8ce8 0%, #7cc9e8 50%, #7cc97c 50%, #3c8c3c 100%)" }}
-    >
-      {/* Sky → grass split (Pokémon title card classic) */}
-
-      {/* Clouds */}
-      <div className="absolute top-4 left-8 w-10 h-4 rounded-full bg-white/80" />
-      <div className="absolute top-8 right-10 w-14 h-4 rounded-full bg-white/80" />
-      <div className="absolute top-2 right-24 w-8 h-3 rounded-full bg-white/70" />
-
-      {/* Title logo */}
-      <motion.div
-        initial={{ opacity: 0, y: -30, scale: 0.85 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, type: "spring" }}
-        className="relative z-10 mb-1"
-      >
-        <div
-          className="inline-block px-6 py-3 rounded-sm"
-          style={{
-            background: "linear-gradient(to bottom, #fff13c 0%, #ffcc00 60%, #cc8800 100%)",
-            border: "4px solid #1a1a1a",
-            boxShadow: "6px 6px 0 #1a1a1a, inset 0 0 0 3px #fff",
-            fontFamily: "'Press Start 2P', monospace",
-            color: "#1040a8",
-            textShadow: "3px 3px 0 #000",
-            fontSize: "36px",
-            letterSpacing: "4px",
-          }}
-        >
-          MANILA
-        </div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.85 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
-        className="relative z-10 mb-2"
-      >
-        <div
-          className="inline-block px-5 py-2 rounded-sm"
-          style={{
-            background: "linear-gradient(to bottom, #fff13c 0%, #ffcc00 60%, #cc8800 100%)",
-            border: "4px solid #1a1a1a",
-            boxShadow: "6px 6px 0 #1a1a1a, inset 0 0 0 3px #fff",
-            fontFamily: "'Press Start 2P', monospace",
-            color: "#c82020",
-            textShadow: "3px 3px 0 #000",
-            fontSize: "26px",
-            letterSpacing: "4px",
-          }}
-        >
-          VERSION
-        </div>
-      </motion.div>
-
-      {/* Trainer silhouette */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="relative z-10 mb-1"
-      >
-        <TrainerSprite />
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        className="relative z-10 text-[12px] text-white mt-3"
-        style={{ fontFamily: "'Press Start 2P', monospace", textShadow: "1px 1px 0 #000" }}
-      >
-        6 DAYS · 16 CHECKPOINTS
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6 }}
-        className="relative z-10 mt-4"
-      >
-        <BlinkText>
-          <span className="text-white text-[16px]" style={{ fontFamily: "'Press Start 2P', monospace", textShadow: "2px 2px 0 #000" }}>
-            PRESS START
-          </span>
-        </BlinkText>
-      </motion.div>
-
-      <div className="absolute bottom-1 text-[5px] text-white/70" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-        ©2026 AZIZ
-      </div>
-    </div>
-  );
-}
-
-function TrainerSprite() {
-  // Simple 16×24 "Red trainer" silhouette in SVG
-  return (
-    <svg width="80" height="120" viewBox="0 0 16 24">
-      {/* Hat */}
-      <rect x="4" y="2" width="8" height="2" fill="#e03030" />
-      <rect x="3" y="3" width="10" height="2" fill="#e03030" />
-      <rect x="6" y="1" width="4" height="1" fill="#fff" />
-      {/* Face */}
-      <rect x="5" y="5" width="6" height="3" fill="#f0c090" />
-      <rect x="6" y="6" width="1" height="1" fill="#000" />
-      <rect x="9" y="6" width="1" height="1" fill="#000" />
-      {/* Body / shirt */}
-      <rect x="4" y="8" width="8" height="6" fill="#ffffff" />
-      <rect x="4" y="8" width="8" height="1" fill="#e03030" />
-      <rect x="4" y="13" width="8" height="1" fill="#e03030" />
-      {/* Arms */}
-      <rect x="3" y="9" width="1" height="4" fill="#f0c090" />
-      <rect x="12" y="9" width="1" height="4" fill="#f0c090" />
-      {/* Legs */}
-      <rect x="5" y="14" width="2" height="6" fill="#1040a8" />
-      <rect x="9" y="14" width="2" height="6" fill="#1040a8" />
-      {/* Shoes */}
-      <rect x="4" y="20" width="3" height="2" fill="#c82020" />
-      <rect x="9" y="20" width="3" height="2" fill="#c82020" />
-    </svg>
-  );
-}
-
-function BlinkText({ children }: { children: React.ReactNode }) {
-  const [on, setOn] = useState(true);
-  useEffect(() => {
-    const id = setInterval(() => setOn((s) => !s), 600);
-    return () => clearInterval(id);
-  }, []);
-  return <span style={{ opacity: on ? 1 : 0.2 }}>{children}</span>;
-}
-
-// ──────────────────────────────────────────────────────────────────────────
 // DAY SELECT MENU — classic Pokémon white dialog box
 // ──────────────────────────────────────────────────────────────────────────
 export function DaySelectMenu({
@@ -361,10 +212,9 @@ import {
   OfficeTower, Factory, ApartmentBuilding, StreetLamp, Car,
   Skyscraper, NeonBillboard, TrafficLight,
   LogBridge, MushroomCluster, Pond, WoodenFence,
-  Volcano, FerrisWheel, Gazebo,
+  FerrisWheel, Gazebo,
   PineTree, StrawberryPatch, Pagoda, Flagpole,
-  Cloud, Sun, Moon, Stars, Seagull, Butterfly, FallingLeaves, FogLayer,
-  HorizonMountains, HorizonCity, HorizonPines,
+  Seagull, Butterfly, FallingLeaves, FogLayer,
   // Phase 6 additions
   BeachUmbrella, WaveCrest, NeonSign, ConfettiRain, LogStack,
   SmallVolcano, SnowFall, StrawberryRow,
@@ -455,6 +305,12 @@ const DAY_LAYOUTS: Record<number, {
   ]},
 };
 
+// Total checkpoint count across all 6 days — exported so the title screen
+// label stays in sync with the actual data.
+export const CHECKPOINT_COUNT = Object.values(DAY_LAYOUTS)
+  .reduce((n, d) => n + d.pins.length, 0);
+export const DAY_COUNT = Object.keys(DAY_LAYOUTS).length;
+
 const THEME_BG: Record<string, { sky: string; ground: string; zone: string; accent: string }> = {
   coast:    { sky: "#7cc9e8", ground: "#f0d888", zone: "#6ca8e8", accent: "#4c8ce8" },
   urban:    { sky: "#a8b8c8", ground: "#c8c8a8", zone: "#8898a8", accent: "#686878" },
@@ -482,9 +338,7 @@ export function DayOverworld({
   onEncounterWild: () => void;
 }) {
   const layout = DAY_LAYOUTS[day];
-  const theme  = THEME_BG[layout.theme];
   const [pos, setPos] = useState<[number, number]>(layout.spawn);
-  const [nearestId, setNearestId] = useState<string | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [lastDir, setLastDir] = useState<"up" | "down" | "left" | "right">("down");
   const keys = useRef<Record<string, boolean>>({});
@@ -493,11 +347,29 @@ export function DayOverworld({
   const wildPos = WILD_POS[day];
   const [fightDialog, setFightDialog] = useState(false);
   const [fightChoice, setFightChoice] = useState<"yes" | "no">("yes");
-  const [nearWild, setNearWild] = useState(false);
   const heroCreature = starterId ? getCreature(starterId) : null;
   const wildCreature = wildCreatureId ? getCreature(wildCreatureId) : null;
 
-  useEffect(() => { setPos(layout.spawn); setNearestId(null); }, [day, layout.spawn]);
+  // Derived proximity state — recomputed from pos without ever calling setState
+  // (avoids the max-update-depth cascade a useEffect + setState would cause
+  // when pos updates every animation frame).
+  const nearestId = useMemo(() => {
+    let nearest: { id: string; dist: number } | null = null;
+    for (const pin of layout.pins) {
+      const d = Math.hypot(pos[0] - pin.x, pos[1] - pin.y);
+      if (d < INTERACT_RADIUS && (!nearest || d < nearest.dist)) {
+        nearest = { id: pin.id, dist: d };
+      }
+    }
+    return nearest?.id ?? null;
+  }, [pos, layout.pins]);
+
+  const nearWild = useMemo(() => {
+    if (!wildCreature) return false;
+    return Math.hypot(pos[0] - wildPos[0], pos[1] - wildPos[1]) < INTERACT_RADIUS + 10;
+  }, [pos, wildCreature, wildPos]);
+
+  useEffect(() => { setPos(layout.spawn); }, [day, layout.spawn]);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -596,14 +468,15 @@ export function DayOverworld({
             return [nx, ny];
           });
 
-          // Only call setLastDir when the direction actually changes
-          const newDir: "up" | "down" | "left" | "right" =
-            Math.abs(ndx) > Math.abs(ndy)
-              ? (ndx > 0 ? "right" : "left")
-              : (ndy > 0 ? "down" : "up");
-          if (newDir !== lastDirRef.current) {
-            lastDirRef.current = newDir;
-            setLastDir(newDir);
+          // Only update the sprite facing when the player moves HORIZONTALLY.
+          // Pure up/down movement preserves the last horizontal facing so the
+          // hero doesn't suddenly "look the wrong way" when just walking north.
+          if (dx !== 0) {
+            const newDir: "left" | "right" = dx > 0 ? "right" : "left";
+            if (newDir !== lastDirRef.current) {
+              lastDirRef.current = newDir;
+              setLastDir(newDir);
+            }
           }
         }
       }
@@ -617,24 +490,6 @@ export function DayOverworld({
     };
   }, [viewerOpen]);
 
-  useEffect(() => {
-    let nearest: { id: string; dist: number } | null = null;
-    for (const pin of layout.pins) {
-      const d = Math.hypot(pos[0] - pin.x, pos[1] - pin.y);
-      if (d < INTERACT_RADIUS && (!nearest || d < nearest.dist)) {
-        nearest = { id: pin.id, dist: d };
-      }
-    }
-    setNearestId(nearest?.id ?? null);
-
-    // Wild proximity
-    if (wildCreature) {
-      const dw = Math.hypot(pos[0] - wildPos[0], pos[1] - wildPos[1]);
-      setNearWild(dw < INTERACT_RADIUS + 10);
-    } else {
-      setNearWild(false);
-    }
-  }, [pos, layout.pins, wildCreature, wildPos]);
 
   const routePath = useMemo(
     () => layout.pins.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" "),
@@ -664,17 +519,11 @@ export function DayOverworld({
   // Per-day accent colour for screen-edge glow
   const accent = DAY_COLORS[day];
 
-  // All 6 days now use the pixel-tile backdrop
-  const isTiledBg = day === 1 || day === 2 || day === 3 || day === 4 || day === 5 || day === 6;
-  const wrapperStyle: React.CSSProperties = isTiledBg
-    ? {
-        background: "#0a1020",
-        boxShadow: `inset 0 0 30px ${accent}55, inset 0 0 6px ${accent}`,
-      }
-    : {
-        background: `linear-gradient(to bottom, ${theme.sky} 0%, ${theme.sky} 30%, ${theme.ground} 30%, ${theme.accent} 100%)`,
-        boxShadow: `inset 0 0 30px ${accent}55, inset 0 0 6px ${accent}`,
-      };
+  // All 6 days use the pixel-tile backdrop — deep-space BG + day-accent glow
+  const wrapperStyle: React.CSSProperties = {
+    background: "#0a1020",
+    boxShadow: `inset 0 0 30px ${accent}55, inset 0 0 6px ${accent}`,
+  };
 
   return (
     <div className="absolute inset-0" style={wrapperStyle}>
@@ -734,25 +583,7 @@ export function DayOverworld({
           </g>
         )}
 
-        {/* Per-day sky layer (non-Day-1 days still use DaySky) */}
-        {!isTiledBg && <DaySky day={day} />}
-
-        {/* Per-day horizon silhouette */}
-        {!isTiledBg && <DayHorizon day={day} />}
-
-        {/* Zone puddle — organic blob tint (skip on Day 1; tiles indicate walkable area) */}
-        {!isTiledBg && (
-          <path
-            d="M 80 280 Q 300 240 550 270 Q 800 320 820 470 Q 780 600 500 620 Q 220 600 80 500 Z"
-            fill={theme.zone}
-            opacity="0.65"
-          />
-        )}
-
-        {/* Procedural decor scatter (skip on Day 1 — we use hand-tuned placement) */}
-        {!isTiledBg && decor.map((d, i) => (
-          <DecorSprite key={i} type={d.type} x={d.x} y={d.y} theme={layout.theme} />
-        ))}
+        {/* All 6 days use the pixel-tile backdrop — no fallback layers needed */}
 
         {/* Per-day landmarks */}
         <DayLandmarks day={day} />
@@ -844,10 +675,14 @@ export function DayOverworld({
               <foreignObject x={-48} y={-52} width="96" height="96">
                 <div style={{
                   width: 96, height: 96,
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "center",
                   opacity: wildDefeated ? 0.7 : 1,
                   filter: wildDefeated ? "grayscale(0.3)" : "none",
                 }}>
-                  {wildCreature.renderSprite(96, { animated: true })}
+                  {/* Base 64 — internal scale 1.4-1.5 lands visual ~96 (fits foreignObject) */}
+                  {wildCreature.renderSprite(64, { animated: true })}
                 </div>
               </foreignObject>
             </motion.g>
@@ -879,19 +714,29 @@ export function DayOverworld({
 
         {/* Hero — direct transform (no tween) for smooth 60fps motion.
             foreignObject is 120×120 with extra padding so ears/tails never clip. */}
-        <g transform={`translate(${pos[0]}, ${pos[1]})`}>
+        <motion.g
+          transform={`translate(${pos[0]}, ${pos[1]})`}
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          key={`hero-spawn-${day}`}
+        >
           <ellipse cx="0" cy="46" rx="32" ry="7" fill="#000" opacity="0.45" />
           {heroCreature ? (
             <foreignObject x={-60} y={-70} width="120" height="120">
               <div style={{
                 width: 120, height: 120,
-                transform: lastDir === "left" ? "scaleX(-1)" : "scaleX(1)",
+                // PokéAPI front sprites face slightly to the viewer's LEFT by
+                // default — so we flip when walking RIGHT so the hero appears
+                // to look in the direction they're moving.
+                transform: lastDir === "right" ? "scaleX(-1)" : "scaleX(1)",
                 display: "flex",
                 alignItems: "flex-end",
                 justifyContent: "center",
-                paddingBottom: 6,
+                paddingBottom: 8,
               }}>
-                {heroCreature.renderSprite(96, { animated: true })}
+                {/* Base 72 — internal scale 1.4-1.5 yields visual ~108 (fits 120 box) */}
+                {heroCreature.renderSprite(72, { animated: true })}
               </div>
             </foreignObject>
           ) : (
@@ -899,7 +744,7 @@ export function DayOverworld({
               <TrainerOverworld dir={lastDir} />
             </g>
           )}
-        </g>
+        </motion.g>
 
       </svg>
 
@@ -972,50 +817,6 @@ export function DayOverworld({
         </div>
       )}
     </div>
-  );
-}
-
-// ─── Decor sprites ───────────────────────────────────────────────────────
-function DecorSprite({ type, x, y, theme }: { type: string; x: number; y: number; theme: string }) {
-  if (type === "tree") {
-    const darkLeaf = theme === "mountain" ? "#1a4428" : POKE.tree;
-    const lightLeaf = theme === "mountain" ? "#2a6038" : POKE.treeLight;
-    return (
-      <g transform={`translate(${x}, ${y})`}>
-        <ellipse cx="0" cy="26" rx="22" ry="6" fill="#000" opacity="0.3" />
-        <rect x="-6" y="4" width="12" height="22" fill="#5a3a1a" />
-        <circle cx="0" cy="-4" r="24" fill={darkLeaf} />
-        <circle cx="-8" cy="-10" r="12" fill={lightLeaf} />
-        <circle cx="10" cy="-6" r="10" fill={lightLeaf} />
-      </g>
-    );
-  }
-  if (type === "bush") {
-    return (
-      <g transform={`translate(${x}, ${y})`}>
-        <ellipse cx="0" cy="12" rx="20" ry="5" fill="#000" opacity="0.3" />
-        <circle cx="-12" cy="0" r="12" fill={POKE.tree} />
-        <circle cx="12" cy="0" r="12" fill={POKE.tree} />
-        <circle cx="0" cy="-6" r="14" fill={POKE.treeLight} />
-      </g>
-    );
-  }
-  if (type === "rock") {
-    return (
-      <g transform={`translate(${x}, ${y})`}>
-        <ellipse cx="0" cy="12" rx="18" ry="4" fill="#000" opacity="0.3" />
-        <ellipse cx="0" cy="0" rx="18" ry="12" fill={POKE.rock} />
-        <ellipse cx="-6" cy="-4" rx="6" ry="4" fill="#c8c8d0" />
-      </g>
-    );
-  }
-  // flower
-  return (
-    <g transform={`translate(${x}, ${y})`}>
-      <circle cx="0" cy="0" r="6" fill={POKE.flower} />
-      <circle cx="0" cy="0" r="3" fill={POKE.flowerY} />
-      <rect x="-1" y="4" width="2" height="8" fill={POKE.grassDark} />
-    </g>
   );
 }
 
@@ -1126,75 +927,6 @@ function TrainerOverworld({ dir }: { dir: "up" | "down" | "left" | "right" }) {
 // ──────────────────────────────────────────────────────────────────────────
 // PER-DAY SCENES — sky / horizon / landmarks / floaters
 // ──────────────────────────────────────────────────────────────────────────
-function DaySky({ day }: { day: number }) {
-  switch (day) {
-    case 1:
-      return (
-        <g>
-          <Sun x={780} y={80} />
-          <Cloud x={100} y={70} scale={1} speed={55} />
-          <Cloud x={500} y={110} scale={0.8} speed={70} />
-        </g>
-      );
-    case 2:
-      return (
-        <g>
-          <Cloud x={150} y={60} scale={0.9} speed={50} />
-          <Cloud x={600} y={90} scale={1.1} speed={65} />
-        </g>
-      );
-    case 3:
-      return (
-        <g>
-          <rect x="0" y="0" width={WORLD_W} height="280" fill="#0a0a28" opacity="0.6" />
-          <Moon x={770} y={90} />
-          <Stars count={50} />
-        </g>
-      );
-    case 4:
-      return (
-        <g>
-          <Cloud x={100} y={50} scale={0.7} speed={60} />
-          <Cloud x={450} y={80} scale={1} speed={75} />
-          <Cloud x={750} y={60} scale={0.8} speed={55} />
-        </g>
-      );
-    case 5:
-      return (
-        <g>
-          <Cloud x={50} y={70} scale={1.2} speed={80} />
-          <Cloud x={500} y={50} scale={1} speed={90} />
-          <Cloud x={800} y={100} scale={0.9} speed={70} />
-        </g>
-      );
-    case 6:
-      return (
-        <g>
-          <Cloud x={80} y={50} scale={0.8} speed={90} />
-          <Cloud x={550} y={90} scale={1} speed={70} />
-        </g>
-      );
-  }
-  return null;
-}
-
-function DayHorizon({ day }: { day: number }) {
-  switch (day) {
-    case 1: return <HorizonMountains y={180} color="#80a0c8" peaks={5} />;
-    case 2: return <HorizonCity       y={210} color="#404a60" />;
-    case 3: return <HorizonCity       y={200} color="#1a1a3a" />;
-    case 4: return <HorizonMountains y={190} color="#4d8b3d" peaks={4} />;
-    case 5: return <Volcano x={750} y={230} />;
-    case 6: return (
-      <g>
-        <HorizonPines y={180} color="#2a1a4a" />
-        <HorizonPines y={210} color="#1a0830" />
-      </g>
-    );
-  }
-  return null;
-}
-
 function DayLandmarks({ day }: { day: number }) {
   switch (day) {
     case 1:

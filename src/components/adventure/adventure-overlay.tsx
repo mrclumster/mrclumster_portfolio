@@ -39,9 +39,11 @@ export function AdventureOverlay() {
           >
             WASD / ↑↓←→&nbsp;&nbsp;MOVE
             <br />
-            Z / ENTER&nbsp;&nbsp;&nbsp;&nbsp;INTERACT
+            A / Z / ENTER&nbsp;&nbsp;INTERACT
             <br />
-            TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALL PHOTOS
+            TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALL PHOTOS
+            <br />
+            ESC / B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BACK
           </motion.div>
         )}
       </AnimatePresence>

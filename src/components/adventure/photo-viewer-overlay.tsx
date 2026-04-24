@@ -97,16 +97,24 @@ export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string)
           className="fixed inset-0 z-[9500] bg-black/92 flex flex-col items-center justify-center p-6"
           style={{ fontFamily: "var(--font-press-start-2p, 'Press Start 2P'), monospace" }}
         >
-          {/* Top bar: mode label + counter */}
-          <div className="flex justify-between items-center w-full max-w-4xl mb-3">
+          {/* Top bar: mode label + current location + counter */}
+          <div className="flex justify-between items-center w-full max-w-4xl mb-3 gap-3">
             <button
               onClick={toggleMode}
               className="px-3 py-2 bg-black/80 text-amber-400 text-[10px] border border-amber-400/50
-                         hover:bg-amber-400/20 transition-colors"
+                         hover:bg-amber-400/20 transition-colors flex-shrink-0"
             >
               {mode === "highlights" ? "★ HIGHLIGHTS" : "ALL PHOTOS"}
             </button>
-            <span className="px-3 py-2 bg-black/80 text-white/80 text-[10px] border border-white/30">
+            <div
+              className="flex-1 text-center text-[10px] text-white/90 tracking-widest truncate px-2"
+              title={`${open.location.dayLabel} — ${open.location.name}`}
+            >
+              <span className="text-amber-300">{open.location.dayLabel}</span>
+              <span className="text-white/40 mx-2">·</span>
+              <span>{open.location.name.toUpperCase()}</span>
+            </div>
+            <span className="px-3 py-2 bg-black/80 text-white/80 text-[10px] border border-white/30 flex-shrink-0">
               {active.length ? `${index + 1} / ${active.length}` : "0 / 0"}
             </span>
           </div>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MobileFallback } from "./mobile-fallback";
 import { AdventureOverlay } from "./adventure-overlay";
-import { GameLoaderScreen } from "./game-loader-screen";
 import { ZoneBanner } from "./zone-banner";
 import { DayBanner } from "./day-banner";
 import { PhotoViewerOverlay } from "./photo-viewer-overlay";
@@ -18,12 +17,13 @@ import { getCreature, CREATURES, assignDayBosses } from "./creatures";
 import { prewarmCreatureCache } from "./poke-api";
 import { audio } from "./audio";
 
-type Screen = "boot" | "title" | "starter" | "menu" | "world" | "arena" | "battle";
-const BOOTED_KEY = "adventure-booted"; // sessionStorage — skip boot after first time
+type Screen = "title" | "starter" | "menu" | "world" | "arena" | "battle";
 type BattleReturn = "arena" | "world";
 
 const STARTER_KEY     = "adventure-starter";
 const DEFEATED_KEY    = "adventure-defeated-wilds";
+const MUTED_KEY       = "adventure-muted";
+const VOLUME_KEY      = "adventure-volume";
 
 function isMobileOrTouch() {
   // Only block devices narrower than a modern phone — everything 360+ can play
@@ -34,19 +34,24 @@ function isMobileOrTouch() {
 export function AdventureShell() {
   const [mounted, setMounted]     = useState(false);
   const [mobile, setMobile]       = useState(false);
-  const [ready, setReady]         = useState(false);
-  const [screen, setScreen]       = useState<Screen>(() => {
-    // Skip boot+splash on subsequent screens within the same tab session
-    if (typeof window !== "undefined" && sessionStorage.getItem(BOOTED_KEY)) return "title";
-    return "boot";
-  });
+  const [screen, setScreen]       = useState<Screen>("title");
   const [activeDay, setActiveDay] = useState<number>(1);
   const [visited, setVisited]     = useState<Set<number>>(new Set());
   const [starterId, setStarterId]     = useState<string | null>(null);
   const [battleOpponent, setBattleOpponent] = useState<string | null>(null);
   const [battleReturnTo, setBattleReturnTo] = useState<BattleReturn>("arena");
   const [defeatedWilds, setDefeatedWilds]   = useState<Set<number>>(new Set());
-  const [muted, setMuted]         = useState(true);
+  const [muted, setMuted]         = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const raw = localStorage.getItem(MUTED_KEY);
+    return raw === null ? true : raw === "1";
+  });
+  const [volume, setVolume]       = useState<number>(() => {
+    if (typeof window === "undefined") return 0.35;
+    const raw = localStorage.getItem(VOLUME_KEY);
+    const n = raw === null ? 0.35 : parseFloat(raw);
+    return isNaN(n) ? 0.35 : Math.max(0, Math.min(1, n));
+  });
   const [videoSrc, setVideoSrc]   = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,15 +79,11 @@ export function AdventureShell() {
     // Pre-warm PokéAPI data in the background so the first battle has live data
     prewarmCreatureCache(CREATURES.map((c) => c.dexId));
 
-    // Boot animation ends quickly — show the console immediately
-    const t = setTimeout(() => setReady(true), 500);
-
     const handleVideoPlay = (e: Event) =>
       setVideoSrc((e as CustomEvent<{ src: string }>).detail.src);
 
     window.addEventListener("adventure-video-play", handleVideoPlay);
     return () => {
-      clearTimeout(t);
       window.removeEventListener("adventure-video-play", handleVideoPlay);
     };
   }, []);
@@ -101,19 +102,47 @@ export function AdventureShell() {
   // Sync mute toggle with audio manager
   useEffect(() => {
     audio.setMuted(muted);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(MUTED_KEY, muted ? "1" : "0");
+    }
   }, [muted]);
 
-  // ESC / B = back one level
+  // Volume sync + persist
+  useEffect(() => {
+    audio.setVolume(volume);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(VOLUME_KEY, String(volume));
+    }
+  }, [volume]);
+
+  // ESC / B = back one level. Every screen has a well-defined "back" target so
+  // the user can never get trapped.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (screen === "world")  setScreen("menu");
-      else if (screen === "arena") setScreen("menu");
-      else if (screen === "menu")  setScreen("title");
+      if (screen === "world")       setScreen("menu");
+      else if (screen === "arena")  setScreen("menu");
+      else if (screen === "menu")   setScreen("title");
+      else if (screen === "starter") setScreen("title");
+      else if (screen === "battle") {
+        // Treat ESC-from-battle as a bail-out (same as RUN). Return to wherever the
+        // battle was launched from — world or arena — without awarding victory.
+        setBattleOpponent(null);
+        setScreen(battleReturnTo);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [screen]);
+  }, [screen, battleReturnTo]);
+
+  // Safety: if starterId is cleared while a battle is mounted (e.g. user
+  // opens "change partner" mid-fight), unmount the battle and go back to menu.
+  useEffect(() => {
+    if (screen === "battle" && !starterId) {
+      setBattleOpponent(null);
+      setScreen("menu");
+    }
+  }, [screen, starterId]);
 
   const closeVideo = () => {
     setVideoSrc(null);
@@ -125,32 +154,24 @@ export function AdventureShell() {
     setScreen("world");
   };
 
-  if (!mounted) return <div className="fixed inset-0 bg-black" />;
+  // Pre-mount fallback: cream so there's no dark flash before the passport fades in
+  if (!mounted) return <div className="fixed inset-0" style={{ background: "#e8dbb8" }} />;
   if (mobile)   return <MobileFallback />;
 
   return (
     <>
-      <ConsoleFrame muted={muted} onMuteToggle={() => setMuted((m) => !m)}>
+      <ConsoleFrame
+        muted={muted}
+        onMuteToggle={() => setMuted((m) => !m)}
+        volume={volume}
+        onVolumeChange={setVolume}
+      >
         <AnimatePresence mode="wait">
-          {screen === "boot" && (
-            <motion.div key="boot" className="absolute inset-0"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}>
-              <PassportBoot
-                cinematic
-                onDone={() => {
-                  if (typeof window !== "undefined") sessionStorage.setItem(BOOTED_KEY, "1");
-                  setScreen(starterId ? "menu" : "starter");
-                }}
-              />
-            </motion.div>
-          )}
           {screen === "title" && (
             <motion.div key="title" className="absolute inset-0"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}>
               <PassportBoot
-                cinematic={false}
                 onDone={() => setScreen(starterId ? "menu" : "starter")}
               />
             </motion.div>
@@ -223,6 +244,7 @@ export function AdventureShell() {
               <BattleScene
                 player={getCreature(starterId)}
                 opponent={getCreature(battleOpponent)}
+                day={battleReturnTo === "world" ? activeDay : undefined}
                 onExit={(result) => {
                   // Mark wild defeated if victory happened in a world-launched battle
                   if (battleReturnTo === "world" && result === "victory") {
@@ -243,25 +265,16 @@ export function AdventureShell() {
         </AnimatePresence>
       </ConsoleFrame>
 
-      {/* Loading screen — fades out when the boot is done */}
-      <AnimatePresence>
-        {!ready && <GameLoaderScreen key="loader" progress={0.8} />}
-      </AnimatePresence>
+      <AdventureOverlay />
 
-      {ready && (
-        <>
-          <AdventureOverlay />
+      <div className="pointer-events-none fixed inset-0 z-[9001]">
+        <ZoneBanner />
+      </div>
+      <div className="pointer-events-none fixed inset-0 z-[9002]">
+        <DayBanner />
+      </div>
 
-          <div className="pointer-events-none fixed inset-0 z-[9001]">
-            <ZoneBanner />
-          </div>
-          <div className="pointer-events-none fixed inset-0 z-[9002]">
-            <DayBanner />
-          </div>
-
-          <PhotoViewerOverlay onVideoPlay={setVideoSrc} />
-        </>
-      )}
+      <PhotoViewerOverlay onVideoPlay={setVideoSrc} />
 
       {/* Fullscreen video overlay */}
       <AnimatePresence>

@@ -186,30 +186,37 @@ export function assignDayBosses(starterId: string): Record<number, string> {
   return map;
 }
 
-// Type effectiveness — simplified
+// Type effectiveness — canonical chart for the 12 types the game uses.
+// Keys are the attacking move's type; values list defender types with 2x
+// (EFFECTIVE) or 0.5x (RESISTED) damage. 0x (no effect) is handled inline
+// in `effectiveness()` below.
 const EFFECTIVE: Record<string, string[]> = {
-  electric: ["flying", "water"],
-  water:    ["fire", "rock"],
-  flying:   ["grass"],
-  grass:    ["rock", "water"],
+  normal:   [],
   fire:     ["grass", "ice"],
+  water:    ["fire", "rock"],
+  electric: ["water", "flying"],
+  grass:    ["water", "rock"],
   ice:      ["grass", "flying"],
-  rock:     ["flying", "fire"],
+  flying:   ["grass", "fighting", "bug"],
+  rock:     ["fire", "ice", "flying"],
   ghost:    ["ghost", "psychic"],
-  psychic:  ["poison"],
+  psychic:  ["poison", "fighting"],
+  fairy:    ["ghost", "fighting", "dragon", "dark"],
   poison:   ["grass", "fairy"],
-  fairy:    ["ghost"],
 };
 const RESISTED: Record<string, string[]> = {
-  electric: ["electric", "grass"],
+  normal:   ["rock"],
+  fire:     ["fire", "water", "rock"],
   water:    ["water", "grass"],
-  grass:    ["grass", "fire", "flying", "poison"],
-  fire:     ["fire", "rock"],
-  rock:     ["normal"],
-  normal:   ["rock", "ghost"],
-  ghost:    ["normal"],
+  electric: ["electric", "grass"],
+  grass:    ["fire", "grass", "flying", "poison", "bug"],
+  ice:      ["fire", "water", "ice"],
+  flying:   ["electric", "rock"],
+  rock:     ["fighting"],
+  ghost:    [],
   psychic:  ["psychic"],
-  poison:   ["poison", "ghost"],
+  fairy:    ["fire", "poison"],
+  poison:   ["poison", "rock", "ghost"],
 };
 
 export function effectiveness(moveType: CreatureType, defenderTypes: CreatureType[]): {
@@ -220,7 +227,9 @@ export function effectiveness(moveType: CreatureType, defenderTypes: CreatureTyp
   for (const t of defenderTypes) {
     if (EFFECTIVE[moveType]?.includes(t)) mult *= 2;
     else if (RESISTED[moveType]?.includes(t)) mult *= 0.5;
+    // No-effect (0x) pairings
     if (moveType === "normal" && t === "ghost") mult *= 0;
+    if (moveType === "ghost"  && t === "normal") mult *= 0;
   }
   const message =
     mult === 0 ? "It had no effect…" :
