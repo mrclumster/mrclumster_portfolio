@@ -5,7 +5,9 @@
       "Bash(awk '{s+=$1} END {print s/1024/1024 \" MB\"}')",
       "Bash(node -e \"const m=require\\('./src/game/data/trip-manifest.generated.json'\\); console.log\\('sample:', m['1'].airport[0]\\)\")",
       "Bash(NEXT_PUBLIC_MEDIA_BASE=https://pub-test.r2.dev node scripts/build-trip-manifest.mjs)",
-      "Bash(node -e \"const m=require\\('./src/game/data/trip-manifest.generated.json'\\); const items=Object.values\\(m\\).flatMap\\(d=>Object.values\\(d\\).flat\\(\\)\\); const upper=items.filter\\(x=>/\\\\.\\(MOV|JPG|JPEG|PNG\\)\\\\$/.test\\(x.src\\)\\); console.log\\('manifest items with uppercase ext:', upper.length, '/', items.length\\); console.log\\('sample:', upper.slice\\(0,3\\).map\\(x=>x.src\\)\\);\")"
+      "Bash(node -e \"const m=require\\('./src/game/data/trip-manifest.generated.json'\\); const items=Object.values\\(m\\).flatMap\\(d=>Object.values\\(d\\).flat\\(\\)\\); const upper=items.filter\\(x=>/\\\\.\\(MOV|JPG|JPEG|PNG\\)\\\\$/.test\\(x.src\\)\\); console.log\\('manifest items with uppercase ext:', upper.length, '/', items.length\\); console.log\\('sample:', upper.slice\\(0,3\\).map\\(x=>x.src\\)\\);\")",
+      "Bash(node -e \"const m=require\\('./src/game/data/trip-manifest.generated.json'\\); const vids=Object.values\\(m\\).flatMap\\(d=>Object.values\\(d\\).flat\\(\\)\\).filter\\(x=>x.type==='video'\\); console.log\\('videos in manifest:', vids.length\\); console.log\\('sample:', vids[0]\\);\")",
+      "Bash(node -e \"const m=require\\('./src/game/data/trip-manifest.generated.json'\\); const vids=Object.values\\(m\\).flatMap\\(d=>Object.values\\(d\\).flat\\(\\)\\).filter\\(x=>x.type==='video'\\); console.log\\('videos in manifest:', vids.length\\); console.log\\('first 3:'\\); vids.slice\\(0,3\\).forEach\\(v=>console.log\\(' ', v.src\\)\\);\")"
     ]
   }
 }

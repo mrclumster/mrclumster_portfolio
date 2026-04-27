@@ -569,7 +569,7 @@ function ScrapbookProps({ mouseX, mouseY }: { mouseX: number; mouseY: number }) 
     depth: number;
     mobile?: boolean;
   }> = [
-    { id: "pol-d1",        node: <Polaroid     scene="palm"     caption="MANILA · D1" videoSrc="/adventure/scrapbook/mnl.mov" />, top: "8%",   left: "4%",   angle: -9,  depth: 0.8, mobile: true  },
+    { id: "pol-d1",        node: <Polaroid     scene="palm"     caption="MANILA · D1" videoSrc="/adventure/scrapbook/mnl.mp4" />, top: "8%",   left: "4%",   angle: -9,  depth: 0.8, mobile: true  },
     { id: "pol-d6",        node: <Polaroid     scene="mountain" caption="BAGUIO · D6" imageSrc="/adventure/scrapbook/baguio.jpg" />, bottom: "8%",  left: "4%",   angle: 8,   depth: 0.8, mobile: true  },
     { id: "tk-zam-mnl",    node: <Ticket       from="ZAM" to="MNL" />,                      top: "24%",  left: "22%",  angle: 5,   depth: 0.5, mobile: true  },
     { id: "tk-mnl-zam",    node: <Ticket       from="MNL" to="ZAM" />,                      top: "45%",  left: "3%",   angle: 12,  depth: 0.6, mobile: true  },
