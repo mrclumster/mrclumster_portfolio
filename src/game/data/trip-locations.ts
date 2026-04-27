@@ -17,20 +17,54 @@ export interface TripLocation {
   lat: number;
   lng: number;
   photos: TripPhoto[]; // __ highlighted photos shown first in the viewer
+  // Subfolder under public/images/trip/day-<day>/ that holds the full photo
+  // dump for this location. The photo viewer uses this to load every file
+  // in that folder when the user presses TAB.
+  folder?: string;
 }
 
+// Defaults to local /public for dev. Production (and preview) sets this to
+// the R2 public URL with no trailing slash. The manifest generator reads the
+// same env var so prebuilt JSON URLs stay aligned with runtime URLs.
+const MEDIA_BASE = process.env.NEXT_PUBLIC_MEDIA_BASE ?? "/images/trip";
+
 // Fallback for any missing photo
-export const PLACEHOLDER_PHOTO = "/images/trip/placeholder.svg";
+export const PLACEHOLDER_PHOTO = `${MEDIA_BASE}/placeholder.svg`;
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 // Builds a TripPhoto with the correct subfolder URL.
 // Folder names with spaces are encoded so browsers can fetch them.
 function p(day: number, folder: string, file: string, caption = "", type?: "photo" | "video"): TripPhoto {
+  // The image pipeline (public/images/script.py) converts all jpg/jpeg/png/heic
+  // to .webp on disk, and compress-videos.py converts .mov to .mp4. Swap the
+  // extension here so legacy filename references still resolve.
+  const isVideo = /\.(mov|mp4|m4v|webm)$/i.test(file);
+  const resolvedFile = isVideo
+    ? file.replace(/\.(mov|m4v)$/i, ".mp4")
+    : file.replace(/\.(jpe?g|png|heic|heif)$/i, ".webp");
   return {
-    src: `/images/trip/day-${day}/${encodeURIComponent(folder)}/${file}`,
+    src: `${MEDIA_BASE}/day-${day}/${encodeURIComponent(folder)}/${resolvedFile}`,
     caption,
-    type: type ?? (file.toUpperCase().endsWith(".MOV") ? "video" : "photo"),
+    type: type ?? (isVideo ? "video" : "photo"),
   };
+}
+
+// ─── Auto-generated folder manifest ──────────────────────────────────────────
+// scripts/build-trip-manifest.mjs walks public/images/trip/ at predev/prebuild
+// and writes a JSON map: { "<day>": { "<folder>": [{src,type}, ...] } }.
+// We import it here so each TripLocation can advertise the *full* contents of
+// its folder without us hand-listing every file.
+import manifestJson from "./trip-manifest.generated.json";
+
+type ManifestEntry = { src: string; type: "photo" | "video" };
+const manifest = manifestJson as Record<string, Record<string, ManifestEntry[]>>;
+
+export function getLocationFolderPhotos(loc: TripLocation): TripPhoto[] {
+  if (!loc.folder) return [];
+  const dayBucket = manifest[String(loc.day)];
+  const items = dayBucket?.[loc.folder];
+  if (!items) return [];
+  return items.map((item) => ({ src: item.src, caption: "", type: item.type }));
 }
 
 // ─── ALL PHOTOS per day (highlights first, then dump) ────────────────────────
@@ -207,6 +241,7 @@ export const tripLocations: TripLocation[] = [
     description: "Departed Zamboanga early morning, arrived in Manila. The trip officially starts!",
     mapTileX: 10, mapTileY: 8,
     lat: 14.5086, lng: 121.0194,
+    folder: "airport",
     photos: [
       p(1, "airport", "__2026_04_05_06_26_IMG_5982.JPG", "Early morning — departure day"),
       p(1, "airport", "__2026_04_05_08_14_IMG_6015.JPG", "Arriving in Manila"),
@@ -220,6 +255,7 @@ export const tripLocations: TripLocation[] = [
     description: "The Walled City — 500-year-old Spanish colonial streets and Fort Santiago.",
     mapTileX: 18, mapTileY: 14,
     lat: 14.5906, lng: 120.9745,
+    folder: "intramuros",
     photos: [
       p(1, "intramuros", "__2026_04_05_14_06_IMG_6022.JPG", "Intramuros"),
       p(1, "intramuros", "__2026_04_05_15_27_IMG_6043.JPG", "The Walled City"),
@@ -233,6 +269,7 @@ export const tripLocations: TripLocation[] = [
     description: "One of Asia's largest malls, right on Manila Bay.",
     mapTileX: 27, mapTileY: 9,
     lat: 14.5354, lng: 120.9824,
+    folder: "MOA",
     photos: [
       p(1, "MOA", "__IMG_20260405_172123.jpg", "Mall of Asia"),
     ],
@@ -247,6 +284,7 @@ export const tripLocations: TripLocation[] = [
     description: "Home base for the trip — a dorm in QC where everyone stayed.",
     mapTileX: 48, mapTileY: 6,
     lat: 14.654, lng: 121.0443,
+    folder: "DJM DORM",
     photos: [
       p(2, "DJM DORM", "__2026_04_06_07_06_IMG_6055.JPG", "Morning at DJM Dorm"),
     ],
@@ -259,6 +297,7 @@ export const tripLocations: TripLocation[] = [
     description: "Industrial tech company in Caloocan. Saw real-world engineering systems up close.",
     mapTileX: 56, mapTileY: 12,
     lat: 14.676, lng: 120.9822,
+    folder: "Hytec Power Inc",
     photos: [
       p(2, "Hytec Power Inc", "__2026_04_06_08_52_IMG_6059.JPG", "Hytec Power Inc."),
       p(2, "Hytec Power Inc", "__2026_04_06_09_25_IMG_6067.JPG", "Engineering systems"),
@@ -274,6 +313,7 @@ export const tripLocations: TripLocation[] = [
     description: "OpenText office in Makati at the iconic RCBC Plaza. Global tech company visit.",
     mapTileX: 51, mapTileY: 18,
     lat: 14.562, lng: 121.0197,
+    folder: "OpenText",
     photos: [], // no highlights — viewer opens in ALL PHOTOS mode
   },
 
@@ -286,6 +326,7 @@ export const tripLocations: TripLocation[] = [
     description: "Metro Manila Development Authority in Pasig. Saw how Metro Manila's traffic is managed.",
     mapTileX: 12, mapTileY: 36,
     lat: 14.5791, lng: 121.0487,
+    folder: "MMDA",
     photos: [
       p(3, "MMDA", "__2026_04_07_10_21_IMG_6124.JPG", "MMDA Headquarters"),
     ],
@@ -298,6 +339,7 @@ export const tripLocations: TripLocation[] = [
     description: "Night out at BGC High Street. Neon lights, street art, and the whole squad.",
     mapTileX: 20, mapTileY: 44,
     lat: 14.5508, lng: 121.0465,
+    folder: "BGC",
     photos: [
       p(3, "BGC", "__2026_04_07_21_16_IMG_6160.JPG", "BGC at night"),
       p(3, "BGC", "__2026_04_07_21_17_IMG_6388.JPG", "BGC High Street"),
@@ -315,6 +357,7 @@ export const tripLocations: TripLocation[] = [
     description: "Top Peg Animation Studio + Microsourcing Eastwood. Drew a cute cat. Proudest moment.",
     mapTileX: 52, mapTileY: 44,
     lat: 14.611, lng: 121.0776,
+    folder: "photoDUMP only",
     photos: [
       p(4, "photoDUMP only", "__IMG_20260408_004253.jpg",        "Late night"),
       p(4, "photoDUMP only", "__2026_04_08_10_38_IMG_6168.JPG",  "Top Peg Animation Studio"),
@@ -331,6 +374,7 @@ export const tripLocations: TripLocation[] = [
     description: "Tagaytay. Stood on a cliff with a breathtaking view of Taal Volcano.",
     mapTileX: 88, mapTileY: 40,
     lat: 14.1204, lng: 120.9368,
+    folder: "Tagaytay",
     photos: [
       p(5, "Tagaytay", "__2026_04_09_08_05_IMG_6191.MOV", "People's Park — the view!"),
       p(5, "Tagaytay", "__2026_04_09_08_14_IMG_6217.MOV", "Taal Volcano video"),
@@ -345,6 +389,7 @@ export const tripLocations: TripLocation[] = [
     description: "Rides and fun with the group. The ferris wheel view over Taal Lake was unreal.",
     mapTileX: 82, mapTileY: 32,
     lat: 14.0958, lng: 120.9376,
+    folder: "Skyranch",
     photos: [
       p(5, "Skyranch", "__IMG_20260409_102235.jpg", "Sky Ranch Tagaytay"),
     ],
@@ -359,6 +404,7 @@ export const tripLocations: TripLocation[] = [
     description: "1am overnight bus from QC. 6 hours of mountains. Arrived in Baguio at dawn.",
     mapTileX: 82, mapTileY: 12,
     lat: 16.4023, lng: 120.596,
+    folder: "PHOTO DUMP",
     photos: [
       p(6, "PHOTO DUMP", "__2026_04_10_02_04_IMG_6399.JPG", "1am — on the overnight bus to Baguio"),
     ],
@@ -371,6 +417,7 @@ export const tripLocations: TripLocation[] = [
     description: "First stop in Baguio after arriving at dawn. Fresh strawberries straight from the field!",
     mapTileX: 90, mapTileY: 8,
     lat: 16.4436, lng: 120.5884,
+    folder: "La Trinidad Strawberry Farm",
     photos: [
       p(6, "La Trinidad Strawberry Farm", "__2026_04_10_05_52_IMG_6402.MOV", "Arriving in Baguio"),
       p(6, "La Trinidad Strawberry Farm", "__2026_04_10_06_54_IMG_6414.JPG", "Strawberry Farm — La Trinidad"),
@@ -384,6 +431,7 @@ export const tripLocations: TripLocation[] = [
     description: "Chinese-Filipino temple in Baguio. Peaceful, colorful, and beautiful architecture.",
     mapTileX: 96, mapTileY: 6,
     lat: 16.4378, lng: 120.5833,
+    folder: "Bell Church",
     photos: [
       p(6, "Bell Church", "__2026_04_10_07_30_IMG_6446.JPG", "Bell Church entrance"),
       p(6, "Bell Church", "__2026_04_10_07_31_IMG_6448.JPG", "Bell Church"),
@@ -399,6 +447,7 @@ export const tripLocations: TripLocation[] = [
     description: "Philippine Military Academy — the most prestigious military school in the Philippines.",
     mapTileX: 103, mapTileY: 10,
     lat: 16.3647, lng: 120.6183,
+    folder: "PMA",
     photos: [
       p(6, "PMA", "__2026_04_10_13_45_IMG_6544.MOV", "Mines View Park"),
       p(6, "PMA", "__2026_04_10_13_49_IMG_6579.JPG", "Cordillera mountain view"),
@@ -412,6 +461,7 @@ export const tripLocations: TripLocation[] = [
     description: "Burnham Park, Session Road, pasalubong shopping. Last hours in Baguio.",
     mapTileX: 108, mapTileY: 15,
     lat: 16.4118, lng: 120.5927,
+    folder: "PHOTO DUMP",
     photos: [
       p(6, "PHOTO DUMP", "__2026_04_10_15_16_IMG_6654.JPG", "Burnham Park — last day in Baguio"),
     ],

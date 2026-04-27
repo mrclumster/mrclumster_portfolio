@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, CSSProperties } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import type { Creature, Move, CreatureType } from "./creatures";
 import { computeDamage, effectiveness } from "./creatures";
+import { useIsMobile } from "./use-is-mobile";
 import { POKE } from "./adventure-screens";
 import { useCreatureData } from "./poke-api";
 import { getMoveFx, allFxUrls, type FxMode } from "./move-fx";
@@ -135,11 +136,24 @@ interface DmgNum {
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, day }: Props) {
+  const { isMobile } = useIsMobile();
   // Live PokéAPI merge (falls back to hardcoded if offline)
   const { data: playerApi   } = useCreatureData(rawPlayer.dexId);
   const { data: opponentApi } = useCreatureData(rawOpponent.dexId);
   const player   = mergeApiData(rawPlayer, playerApi);
   const opponent = mergeApiData(rawOpponent, opponentApi);
+
+  // ── Responsive sprite sizing — phones get smaller sprites + tighter
+  // containers so the platform ellipses stay visible underneath. ──────
+  const oppBoxW    = isMobile ? 140 : 200;
+  const oppBoxH    = isMobile ? 120 : 170;
+  const oppSprite  = isMobile ?  74 : 110;
+  const oppPadBtm  = isMobile ?  18 :  28;
+
+  const plyBoxW    = isMobile ? 150 : 260;
+  const plyBoxH    = isMobile ? 130 : 210;
+  const plySprite  = isMobile ?  84 : 140;
+  const plyPadBtm  = isMobile ?  18 :  32;
 
   // Live HP pools (initialised to max)
   const [playerHp,   setPlayerHp]   = useState(player.maxHp);
@@ -745,19 +759,20 @@ export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, 
         <div
           className="absolute"
           style={{
-            right: "14%", top: "14%",
-            width: 200, height: 170,
+            right: isMobile ? "8%"  : "14%",
+            top:   isMobile ? "10%" : "14%",
+            width: oppBoxW, height: oppBoxH,
             pointerEvents: "none",
           }}
         >
-          <BattlePlatform />
+          <BattlePlatform mobile={isMobile} />
           <EntryDust side="right" />
           <motion.div
             initial={{ x: 200, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="relative flex items-end justify-center"
-            style={{ zIndex: 2, width: "100%", height: "100%", paddingBottom: 28 }}
+            style={{ zIndex: 2, width: "100%", height: "100%", paddingBottom: oppPadBtm }}
           >
             <motion.div animate={opponentAnim} className="flex items-end justify-center">
               <motion.div
@@ -770,8 +785,7 @@ export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, 
                   transition={{ duration: 0.6 }}
                   style={{ display: "flex", alignItems: "flex-end", justifyContent: "center" }}
                 >
-                  {/* Small base size — sprites have internal scale 1.4-1.5 so visual lands ~160-170 */}
-                  {opponent.renderSprite(110, { animated: true })}
+                  {opponent.renderSprite(oppSprite, { animated: true })}
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -783,12 +797,18 @@ export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, 
           initial={{ x: -400, opacity: 0 }}
           animate={{ x: 0,    opacity: 1 }}
           transition={{ duration: 0.45, delay: 0.1 }}
-          style={{ position: "absolute", left: "4%", top: "5%", minWidth: 260, ...dialogBoxStyle() }}
-          className="p-3"
+          style={{
+            position: "absolute",
+            left: isMobile ? "3%" : "4%",
+            top:  isMobile ? "3%" : "5%",
+            minWidth: isMobile ? 200 : 260,
+            ...dialogBoxStyle(),
+          }}
+          className={isMobile ? "p-2" : "p-3"}
         >
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <span className="text-[14px]" style={{ color: POKE.text }}>{opponent.name}</span>
-            <span className="text-[11px]" style={{ color: POKE.text }}>Lv{opponent.level}</span>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span style={{ color: POKE.text, fontSize: isMobile ? 11 : 14 }}>{opponent.name}</span>
+            <span style={{ color: POKE.text, fontSize: isMobile ? 9 : 11 }}>Lv{opponent.level}</span>
             {opponentStatus && <StatusChip status={opponentStatus} />}
             <div className="flex gap-1 ml-auto">
               {opponent.types.map((t) => <TypeChip key={t} type={t} />)}
@@ -801,19 +821,20 @@ export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, 
         <div
           className="absolute"
           style={{
-            left: "12%", bottom: "8%",
-            width: 260, height: 210,
+            left:   isMobile ? "3%"  : "12%",
+            bottom: isMobile ? "22%" : "8%",
+            width: plyBoxW, height: plyBoxH,
             pointerEvents: "none",
           }}
         >
-          <BattlePlatform wide />
+          <BattlePlatform wide mobile={isMobile} />
           <EntryDust side="left" />
           <motion.div
             initial={{ x: -200, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut", delay: 0.25 }}
             className="relative flex items-end justify-center"
-            style={{ zIndex: 2, width: "100%", height: "100%", paddingBottom: 32 }}
+            style={{ zIndex: 2, width: "100%", height: "100%", paddingBottom: plyPadBtm }}
           >
             <motion.div animate={playerAnim} className="flex items-end justify-center">
               <motion.div
@@ -826,8 +847,7 @@ export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, 
                   transition={{ duration: 0.6 }}
                   style={{ display: "flex", alignItems: "flex-end", justifyContent: "center" }}
                 >
-                  {/* Small base size — internal scale 1.4-1.5 pushes visual to ~195-210 */}
-                  {player.renderSprite(140, { back: true, animated: true })}
+                  {player.renderSprite(plySprite, { back: true, animated: true })}
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -839,12 +859,18 @@ export function BattleScene({ player: rawPlayer, opponent: rawOpponent, onExit, 
           initial={{ x: 400, opacity: 0 }}
           animate={{ x: 0,   opacity: 1 }}
           transition={{ duration: 0.45, delay: 0.35 }}
-          style={{ position: "absolute", right: "4%", bottom: "4%", minWidth: 300, ...dialogBoxStyle() }}
-          className="p-3"
+          style={{
+            position: "absolute",
+            right:  isMobile ? "3%" : "4%",
+            bottom: isMobile ? "3%" : "4%",
+            minWidth: isMobile ? 200 : 300,
+            ...dialogBoxStyle(),
+          }}
+          className={isMobile ? "p-2" : "p-3"}
         >
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <span className="text-[14px]" style={{ color: POKE.text }}>{player.name}</span>
-            <span className="text-[11px]" style={{ color: POKE.text }}>Lv{player.level}</span>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span style={{ color: POKE.text, fontSize: isMobile ? 11 : 14 }}>{player.name}</span>
+            <span style={{ color: POKE.text, fontSize: isMobile ? 9 : 11 }}>Lv{player.level}</span>
             {playerStatus && <StatusChip status={playerStatus} />}
             <div className="flex gap-1 ml-auto">
               {player.types.map((t) => <TypeChip key={t} type={t} />)}
@@ -1755,6 +1781,28 @@ function EndBanner({
           </div>
         )}
 
+        {/* Victory XP flourish — cosmetic only (everyone is L99). */}
+        {victorious && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 1.9 }}
+            className="mt-3 px-3 py-2 mx-auto inline-block"
+            style={{
+              border: "2px solid #ffd93a",
+              background: "rgba(255, 217, 58, 0.08)",
+              minWidth: 180,
+            }}
+          >
+            <div className="text-[10px]" style={{ color: "#ffd93a", letterSpacing: 2, textShadow: "1px 1px 0 #000" }}>
+              + {exp} EXP
+            </div>
+            <div className="mt-1 text-[7px]" style={{ color: POKE.textShadow, letterSpacing: 1 }}>
+              {playerName} GAINED EXPERIENCE!
+            </div>
+          </motion.div>
+        )}
+
         <div className="mt-4 text-[8px]" style={{ color: POKE.textShadow, fontFamily: "'Press Start 2P', monospace" }}>
           PRESS ENTER / Z / A
         </div>
@@ -1792,13 +1840,17 @@ function FeatBadge({ color, label }: { color: string; label: string }) {
 
 // ── Small components ─────────────────────────────────────────────────────
 
-function BattlePlatform({ wide = false }: { wide?: boolean }) {
+function BattlePlatform({ wide = false, mobile = false }: { wide?: boolean; mobile?: boolean }) {
+  // Mobile sizes match the smaller sprite footprint so the ellipse stays
+  // visible underneath instead of being smothered by the sprite.
+  const w = mobile ? (wide ? 140 : 130) : (wide ? 260 : 200);
+  const h = mobile ? (wide ?  30 :  28) : (wide ?  50 :  40);
   return (
     <div
       className="absolute"
       style={{
-        width: wide ? 260 : 200,
-        height: wide ? 50 : 40,
+        width: w,
+        height: h,
         borderRadius: "50%",
         background: "radial-gradient(ellipse at center, #a0d080 0%, #60905a 60%, #3a6030 100%)",
         border: "3px solid #2d4a22",

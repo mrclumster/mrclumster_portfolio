@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const m = require\\('./src/game/data/trip-manifest.generated.json'\\); console.log\\('Day 1 folders:', Object.keys\\(m['1']\\)\\); console.log\\('airport count:', m['1'].airport.length\\); console.log\\('first 3 airport items:', m['1'].airport.slice\\(0,3\\)\\);\")",
+      "Bash(awk '{s+=$1} END {print s/1024/1024 \" MB\"}')",
+      "Bash(node -e \"const m=require\\('./src/game/data/trip-manifest.generated.json'\\); console.log\\('sample:', m['1'].airport[0]\\)\")",
+      "Bash(NEXT_PUBLIC_MEDIA_BASE=https://pub-test.r2.dev node scripts/build-trip-manifest.mjs)"
+    ]
+  }
+}

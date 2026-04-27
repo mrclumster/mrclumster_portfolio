@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { TripLocation, TripPhoto } from "@/game/data/trip-locations";
-import { dayGalleries, PLACEHOLDER_PHOTO } from "@/game/data/trip-locations";
+import { dayGalleries, PLACEHOLDER_PHOTO, getLocationFolderPhotos } from "@/game/data/trip-locations";
 
 type Mode = "highlights" | "all";
 
@@ -12,15 +12,25 @@ interface OpenDetail {
   photos: TripPhoto[];
 }
 
-export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string) => void }) {
+export function PhotoViewerOverlay({ onVideoPlay: _onVideoPlay }: { onVideoPlay: (src: string) => void }) {
+  // _onVideoPlay kept in the signature so the parent's wiring still type-checks,
+  // but we no longer escalate videos to the fullscreen overlay — they play inline.
+  void _onVideoPlay;
   const [open, setOpen]         = useState<OpenDetail | null>(null);
   const [index, setIndex]       = useState(0);
   const [mode, setMode]         = useState<Mode>("highlights");
+  const videoRef                = useRef<HTMLVideoElement | null>(null);
 
-  const allPhotos = useMemo(
-    () => (open ? dayGalleries[open.location.day] ?? [] : []),
-    [open]
-  );
+  // ALL PHOTOS mode: prefer the auto-discovered folder contents for this
+  // specific location (every file the user dropped into the folder shows up).
+  // Fall back to the hand-curated dayGalleries dump when a location has no
+  // folder configured.
+  const allPhotos = useMemo(() => {
+    if (!open) return [];
+    const fromFolder = getLocationFolderPhotos(open.location);
+    if (fromFolder.length > 0) return fromFolder;
+    return dayGalleries[open.location.day] ?? [];
+  }, [open]);
   const active = mode === "highlights" ? open?.photos ?? [] : allPhotos;
   const photo: TripPhoto | undefined = active[index];
 
@@ -64,9 +74,13 @@ export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string)
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      // If the inline <video> has focus, let it handle arrow keys (seek) and
+      // space (play/pause) natively rather than treating them as gallery nav.
+      const target = e.target as HTMLElement | null;
+      const videoFocused = target?.tagName === "VIDEO";
       switch (e.key) {
-        case "ArrowLeft":  nav(-1); e.preventDefault(); break;
-        case "ArrowRight": nav(1);  e.preventDefault(); break;
+        case "ArrowLeft":  if (videoFocused) return; nav(-1); e.preventDefault(); break;
+        case "ArrowRight": if (videoFocused) return; nav(1);  e.preventDefault(); break;
         case "Tab":        toggleMode(); e.preventDefault(); break;
         case "Escape":
         case "b":
@@ -74,8 +88,10 @@ export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string)
         case "z":
         case "Z":
         case "Enter":
-          if (photo?.type === "video") {
-            onVideoPlay(photo.src);
+          if (photo?.type === "video" && videoRef.current) {
+            const v = videoRef.current;
+            if (v.paused) v.play().catch(() => { /* gesture lock — ignore */ });
+            else          v.pause();
             e.preventDefault();
           }
           break;
@@ -83,7 +99,7 @@ export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string)
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, nav, toggleMode, close, photo, onVideoPlay]);
+  }, [open, nav, toggleMode, close, photo]);
 
   return (
     <AnimatePresence>
@@ -130,10 +146,18 @@ export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string)
           >
             {photo ? (
               photo.type === "video" ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-neutral-900">
-                  <div className="text-indigo-400 text-5xl">▶</div>
-                  <div className="text-neutral-400 text-xs">PRESS Z TO PLAY</div>
-                </div>
+                <video
+                  // Re-mount when the source changes so the new video starts
+                  // from the beginning rather than reusing the previous element's
+                  // playback state.
+                  key={photo.src}
+                  ref={videoRef}
+                  src={photo.src}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full object-contain bg-neutral-900"
+                />
               ) : (
                 <img
                   src={photo.src}
@@ -193,7 +217,7 @@ export function PhotoViewerOverlay({ onVideoPlay }: { onVideoPlay: (src: string)
             <span>◄ ► PHOTOS</span>
             <span>TAB MODE</span>
             <span>B CLOSE</span>
-            {photo?.type === "video" && <span className="text-indigo-400">Z PLAY</span>}
+            {photo?.type === "video" && <span className="text-indigo-400">Z PLAY/PAUSE</span>}
           </div>
 
           {/* Close button (top-right, always accessible) */}

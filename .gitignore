@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Optimized output dirs from compress-videos.py / script.py — these are
+# scratch dirs created during conversion. The real photos live under trip/.
+public/images/optimized_trip/
+public/images/optimized/

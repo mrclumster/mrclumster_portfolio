@@ -712,15 +712,16 @@ export function DayOverworld({
           </g>
         )}
 
-        {/* Hero — direct transform (no tween) for smooth 60fps motion.
-            foreignObject is 120×120 with extra padding so ears/tails never clip. */}
-        <motion.g
-          transform={`translate(${pos[0]}, ${pos[1]})`}
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          key={`hero-spawn-${day}`}
-        >
+        {/* Hero — outer <g> drives the translate from pos every frame.
+            Inner <motion.g> handles the spawn-in fade only — they don't fight
+            because the inner motion never touches `transform` directly. */}
+        <g transform={`translate(${pos[0]}, ${pos[1]})`}>
+          <motion.g
+            key={`hero-spawn-${day}`}
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+          >
           <ellipse cx="0" cy="46" rx="32" ry="7" fill="#000" opacity="0.45" />
           {heroCreature ? (
             <foreignObject x={-60} y={-70} width="120" height="120">
@@ -744,7 +745,8 @@ export function DayOverworld({
               <TrainerOverworld dir={lastDir} />
             </g>
           )}
-        </motion.g>
+          </motion.g>
+        </g>
 
       </svg>
 

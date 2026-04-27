@@ -1,6 +1,6 @@
 "use client";
 
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
 
 // ──────────────────────────────────────────────────────────────────────────
 // AudioManager — crossfades BGM between screens and plays one-shot SFX.
@@ -109,12 +109,21 @@ class AudioManager {
         t.howl.fade(t.howl.volume(), 0, 200);
       }
     } else if (this.currentBgm) {
-      // Unmuting — resume the current track and fade in
+      // Unmuting — wake the AudioContext if a previous user gesture left it
+      // suspended, then resume the current track and fade in.
+      try {
+        const ctx = (Howler as { ctx?: AudioContext }).ctx;
+        if (ctx && ctx.state === "suspended") ctx.resume();
+      } catch { /* ignore — html5 mode has no ctx */ }
+
       const t = this.bgmTracks.get(this.currentBgm);
       if (t?.howl) {
         if (!t.howl.playing()) {
           t.howl.volume(0);
-          t.howl.play();
+          // Howler returns a sound id, but its underlying Web Audio play()
+          // can throw NotAllowedError if the gesture lock is still active.
+          // Swallow it — the next click will succeed.
+          try { t.howl.play(); } catch { /* ignore */ }
         }
         t.howl.fade(t.howl.volume(), this.volume, 400);
       }

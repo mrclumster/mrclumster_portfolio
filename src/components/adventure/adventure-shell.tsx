@@ -88,6 +88,11 @@ export function AdventureShell() {
     };
   }, []);
 
+  // Stop BGM when the shell unmounts (e.g. user navigates back to portfolio).
+  // The audio singleton lives at module scope, so without explicit cleanup
+  // the music keeps looping after we leave /adventure.
+  useEffect(() => () => audio.stopBgm(), []);
+
   // Sync BGM with current screen
   useEffect(() => {
     if (screen === "title" || screen === "starter" || screen === "menu" || screen === "arena") {
