@@ -36,11 +36,14 @@ export const PLACEHOLDER_PHOTO = `${MEDIA_BASE}/placeholder.svg`;
 // Folder names with spaces are encoded so browsers can fetch them.
 function p(day: number, folder: string, file: string, caption = "", type?: "photo" | "video"): TripPhoto {
   // The image pipeline (public/images/script.py) converts all jpg/jpeg/png/heic
-  // to .webp on disk, and compress-videos.py converts .mov to .mp4. Swap the
-  // extension here so legacy filename references still resolve.
+  // to .webp on disk. Videos pass through with their original extension since
+  // browsers handle .mov via QuickTime container directly when the codec is
+  // H.264 (which iPhone recordings are). If you ever run compress-videos.py,
+  // the on-disk files become .mp4 and the URLs still match because we just
+  // pass the filename through.
   const isVideo = /\.(mov|mp4|m4v|webm)$/i.test(file);
   const resolvedFile = isVideo
-    ? file.replace(/\.(mov|m4v)$/i, ".mp4")
+    ? file
     : file.replace(/\.(jpe?g|png|heic|heif)$/i, ".webp");
   return {
     src: `${MEDIA_BASE}/day-${day}/${encodeURIComponent(folder)}/${resolvedFile}`,

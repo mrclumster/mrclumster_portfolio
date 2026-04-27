@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { TripLocation, TripPhoto } from "@/game/data/trip-locations";
 import { dayGalleries, PLACEHOLDER_PHOTO, getLocationFolderPhotos } from "@/game/data/trip-locations";
+import { audio } from "./audio";
 
 type Mode = "highlights" | "all";
 
@@ -35,6 +36,7 @@ export function PhotoViewerOverlay({ onVideoPlay: _onVideoPlay }: { onVideoPlay:
   const photo: TripPhoto | undefined = active[index];
 
   const close = useCallback(() => {
+    audio.unduckBgm();
     setOpen(null);
     setIndex(0);
     setMode("highlights");
@@ -44,6 +46,9 @@ export function PhotoViewerOverlay({ onVideoPlay: _onVideoPlay }: { onVideoPlay:
   const nav = useCallback(
     (dir: -1 | 1) => {
       if (!active.length) return;
+      // Restore BGM if we're navigating away from a video that was playing —
+      // the <video> element will unmount and never fire onPause.
+      audio.unduckBgm();
       setIndex((i) => (i + dir + active.length) % active.length);
     },
     [active.length]
@@ -157,6 +162,9 @@ export function PhotoViewerOverlay({ onVideoPlay: _onVideoPlay }: { onVideoPlay:
                   playsInline
                   preload="metadata"
                   className="w-full h-full object-contain bg-neutral-900"
+                  onPlay={() => audio.duckBgm()}
+                  onPause={() => audio.unduckBgm()}
+                  onEnded={() => audio.unduckBgm()}
                 />
               ) : (
                 <img

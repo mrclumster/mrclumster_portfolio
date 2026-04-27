@@ -100,6 +100,33 @@ class AudioManager {
     this.currentBgm = null;
   }
 
+  // Temporarily silence the BGM (e.g. while a video plays) without changing
+  // the user's muted preference. unduckBgm() restores the previous state.
+  private ducked = false;
+  duckBgm() {
+    if (this.ducked) return;
+    this.ducked = true;
+    if (!this.currentBgm) return;
+    const t = this.bgmTracks.get(this.currentBgm);
+    if (t?.howl) {
+      t.howl.fade(t.howl.volume(), 0, 200);
+      setTimeout(() => { if (this.ducked) t.howl?.pause(); }, 220);
+    }
+  }
+  unduckBgm() {
+    if (!this.ducked) return;
+    this.ducked = false;
+    if (this.muted || !this.currentBgm) return;
+    const t = this.bgmTracks.get(this.currentBgm);
+    if (t?.howl) {
+      if (!t.howl.playing()) {
+        t.howl.volume(0);
+        try { t.howl.play(); } catch { /* gesture lock — ignore */ }
+      }
+      t.howl.fade(t.howl.volume(), this.volume, 300);
+    }
+  }
+
   setMuted(muted: boolean) {
     this.muted = muted;
     if (muted) {
