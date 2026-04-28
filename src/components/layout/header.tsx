@@ -6,7 +6,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { navLinks } from "@/data/navigation";
 import { cn } from "@/lib/utils";
 import { useAdventureTrigger } from "@/hooks/use-adventure-trigger";
-import { PuzzleBreakOverlay } from "@/components/shared/puzzle-break-overlay";
+import {
+  AdventureTransition,
+  preloadAdventureTransition,
+} from "@/components/shared/adventure-transition";
 import {
   Sheet,
   SheetContent,
@@ -18,7 +21,7 @@ import { Button } from "@/components/ui/button";
 export function Header() {
   const [activeSection, setActiveSection] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { state: adventureState, trigger: triggerAdventure } = useAdventureTrigger();
+  const { state: adventureState, trigger: triggerAdventure, skip: skipAdventure } = useAdventureTrigger();
 
   useEffect(() => {
     const sectionIds = navLinks.map((link) => link.href.replace("#", ""));
@@ -44,12 +47,17 @@ export function Header() {
 
   return (
     <>
-      <PuzzleBreakOverlay active={adventureState === "animating" || adventureState === "triggered"} />
+      <AdventureTransition
+        active={adventureState === "animating" || adventureState === "triggered"}
+        onSkip={skipAdventure}
+      />
     <div className="fixed top-4 right-4 z-50">
       <nav className="flex items-center gap-1 rounded-full bg-card/60 backdrop-blur-lg ring-1 ring-foreground/10 px-2 py-1.5 shadow-lg shadow-black/10">
         {/* Adventure mode trigger — subtle, discoverable on hover */}
         <button
           onClick={triggerAdventure}
+          onMouseEnter={preloadAdventureTransition}
+          onFocus={preloadAdventureTransition}
           title="???"
           aria-label="Enter adventure mode"
           className="px-1.5 py-0.5 text-xs rounded-full text-muted-foreground/40 hover:text-accent-brand transition-colors duration-200 cursor-pointer"

@@ -2,27 +2,38 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { ADVENTURE_TRANSITION_DURATION } from "@/components/shared/adventure-transition";
 
 export type AdventureTriggerState = "idle" | "triggered" | "animating" | "navigating";
 
 /**
- * State machine for the puzzle-break → adventure transition.
+ * State machine for the adventure transition.
  *
- * idle → triggered  : snapshot bento cards, mount overlay
- * triggered → animating : overlay mounted, CSS animations running
- * animating → navigating : router.push('/adventure') after stagger + flash window
+ * idle → triggered  : transition mounts
+ * triggered → animating : animation timeline begins
+ * animating → navigating : router.push('/adventure') fires once timeline ends
+ *
+ * Total animation duration is controlled by the transition component itself
+ * (see ADVENTURE_TRANSITION_DURATION). We schedule navigation 100ms before the
+ * end so the destination is mounted by the time the whiteout finishes fading.
  */
 export function useAdventureTrigger() {
   const router = useRouter();
   const [state, setState] = useState<AdventureTriggerState>("idle");
   const navigatingRef = useRef(false);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerNav = useCallback(() => {
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    setState("navigating");
+    router.push("/adventure");
+  }, [router]);
 
   const trigger = useCallback(() => {
     if (state !== "idle") return;
 
-    // Set flag for adventure page to show arrival flash
     sessionStorage.setItem("adventure-origin", "portfolio");
-
     setState("triggered");
 
     const prefersReduced =
@@ -30,31 +41,36 @@ export function useAdventureTrigger() {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (prefersReduced) {
-      // Skip animation, navigate immediately
-      setState("navigating");
-      router.push("/adventure");
+      triggerNav();
       return;
     }
 
-    // Allow one frame for overlay to mount, then mark as animating
     requestAnimationFrame(() => {
       setState("animating");
-
-      // Navigate after physics settle (~2.2s) + flash duration (500ms) + small buffer
-      if (!navigatingRef.current) {
-        navigatingRef.current = true;
-        setTimeout(() => {
-          setState("navigating");
-          router.push("/adventure");
-        }, 2800);
-      }
+      // Schedule nav for just before the whiteout completes
+      const navDelay = Math.max(200, ADVENTURE_TRANSITION_DURATION - 100);
+      navTimerRef.current = setTimeout(triggerNav, navDelay);
     });
-  }, [state, router]);
+  }, [state, triggerNav]);
+
+  /** ESC handler — fast-forwards the navigation. The overlay still fades out. */
+  const skip = useCallback(() => {
+    if (state !== "animating") return;
+    if (navTimerRef.current) {
+      clearTimeout(navTimerRef.current);
+      navTimerRef.current = null;
+    }
+    triggerNav();
+  }, [state, triggerNav]);
 
   const reset = useCallback(() => {
+    if (navTimerRef.current) {
+      clearTimeout(navTimerRef.current);
+      navTimerRef.current = null;
+    }
     setState("idle");
     navigatingRef.current = false;
   }, []);
 
-  return { state, trigger, reset };
+  return { state, trigger, skip, reset };
 }
