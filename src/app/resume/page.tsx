@@ -8,7 +8,7 @@ import { PrintButton } from "@/components/terminal/print-button";
 import { ExperienceLog } from "@/components/sections/experience-log";
 import { EducationBlock } from "@/components/sections/education-block";
 import { CertificationsList } from "@/components/sections/certifications-list";
-import { StackTree } from "@/components/sections/stack-tree";
+import { StackCloud } from "@/components/sections/stack-cloud";
 import { HighlightReveal } from "@/components/shared/highlight-reveal";
 
 export const metadata: Metadata = {
@@ -77,7 +77,7 @@ export default function ResumePage() {
         <section>
           <AsciiDivider label="skills" />
           <div className="mt-4">
-            <StackTree />
+            <StackCloud />
           </div>
         </section>
 
