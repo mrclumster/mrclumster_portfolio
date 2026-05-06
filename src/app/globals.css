@@ -642,3 +642,39 @@ body.terminal-route a:hover { text-decoration: underline; text-underline-offset:
   .print\:hidden { display: none !important; }
   @page { margin: 0.6in; }
 }
+
+/* ==========================================================================
+   Page background atmosphere — grain + grid texture
+   Applied only on terminal-route pages.
+   ========================================================================== */
+body.terminal-route {
+  isolation: isolate;
+}
+
+body.terminal-route::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+body.terminal-route::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image:
+    linear-gradient(to right, var(--ink) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ink) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+body.terminal-route > * {
+  position: relative;
+  z-index: 1;
+}
