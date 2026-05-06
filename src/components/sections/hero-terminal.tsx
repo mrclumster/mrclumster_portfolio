@@ -9,7 +9,7 @@ import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
 import { GithubIcon, LinkedinIcon } from "@/components/shared/icons";
 
 export function HeroTerminal() {
-  const { displayText: headline } = useTypingLoop(personalInfo.headlines, {
+  const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
     typeSpeed: 55,
     deleteSpeed: 30,
     holdAfterType: 1600,
