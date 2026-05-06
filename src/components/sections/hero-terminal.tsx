@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { personalInfo } from "@/data/personal";
-import { AnimatedPhoto } from "@/components/hero/animated-photo";
+import { PhotoConfigurator } from "@/components/hero/photo-configurator";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { TerminalButton } from "@/components/terminal/terminal-button";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
@@ -91,12 +91,12 @@ export function HeroTerminal() {
           </div>
         </div>
 
-        {/* Right column — AnimatedPhoto: Float + border breathe */}
+        {/* Right column — PhotoConfigurator: Float + border breathe */}
         <div
-          className="overflow-hidden relative"
-          style={{ height: 400 }}
+          className="relative"
+          style={{ height: 360 }}
         >
-          <AnimatedPhoto imageSrc={personalInfo.profileImage} />
+          <PhotoConfigurator imageSrc={personalInfo.profileImage} />
         </div>
       </div>
     </section>
