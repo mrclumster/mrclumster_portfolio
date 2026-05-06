@@ -8,7 +8,6 @@ import { TerminalButton } from "@/components/terminal/terminal-button";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from "@/components/shared/icons";
 import { ParticleConstellation } from "@/components/hero/particle-constellation";
-import { FloatingName } from "@/components/hero/floating-name";
 
 export function HeroTerminal() {
   const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
@@ -36,11 +35,6 @@ export function HeroTerminal() {
       <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-[7fr_5fr] lg:items-start">
         {/* Left column — identity */}
         <div className="space-y-6 py-4">
-
-          {/* D — Floating AZIZ name: above the text identity */}
-          <div className="w-full" style={{ height: 130 }}>
-            <FloatingName />
-          </div>
 
           <div>
             <h1
