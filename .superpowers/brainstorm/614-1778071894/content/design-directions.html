@@ -1,0 +1,135 @@
+<h2>Terminal Redesign — Design Direction</h2>
+<p class="subtitle">Your site already has the terminal skeleton in place. Which direction should we take the visual polish?</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f4f2ed;border:1px solid #1a1a1a;padding:16px;font-family:monospace;font-size:11px;color:#1a1a1a;line-height:1.6">
+      <div style="border-bottom:1px solid #1a1a1a;padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between">
+        <span><span style="opacity:.5">aziz@portfolio:~ %</span> cat index.md</span>
+        <span style="opacity:.5">[about] [work] [resume] [dark]</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px">Aziz Tebbeng</div>
+      <div style="opacity:.6;margin-bottom:10px">&gt; Full-Stack Developer<span style="display:inline-block;width:8px;height:12px;background:#1a1a1a;margin-left:2px;vertical-align:middle;animation:none"></span></div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;font-size:11px;margin-bottom:10px">
+        <span style="opacity:.5">location:</span><span>Zamboanga City, Philippines</span>
+        <span style="opacity:.5">status:</span><span>Available for opportunities</span>
+      </div>
+      <div style="display:flex;gap:6px;font-size:11px">
+        <span style="border:1px solid #1a1a1a;padding:1px 6px">[view_work]</span>
+        <span style="border:1px solid #1a1a1a;padding:1px 6px">[resume.pdf]</span>
+        <span style="border:1px solid #1a1a1a;padding:1px 6px">[github]</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;opacity:.4;display:flex;align-items:center;gap:6px">
+        <span>──</span><span style="letter-spacing:.08em;text-transform:uppercase;font-size:10px">02 / about</span><span style="flex:1;border-top:1px solid #1a1a1a"></span>
+      </div>
+      <div style="margin-top:6px;font-size:11px;line-height:1.7">
+        I am a fourth-year <span style="color:#c0392b">BSIT student</span> with a passion for web dev and ML.
+        <span style="color:#f4f2ed">hidden note here</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Pure Minimal</h3>
+      <p>Exactly as implemented: pure paper/ink, no decoration, strict hierarchy. Maximally scannable. Feels like a senior dev's dotfile.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d0d0d;border:1px solid #39ff14;padding:16px;font-family:monospace;font-size:11px;color:#c8c8c8;line-height:1.6">
+      <div style="border-bottom:1px solid #39ff14;padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between">
+        <span><span style="color:#39ff14">aziz@portfolio</span><span style="opacity:.5">:~ %</span> cat index.md</span>
+        <span style="opacity:.4">[about] [work] [resume] [dark]</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;color:#fff">Aziz Tebbeng</div>
+      <div style="color:#39ff14;margin-bottom:10px">&gt; Full-Stack Developer<span style="display:inline-block;width:8px;height:12px;background:#39ff14;margin-left:2px;vertical-align:middle"></span></div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;font-size:11px;margin-bottom:10px">
+        <span style="color:#39ff14;opacity:.7">location:</span><span>Zamboanga City, Philippines</span>
+        <span style="color:#39ff14;opacity:.7">status:</span><span>Available for opportunities</span>
+      </div>
+      <div style="display:flex;gap:6px;font-size:11px">
+        <span style="border:1px solid #39ff14;padding:1px 6px;color:#39ff14">[view_work]</span>
+        <span style="border:1px solid #39ff14;padding:1px 6px;color:#39ff14">[resume.pdf]</span>
+        <span style="border:1px solid #39ff14;padding:1px 6px;color:#39ff14">[github]</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:#39ff14;display:flex;align-items:center;gap:6px">
+        <span>──</span><span style="letter-spacing:.08em;text-transform:uppercase">02 / about</span><span style="flex:1;border-top:1px solid #39ff14"></span>
+      </div>
+      <div style="margin-top:6px;font-size:11px;line-height:1.7">
+        I am a fourth-year <span style="color:#39ff14;font-weight:700">BSIT student</span> with a passion for web dev and ML.
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Green-on-Black Hacker</h3>
+      <p>Classic terminal green on near-black. High personality, cult aesthetic. Keywords use the green instead of red. Dark-mode only — no light toggle needed.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fdf6e3;border:1px solid #657b83;padding:16px;font-family:monospace;font-size:11px;color:#657b83;line-height:1.6">
+      <div style="border-bottom:1px solid #657b83;padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between">
+        <span><span style="color:#268bd2">aziz@portfolio</span><span style="opacity:.5">:~ %</span> cat index.md</span>
+        <span style="opacity:.4">[about] [work] [resume] [dark]</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;color:#073642">Aziz Tebbeng</div>
+      <div style="color:#268bd2;margin-bottom:10px">&gt; Full-Stack Developer<span style="display:inline-block;width:8px;height:12px;background:#268bd2;margin-left:2px;vertical-align:middle"></span></div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;font-size:11px;margin-bottom:10px">
+        <span style="color:#2aa198;opacity:.8">location:</span><span>Zamboanga City, Philippines</span>
+        <span style="color:#2aa198;opacity:.8">status:</span><span style="color:#859900">Available</span>
+      </div>
+      <div style="display:flex;gap:6px;font-size:11px">
+        <span style="border:1px solid #268bd2;padding:1px 6px;color:#268bd2">[view_work]</span>
+        <span style="border:1px solid #268bd2;padding:1px 6px;color:#268bd2">[resume.pdf]</span>
+        <span style="border:1px solid #268bd2;padding:1px 6px;color:#268bd2">[github]</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:#b58900;display:flex;align-items:center;gap:6px">
+        <span>──</span><span style="letter-spacing:.08em;text-transform:uppercase">02 / about</span><span style="flex:1;border-top:1px solid #b58900"></span>
+      </div>
+      <div style="margin-top:6px;font-size:11px;line-height:1.7">
+        I am a fourth-year <span style="color:#dc322f;font-weight:700">BSIT student</span> with a passion for web dev and ML.
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Solarized Warm</h3>
+      <p>Solarized Light palette — warm cream base, blue prompt, cyan keys, yellow dividers, red keywords. Looks like a well-configured Vim setup. Light + dark modes both supported.</p>
+    </div>
+  </div>
+
+  <!-- Option D -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f4f2ed;border:1px solid #1a1a1a;padding:16px;font-family:monospace;font-size:11px;color:#1a1a1a;line-height:1.6;position:relative">
+      <div style="border-bottom:1px solid #1a1a1a;padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between">
+        <span><span style="opacity:.5">aziz@portfolio:~ %</span> cat index.md</span>
+        <span style="opacity:.5">[about] [work] [resume] [dark]</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px">Aziz Tebbeng</div>
+      <div style="opacity:.6;margin-bottom:10px">&gt; Full-Stack Developer<span style="display:inline-block;width:8px;height:12px;background:#1a1a1a;margin-left:2px;vertical-align:middle"></span></div>
+      <div style="display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;font-size:11px;margin-bottom:10px">
+        <span style="opacity:.5">location:</span><span>Zamboanga City, Philippines</span>
+        <span style="opacity:.5">status:</span><span>Available for opportunities</span>
+      </div>
+      <div style="display:flex;gap:6px;font-size:11px">
+        <span style="border:1px solid #1a1a1a;padding:1px 6px">[view_work]</span>
+        <span style="border:1px solid #1a1a1a;padding:1px 6px">[resume.pdf]</span>
+        <span style="border:1px solid #1a1a1a;padding:1px 6px">[github]</span>
+      </div>
+      <!-- Scanlines overlay -->
+      <div style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);opacity:.6"></div>
+      <div style="margin-top:10px;font-size:10px;opacity:.4;display:flex;align-items:center;gap:6px">
+        <span>──</span><span style="letter-spacing:.08em;text-transform:uppercase">02 / about</span><span style="flex:1;border-top:1px solid #1a1a1a"></span>
+      </div>
+      <div style="margin-top:6px;font-size:11px;line-height:1.7">
+        I am a fourth-year <span style="color:#c0392b">BSIT student</span> with a passion for web dev and ML.
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D — Minimal + CRT Scanlines</h3>
+      <p>Same pure paper/ink as A, but with a subtle CSS scanline overlay (repeating-gradient) to add a vintage CRT monitor texture. No JS, pure CSS. Keeps the brutalist feel but adds atmosphere.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Click a card to select it, then tell me your thoughts in the terminal. You can also describe a mix (e.g. "A palette but D's texture").</p>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solarized Dark — Full Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Solarized Dark palette */
+  :root {
+    --base03:  #002b36; /* darkest bg */
+    --base02:  #073642; /* bg highlights */
+    --base01:  #586e75; /* comments / muted */
+    --base00:  #657b83; /* body text secondary */
+    --base0:   #839496; /* body text */
+    --base1:   #93a1a1; /* emphasized content */
+    --base2:   #eee8d5; /* light bg */
+    --base3:   #fdf6e3; /* lightest bg */
+    --yellow:  #b58900;
+    --orange:  #cb4b16;
+    --red:     #dc322f;
+    --magenta: #d33682;
+    --violet:  #6c71c4;
+    --blue:    #268bd2;
+    --cyan:    #2aa198;
+    --green:   #859900;
+  }
+
+  body {
+    background: var(--base03);
+    color: var(--base0);
+    font-family: 'Courier New', 'Menlo', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ── Chrome ── */
+  .chrome-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--base02);
+    border-bottom: 1px solid var(--base01);
+    padding: 6px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 12px;
+  }
+  .chrome-prompt .user { color: var(--green); }
+  .chrome-prompt .at   { color: var(--base01); }
+  .chrome-prompt .host { color: var(--blue); }
+  .chrome-prompt .sep  { color: var(--base01); }
+  .chrome-prompt .cmd  { color: var(--base1); margin-left: 8px; }
+  .chrome-nav a {
+    color: var(--base00);
+    text-decoration: none;
+    margin-left: 16px;
+    font-size: 11px;
+  }
+  .chrome-nav a:hover { color: var(--base1); text-decoration: underline; }
+  .chrome-nav .theme  { color: var(--yellow); }
+
+  /* ── Main content ── */
+  .page { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  /* ── ASCII Divider ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--yellow);
+    margin-bottom: 20px;
+  }
+  .divider .line { flex: 1; border-top: 1px solid var(--yellow); opacity: .4; }
+  .divider .num  { color: var(--base01); }
+
+  /* ── Hero ── */
+  .hero { display: grid; grid-template-columns: 1fr 180px; gap: 32px; margin-bottom: 40px; }
+  .hero-name {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.05;
+    color: var(--base1);
+    margin-bottom: 8px;
+  }
+  .hero-prompt { color: var(--base01); font-size: 11px; margin-bottom: 4px; }
+  .hero-headline { color: var(--blue); font-size: 16px; margin-bottom: 16px; }
+  .hero-headline .cursor {
+    display: inline-block; width: 9px; height: 15px;
+    background: var(--blue); vertical-align: middle; margin-left: 2px;
+    animation: blink 1s steps(2,end) infinite;
+  }
+  @keyframes blink { 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
+
+  /* Key-value */
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin-bottom: 20px; font-size: 12px; }
+  .kv dt { color: var(--cyan); }
+  .kv dd { color: var(--base0); }
+
+  /* Buttons */
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+  .btn {
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .btn:hover { background: var(--blue); color: var(--base03); }
+
+  /* Photo */
+  .hero-photo {
+    border: 1px solid var(--base01);
+    background: var(--base02);
+    display: flex; align-items: center; justify-content: center;
+    aspect-ratio: 3/4;
+    color: var(--base01); font-size: 11px;
+    filter: grayscale(1) sepia(.3) hue-rotate(160deg);
+    overflow: hidden;
+  }
+  .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── Uptime ── */
+  .uptime { color: var(--base01); font-size: 12px; margin-bottom: 40px; }
+  .uptime .label { color: var(--base01); }
+
+  /* ── Two-col ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+
+  /* About */
+  .about-hint { color: var(--base01); font-size: 11px; margin-bottom: 10px; }
+  .about-body { font-size: 13px; line-height: 1.8; color: var(--base0); }
+  .about-body .keyword { color: var(--red); font-weight: 600; }
+  .about-body .secret  { color: var(--base03); /* invisible until selected */ }
+
+  /* Stack tree */
+  .stack-cmd { color: var(--base01); font-size: 11px; margin-bottom: 8px; }
+  .stack-dir { color: var(--green); }
+  .stack-perm { color: var(--base01); }
+  .stack-branch { margin-left: 16px; display: grid; grid-template-columns: max-content 1fr; gap: 1px 12px; }
+  .stack-branch .tree { color: var(--base01); }
+  .stack-branch .item { color: var(--base0); }
+
+  /* ── Experience ── */
+  .exp-cmd { color: var(--base01); font-size: 11px; margin-bottom: 12px; }
+  .exp-entry { margin-bottom: 20px; font-size: 12px; line-height: 1.8; }
+  .exp-commit { color: var(--violet); }
+  .exp-hash   { color: var(--base1); }
+  .exp-head   { color: var(--base01); font-size: 11px; }
+  .exp-author-label { color: var(--base01); }
+  .exp-author { color: var(--blue); }
+  .exp-date-label { color: var(--base01); }
+  .exp-title  { color: var(--base1); font-weight: 600; padding-left: 16px; }
+  .exp-desc   { color: var(--base0); padding-left: 16px; }
+  .exp-bullet { color: var(--base01); padding-left: 16px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 40px; }
+
+  /* ── Contact ── */
+  .contact-cmd { color: var(--base01); font-size: 11px; margin-bottom: 12px; }
+  .field-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--base01); margin-bottom: 2px; }
+  .field-input {
+    width: 100%; max-width: 480px;
+    background: transparent;
+    border: none; border-bottom: 1px solid var(--base01);
+    color: var(--base0); font-family: inherit; font-size: 13px;
+    padding: 6px 0; margin-bottom: 14px; outline: none;
+  }
+  .field-input::placeholder { color: var(--base01); opacity: .5; }
+  .submit-btn {
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 2px 10px; font-family: inherit; font-size: 13px;
+    background: transparent; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .submit-btn:hover { background: var(--green); color: var(--base03); }
+
+  /* ── Footer ── */
+  .chrome-footer {
+    border-top: 1px solid var(--base01);
+    padding: 8px 24px;
+    font-size: 12px;
+    background: var(--base02);
+    margin-top: 60px;
+  }
+  .footer-prompt .user { color: var(--green); }
+  .footer-prompt .at   { color: var(--base01); }
+  .footer-prompt .host { color: var(--blue); }
+  .footer-prompt .sep  { color: var(--base01); }
+  .cursor-block {
+    display: inline-block; width: 9px; height: 13px;
+    background: var(--base0); vertical-align: middle; margin-left: 6px;
+    animation: blink 1s steps(2,end) infinite;
+  }
+
+  /* ── Certs ── */
+  .cert-row {
+    display: grid; grid-template-columns: max-content 1fr max-content;
+    gap: 0 16px; font-size: 12px; padding: 4px 0;
+    border-bottom: 1px solid var(--base02);
+    color: var(--base0);
+  }
+  .cert-perm { color: var(--base01); }
+  .cert-year { color: var(--base01); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="chrome-header">
+  <div class="chrome-prompt">
+    <span class="user">aziz</span><span class="at">@</span><span class="host">portfolio</span><span class="sep">:~ %</span>
+    <span class="cmd">cat index.md</span>
+  </div>
+  <nav class="chrome-nav">
+    <a href="#">about</a>
+    <a href="#">work</a>
+    <a href="#">contact</a>
+    <a href="#">resume</a>
+    <a href="#" class="theme">[dark]</a>
+  </nav>
+</div>
+
+<!-- MAIN -->
+<div class="page">
+
+  <!-- 01 / INTRO -->
+  <div class="divider">
+    <span>──</span>
+    <span><span class="num">01 / </span>introduction</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="hero">
+    <div>
+      <div class="hero-prompt">$ whoami</div>
+      <div class="hero-name">Aziz Tebbeng</div>
+      <div class="hero-prompt">$ cat ~/headline.txt</div>
+      <div class="hero-headline">&gt; Full-Stack Developer<span class="cursor"></span></div>
+      <dl class="kv">
+        <dt>location</dt><dd>Zamboanga City, Philippines</dd>
+        <dt>email</dt><dd>aziztebbeng@gmail.com</dd>
+        <dt>status</dt><dd style="color:var(--green)">Available for opportunities</dd>
+        <dt>last-build</dt><dd>2026-05-06</dd>
+      </dl>
+      <div class="btns">
+        <div class="btn">[view_work]</div>
+        <div class="btn">[resume.pdf]</div>
+        <div class="btn" style="border-color:var(--cyan);color:var(--cyan)">[github]</div>
+        <div class="btn" style="border-color:var(--cyan);color:var(--cyan)">[linkedin]</div>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <span style="opacity:.3;font-size:10px">photo</span>
+    </div>
+  </div>
+
+  <!-- UPTIME -->
+  <div class="uptime"><span class="label" style="opacity:.5">uptime ──</span> 6 projects · 19 technologies · 1 internship · 4 certifications</div>
+
+  <!-- 02 / ABOUT + STACK -->
+  <div class="two-col">
+    <div>
+      <div class="divider">
+        <span>──</span>
+        <span><span class="num">02 / </span>about</span>
+        <span class="line"></span>
+      </div>
+      <div class="about-hint">// select to reveal hidden notes</div>
+      <div class="about-body">
+        <p style="margin-bottom:12px">
+          I am a fourth-year <span class="keyword">Bachelor of Science in Information Technology</span>
+          student with a strong passion for web development and machine learning. I am currently completing my
+          <span class="keyword">internship at Nexzys Intelligence</span> under Vintazk Outsourcing.
+          <span class="secret"> (Translation: I write SQL on Mondays and pretend I understood it by Friday.)</span>
+        </p>
+        <p>
+          As the ML Engineer for <span class="keyword">FishFresh</span>, I developed the computer vision model
+          for real-time fish freshness assessment. I am also working on <span class="keyword">Barangay Connect</span>.
+          <span class="secret"> (Also driven by 3 cups of coffee.)</span>
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="divider">
+        <span>──</span>
+        <span>stack</span>
+        <span class="line"></span>
+      </div>
+      <div class="stack-cmd">$ ls -la ~/stack</div>
+      <div style="line-height:1.8;font-size:12px">
+        <div><span class="stack-perm">drwxr-xr-x</span> <span class="stack-dir">frontend/</span></div>
+        <div class="stack-branch">
+          <span class="tree">├──</span><span class="item">JavaScript</span>
+          <span class="tree">├──</span><span class="item">TypeScript</span>
+          <span class="tree">├──</span><span class="item">React</span>
+          <span class="tree">└──</span><span class="item">Next.js</span>
+        </div>
+        <div style="margin-top:6px"><span class="stack-perm">drwxr-xr-x</span> <span class="stack-dir">backend-and-ml/</span></div>
+        <div class="stack-branch">
+          <span class="tree">├──</span><span class="item">Python</span>
+          <span class="tree">├──</span><span class="item">Supabase</span>
+          <span class="tree">└──</span><span class="item">Computer Vision</span>
+        </div>
+        <div style="margin-top:6px"><span class="stack-perm">drwxr-xr-x</span> <span class="stack-dir">tools-and-platforms/</span></div>
+        <div class="stack-branch">
+          <span class="tree">├──</span><span class="item">Git</span>
+          <span class="tree">├──</span><span class="item">Docker</span>
+          <span class="tree">└──</span><span class="item">Vercel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 / CAREER -->
+  <div class="section">
+    <div class="divider">
+      <span>──</span>
+      <span><span class="num">03 / </span>career</span>
+      <span class="line"></span>
+    </div>
+    <div class="exp-cmd">$ git log --oneline-ish ~/career</div>
+    <div class="exp-entry">
+      <div><span class="exp-commit">commit </span><span class="exp-hash">4f3a2b1</span><span class="exp-head"> (HEAD → current)</span></div>
+      <div><span class="exp-author-label">Author: </span><span class="exp-author">Nexzys Intelligence (Vintazk Outsourcing)</span></div>
+      <div><span class="exp-date-label">Date:   </span>2026 - Present</div>
+      <div class="exp-title">Intern Software Developer</div>
+      <div class="exp-desc">Backend developer for Barangay Connect — a digital barangay system.</div>
+      <div class="exp-bullet"><span style="color:var(--base01)">- </span>Manage Supabase database migrations</div>
+      <div class="exp-bullet"><span style="color:var(--base01)">- </span>Build Edge Functions for server-side logic</div>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="section">
+    <div class="divider">
+      <span>──</span>
+      <span>education</span>
+      <span class="line"></span>
+    </div>
+    <div class="exp-cmd">$ cat ~/education.txt</div>
+    <div style="font-size:12px;line-height:2">
+      <div style="color:var(--base1);font-weight:600">Bachelor of Science in Information Technology</div>
+      <div style="color:var(--base0)">Western Mindanao State University</div>
+      <div style="color:var(--base01);font-size:11px">2022 - 2026</div>
+    </div>
+  </div>
+
+  <!-- CERTIFICATIONS -->
+  <div class="section">
+    <div class="divider">
+      <span>──</span>
+      <span>certifications</span>
+      <span class="line"></span>
+    </div>
+    <div class="exp-cmd">$ ls cert/</div>
+    <div class="cert-row"><span class="cert-perm">-rw-r--r--</span><span>civil-service-professional-passer.pdf</span><span class="cert-year">2025</span></div>
+    <div class="cert-row"><span class="cert-perm">-rw-r--r--</span><span>google-devfest-zamboanga-peninsula-2025.pdf</span><span class="cert-year">2025</span></div>
+    <div class="cert-row"><span class="cert-perm">-rw-r--r--</span><span>google-io-extended.pdf</span><span class="cert-year">2024</span></div>
+    <div class="cert-row"><span class="cert-perm">-rw-r--r--</span><span>devfest-2023.pdf</span><span class="cert-year">2023</span></div>
+  </div>
+
+  <!-- 04 / PROJECTS -->
+  <div class="section">
+    <div class="divider">
+      <span>──</span>
+      <span><span class="num">04 / </span>selected_work</span>
+      <span class="line"></span>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="divider" style="color:var(--base0);font-size:10px;margin-bottom:8px">
+        <span>──</span><span>project_01 — fishfresh</span><span class="line" style="border-color:var(--base01)"></span>
+      </div>
+      <dl class="kv">
+        <dt>name</dt><dd style="color:var(--base1)">FishFresh</dd>
+        <dt>stack</dt><dd>Python · Computer Vision · React Native</dd>
+        <dt>links</dt>
+        <dd>
+          <span class="btn" style="border-color:var(--cyan);color:var(--cyan);margin-right:6px">[github]</span>
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- 05 / CONTACT -->
+  <div class="section">
+    <div class="divider">
+      <span>──</span>
+      <span><span class="num">05 / </span>contact</span>
+      <span class="line"></span>
+    </div>
+    <div class="contact-cmd">$ contact --send</div>
+    <div class="field-label">from / name</div>
+    <input class="field-input" placeholder="your name" disabled>
+    <div class="field-label">email</div>
+    <input class="field-input" placeholder="you@domain.com" disabled>
+    <div class="field-label">message</div>
+    <input class="field-input" placeholder="say something nice" disabled>
+    <div style="margin-top:8px">
+      <button class="submit-btn">[submit]</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="chrome-footer">
+  <div class="footer-prompt">
+    <span class="user">aziz</span><span class="at">@</span><span class="host">portfolio</span><span class="sep">:~ %</span>
+    <span class="cursor-block"></span>
+  </div>
+</div>
+
+</body>
+</html>

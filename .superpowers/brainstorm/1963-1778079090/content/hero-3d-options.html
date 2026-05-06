@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero 3D Options</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f0f0f; color: #e8e4dc; font-family: 'Courier New', monospace; padding: 24px; }
+h2 { font-size: 18px; margin-bottom: 6px; color: #e8e4dc; }
+.subtitle { color: #666; font-size: 13px; margin-bottom: 28px; }
+
+.options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+.option {
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+  background: #1a1a1a;
+}
+.option:hover { border-color: #888; transform: translateY(-2px); }
+.option.selected { border-color: #f4f2ed; background: #222; }
+
+.canvas-wrap {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: #111;
+}
+canvas { display: block; width: 100%; height: 100%; }
+
+.option-body { padding: 14px; }
+.option-body h3 { font-size: 13px; color: #e8e4dc; margin-bottom: 4px; }
+.option-body p { font-size: 11px; color: #666; line-height: 1.6; }
+
+.letter {
+  position: absolute; top: 10px; left: 12px;
+  font-size: 11px; color: #555; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.indicator {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1a1a1a; border: 1px solid #444;
+  padding: 8px 20px; font-size: 12px; color: #888;
+  display: none;
+}
+.indicator.visible { display: block; }
+</style>
+</head>
+<body>
+
+<h2>Hero 3D Element — Pick your favourite(s)</h2>
+<p class="subtitle">Live previews below. Click to select. You can pick more than one if you want to combine.</p>
+
+<div class="options">
+
+  <!-- A: Geometric shape -->
+  <div class="option" id="opt-a" onclick="toggleOpt('a')">
+    <div class="canvas-wrap">
+      <span class="letter">A</span>
+      <canvas id="canvas-a"></canvas>
+    </div>
+    <div class="option-body">
+      <h3>A — Floating Geometric Shape</h3>
+      <p>Low-poly icosahedron slowly rotating. Clean, minimal, dev-coded feel. Matches the monospace aesthetic without being distracting.</p>
+    </div>
+  </div>
+
+  <!-- B: Particle field -->
+  <div class="option" id="opt-b" onclick="toggleOpt('b')">
+    <div class="canvas-wrap">
+      <span class="letter">B</span>
+      <canvas id="canvas-b"></canvas>
+    </div>
+    <div class="option-body">
+      <h3>B — Particle Constellation</h3>
+      <p>Floating dots connected by lines, reacting to mouse movement. Subtle ambient depth — sits behind content without competing for attention.</p>
+    </div>
+  </div>
+
+  <!-- D: 3D text -->
+  <div class="option" id="opt-d" onclick="toggleOpt('d')">
+    <div class="canvas-wrap">
+      <span class="letter">D</span>
+      <canvas id="canvas-d"></canvas>
+    </div>
+    <div class="option-body">
+      <h3>D — Floating 3D Text</h3>
+      <p>Your name or a keyword rendered in extruded 3D, slowly rotating and floating. Bold, statement-making — like a next-level name badge.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="indicator" id="indicator"></div>
+
+<script>
+// ── Selection logic ──────────────────────────────────────────
+const selected = new Set();
+function toggleOpt(id) {
+  const el = document.getElementById('opt-' + id);
+  if (selected.has(id)) { selected.delete(id); el.classList.remove('selected'); }
+  else { selected.add(id); el.classList.add('selected'); }
+  const ind = document.getElementById('indicator');
+  if (selected.size) {
+    ind.textContent = 'Selected: ' + [...selected].map(x => x.toUpperCase()).join(' + ');
+    ind.classList.add('visible');
+    // record for superpowers
+    if (window.__companion_record) window.__companion_record([...selected].join(','));
+  } else {
+    ind.classList.remove('visible');
+  }
+}
+
+// ── Canvas A: Icosahedron wireframe ──────────────────────────
+(function() {
+  const canvas = document.getElementById('canvas-a');
+  const ctx = canvas.getContext('2d');
+  let w, h, cx, cy;
+  const PHI = (1 + Math.sqrt(5)) / 2;
+  const verts = [
+    [-1,PHI,0],[1,PHI,0],[-1,-PHI,0],[1,-PHI,0],
+    [0,-1,PHI],[0,1,PHI],[0,-1,-PHI],[0,1,-PHI],
+    [PHI,0,-1],[PHI,0,1],[-PHI,0,-1],[-PHI,0,1]
+  ].map(v => { const l=Math.hypot(...v); return v.map(x=>x/l); });
+  const edges = [
+    [0,1],[0,5],[0,7],[0,10],[0,11],[1,5],[1,7],[1,8],[1,9],
+    [2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,6],[3,8],[3,9],
+    [4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],[7,8],[7,10],[8,9],[10,11]
+  ];
+  let rx=0, ry=0, rz=0;
+
+  function project(v, r) {
+    const [x0,y0,z0] = v;
+    // rotate Y
+    const cos1=Math.cos(ry), sin1=Math.sin(ry);
+    const x1=x0*cos1+z0*sin1, z1=-x0*sin1+z0*cos1;
+    // rotate X
+    const cos2=Math.cos(rx), sin2=Math.sin(rx);
+    const y2=y0*cos2-z1*sin2, z2=y0*sin2+z1*cos2;
+    const scale = r * 1.4 / (2 + z2);
+    return [cx + x1*scale*w*0.9, cy + y2*scale*h*0.9];
+  }
+
+  function resize() {
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w; canvas.height = h;
+    cx = w/2; cy = h/2;
+  }
+
+  function draw() {
+    resize();
+    ctx.clearRect(0,0,w,h);
+    ry += 0.008; rx += 0.004;
+    const r = Math.min(w,h) * 0.28;
+    const projected = verts.map(v => project(v, r));
+    ctx.strokeStyle = 'rgba(232,228,220,0.55)';
+    ctx.lineWidth = 0.8;
+    edges.forEach(([a,b]) => {
+      ctx.beginPath();
+      ctx.moveTo(...projected[a]);
+      ctx.lineTo(...projected[b]);
+      ctx.stroke();
+    });
+    // vertices
+    ctx.fillStyle = 'rgba(232,228,220,0.9)';
+    projected.forEach(([x,y]) => {
+      ctx.beginPath();
+      ctx.arc(x,y,1.5,0,Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Canvas B: Particle constellation ────────────────────────
+(function() {
+  const canvas = document.getElementById('canvas-b');
+  const ctx = canvas.getContext('2d');
+  let w, h, mouse = {x: -999, y: -999};
+  const COUNT = 55;
+  let particles = [];
+
+  function resize() {
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w; canvas.height = h;
+  }
+
+  function init() {
+    resize();
+    particles = Array.from({length: COUNT}, () => ({
+      x: Math.random()*w, y: Math.random()*h,
+      vx: (Math.random()-.5)*0.4, vy: (Math.random()-.5)*0.4,
+      r: Math.random()*1.5+1
+    }));
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener('mouseleave', () => { mouse.x=-999; mouse.y=-999; });
+
+  function draw() {
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p => {
+      // mouse repulsion
+      const dx = p.x - mouse.x, dy = p.y - mouse.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 80) {
+        p.vx += dx/dist * 0.15;
+        p.vy += dy/dist * 0.15;
+      }
+      p.vx *= 0.98; p.vy *= 0.98;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+    });
+
+    // connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i+1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.hypot(dx, dy);
+        if (d < 90) {
+          ctx.strokeStyle = `rgba(232,228,220,${(1-d/90)*0.25})`;
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // dots
+    particles.forEach(p => {
+      ctx.fillStyle = 'rgba(232,228,220,0.7)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  init();
+  draw();
+})();
+
+// ── Canvas D: Extruded 3D text simulation ─────────────────────
+(function() {
+  const canvas = document.getElementById('canvas-d');
+  const ctx = canvas.getContext('2d');
+  let w, h, t = 0;
+
+  function resize() {
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w; canvas.height = h;
+  }
+
+  function draw() {
+    resize();
+    ctx.clearRect(0,0,w,h);
+    t += 0.012;
+
+    const scale = 1 + Math.sin(t*0.7)*0.04;
+    const offsetY = Math.sin(t*0.5)*6;
+    const skew = Math.sin(t*0.3)*0.06;
+
+    ctx.save();
+    ctx.translate(w/2, h/2 + offsetY);
+    ctx.scale(scale, scale);
+    ctx.transform(1, 0, skew, 1, 0, 0);
+
+    // extrusion shadow layers
+    const layers = 10;
+    for (let i = layers; i >= 0; i--) {
+      const alpha = i === 0 ? 0 : (0.06 - i*0.004);
+      ctx.fillStyle = `rgba(26,26,26,${alpha})`;
+      ctx.font = `bold ${Math.min(w*0.18, 52)}px 'Courier New', monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('AZIZ', i*1.2, i*1.2);
+    }
+
+    // main text — front face
+    ctx.fillStyle = 'rgba(232,228,220,0.95)';
+    ctx.font = `bold ${Math.min(w*0.18, 52)}px 'Courier New', monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('AZIZ', 0, 0);
+
+    // subtle edge highlight
+    ctx.strokeStyle = 'rgba(232,228,220,0.2)';
+    ctx.lineWidth = 0.5;
+    ctx.strokeText('AZIZ', 0, 0);
+
+    // subtext
+    ctx.restore();
+    ctx.save();
+    ctx.translate(w/2, h/2 + offsetY + Math.min(w*0.1, 36));
+    ctx.fillStyle = 'rgba(232,228,220,0.3)';
+    ctx.font = `${Math.min(w*0.045, 13)}px 'Courier New', monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.letterSpacing = '0.2em';
+    ctx.fillText('TEBBENG', 0, 0);
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

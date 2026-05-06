@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOW Concepts</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a0a; color: #e8e4dc; font-family: 'Courier New', monospace; padding: 24px 20px 60px; }
+h2 { font-size: 17px; margin-bottom: 6px; }
+.subtitle { color: #555; font-size: 12px; margin-bottom: 28px; }
+
+.concepts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+.concept {
+  border: 1px solid #2a2a2a;
+  background: #111;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+}
+.concept:hover { border-color: #555; transform: translateY(-3px); }
+.concept.selected { border-color: #e8e4dc; }
+
+.preview {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+  background: #0d0d0d;
+}
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.tag {
+  position: absolute; top: 10px; left: 12px;
+  font-size: 10px; color: #444; letter-spacing: .12em; text-transform: uppercase;
+}
+
+.body { padding: 14px; }
+.body h3 { font-size: 12px; color: #e8e4dc; margin-bottom: 5px; }
+.body p  { font-size: 11px; color: #555; line-height: 1.65; }
+
+.hint { position: absolute; bottom: 8px; right: 10px; font-size: 10px; color: #333; }
+
+.selection-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #111; border-top: 1px solid #2a2a2a;
+  padding: 10px 24px; font-size: 12px; color: #555;
+  display: flex; align-items: center; gap: 12px;
+}
+.selection-bar span.chosen { color: #e8e4dc; }
+</style>
+</head>
+<body>
+
+<h2>3 WOW Hero Concepts — Live Previews</h2>
+<p class="subtitle">Hover over each to interact. Click to select your favourite.</p>
+
+<div class="concepts">
+
+  <!-- 1: Solar System -->
+  <div class="concept" id="c1" onclick="pick(1)">
+    <div class="preview" id="prev1">
+      <span class="tag">concept 1</span>
+      <canvas id="solar"></canvas>
+      <span class="hint">hover to interact</span>
+    </div>
+    <div class="body">
+      <h3>Skills Solar System</h3>
+      <p>Your photo at center. Tech skills orbit as glowing planets. Hover slows an orbit. Click a planet for details. HR sees your entire stack in 3 seconds.</p>
+    </div>
+  </div>
+
+  <!-- 2: Boot Sequence -->
+  <div class="concept" id="c2" onclick="pick(2)">
+    <div class="preview" id="prev2">
+      <span class="tag">concept 2</span>
+      <canvas id="boot"></canvas>
+      <span class="hint">watch it boot</span>
+    </div>
+    <div class="body">
+      <h3>Terminal Boot Sequence</h3>
+      <p>Page loads black. Fake terminal boots line by line, then dramatically reveals the portfolio. Plays once per session — nobody forgets the portfolio that "started up."</p>
+    </div>
+  </div>
+
+  <!-- 3: Constellation -->
+  <div class="concept" id="c3" onclick="pick(3)">
+    <div class="preview" id="prev3">
+      <span class="tag">concept 3</span>
+      <canvas id="const"></canvas>
+      <span class="hint">drag to rotate</span>
+    </div>
+    <div class="body">
+      <h3>Constellation Profile</h3>
+      <p>Photo framed by a 3D star constellation. Each star = a skill. Drag to rotate the whole sphere. Hover a star to reveal the skill name. Like exploring your own galaxy.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="selection-bar">
+  <span>Selected:</span>
+  <span class="chosen" id="chosen-label">none — click a concept above</span>
+</div>
+
+<script>
+// ── Selection ────────────────────────────────────────────────
+let picked = null;
+function pick(n) {
+  document.querySelectorAll('.concept').forEach(c => c.classList.remove('selected'));
+  document.getElementById('c'+n).classList.add('selected');
+  picked = n;
+  const names = {1:'Skills Solar System',2:'Terminal Boot Sequence',3:'Constellation Profile'};
+  document.getElementById('chosen-label').textContent = names[n];
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONCEPT 1 — Solar System
+// ══════════════════════════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('solar');
+  const ctx = canvas.getContext('2d');
+  let W, H, mx = -999, my = -999;
+
+  const skills = [
+    { label:'React',    color:'#61dafb', orbit:52,  speed:0.012, size:7,  angle:0.2 },
+    { label:'Next.js',  color:'#aaaaaa', orbit:72,  speed:0.009, size:6,  angle:1.8 },
+    { label:'Python',   color:'#3776ab', orbit:92,  speed:0.007, size:8,  angle:3.1 },
+    { label:'TS',       color:'#3178c6', orbit:110, speed:0.011, size:6,  angle:0.9 },
+    { label:'Supabase', color:'#3ecf8e', orbit:128, speed:0.006, size:7,  angle:2.4 },
+    { label:'Tailwind', color:'#06b6d4', orbit:62,  speed:0.014, size:5,  angle:4.2 },
+    { label:'CV',       color:'#76b900', orbit:100, speed:0.008, size:6,  angle:1.2 },
+    { label:'Git',      color:'#f05032', orbit:82,  speed:0.010, size:5,  angle:3.8 },
+  ];
+
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+  });
+  canvas.addEventListener('mouseleave', () => { mx=-999; my=-999; });
+
+  let hovered = null;
+
+  function resize() {
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W; canvas.height = H;
+  }
+
+  function draw() {
+    resize();
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H/2;
+
+    // orbits
+    skills.forEach(s => {
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([3,6]);
+      ctx.arc(cx, cy, s.orbit, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    // center — photo placeholder
+    const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,28);
+    grad.addColorStop(0,'rgba(232,228,220,0.25)');
+    grad.addColorStop(1,'rgba(232,228,220,0.05)');
+    ctx.beginPath();
+    ctx.arc(cx,cy,28,0,Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(232,228,220,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(232,228,220,0.5)';
+    ctx.font = '9px Courier New';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('photo', cx, cy);
+
+    hovered = null;
+    skills.forEach(s => {
+      // check mouse proximity — slow down if near
+      const px = cx + Math.cos(s.angle)*s.orbit;
+      const py = cy + Math.sin(s.angle)*s.orbit;
+      const dist = Math.hypot(px-mx, py-my);
+      const near = dist < 30;
+      if (near) hovered = s;
+      s.angle += near ? s.speed*0.1 : s.speed;
+
+      const x = cx + Math.cos(s.angle)*s.orbit;
+      const y = cy + Math.sin(s.angle)*s.orbit;
+
+      // glow
+      if (near) {
+        const glow = ctx.createRadialGradient(x,y,0,x,y,s.size*3);
+        glow.addColorStop(0, s.color+'88');
+        glow.addColorStop(1, s.color+'00');
+        ctx.beginPath();
+        ctx.arc(x,y,s.size*3,0,Math.PI*2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+      }
+
+      // planet
+      ctx.beginPath();
+      ctx.arc(x,y,s.size,0,Math.PI*2);
+      ctx.fillStyle = near ? s.color : s.color+'bb';
+      ctx.fill();
+
+      // label
+      ctx.fillStyle = near ? '#fff' : 'rgba(232,228,220,0.5)';
+      ctx.font = `${near?10:8}px Courier New`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(s.label, x, y+s.size+3);
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+
+// ══════════════════════════════════════════════════════════════
+// CONCEPT 2 — Boot Sequence
+// ══════════════════════════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('boot');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  const lines = [
+    { text: 'BIOS v2.4.1 — Aziz Tebbeng Portfolio', delay: 0,    color: '#555' },
+    { text: 'Initializing system...', delay: 400,  color: '#555' },
+    { text: 'Loading kernel modules...    [OK]', delay: 900,  color: '#666' },
+    { text: 'Mounting /skills...          [OK]', delay: 1300, color: '#666' },
+    { text: 'Starting dev server...       [OK]', delay: 1700, color: '#666' },
+    { text: '', delay: 2000, color: '#000' },
+    { text: 'Detected: BSIT Student', delay: 2100, color: '#3ecf8e' },
+    { text: 'Role: Full-Stack Developer', delay: 2400, color: '#3ecf8e' },
+    { text: 'Status: Available for opportunities', delay: 2700, color: '#61dafb' },
+    { text: '', delay: 3000, color: '#000' },
+    { text: 'Loading portfolio assets...', delay: 3100, color: '#666' },
+    { text: '████████████████████  100%', delay: 3500, color: '#e8e4dc' },
+    { text: '', delay: 3900, color: '#000' },
+    { text: '> Welcome. Press any key to continue_', delay: 4100, color: '#e8e4dc' },
+  ];
+
+  let visible = [];
+  let startTime = null;
+  let done = false;
+
+  function resize() {
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W; canvas.height = H;
+  }
+
+  function reset() {
+    visible = [];
+    startTime = null;
+    done = false;
+  }
+
+  // restart on click
+  canvas.addEventListener('click', reset);
+
+  function draw(ts) {
+    resize();
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+
+    lines.forEach((line, i) => {
+      if (elapsed > line.delay && !visible.includes(i)) visible.push(i);
+    });
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0,0,W,H);
+
+    const lineH = 17;
+    const startY = 18;
+    const maxVisible = Math.floor((H - startY - 20) / lineH);
+    const toShow = visible.slice(-maxVisible);
+
+    toShow.forEach((i, idx) => {
+      const line = lines[i];
+      ctx.fillStyle = line.color;
+      ctx.font = '11px Courier New';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      // blinking cursor on last line
+      let text = line.text;
+      if (i === visible[visible.length-1] && text.endsWith('_')) {
+        text = text.slice(0,-1) + (Math.floor(ts/530)%2 ? '█' : ' ');
+      }
+      ctx.fillText(text, 14, startY + idx*lineH);
+    });
+
+    // scanline overlay
+    for (let y = 0; y < H; y += 3) {
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      ctx.fillRect(0, y, W, 1);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+
+// ══════════════════════════════════════════════════════════════
+// CONCEPT 3 — Constellation Sphere
+// ══════════════════════════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('const');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let rotX = 0.3, rotY = 0;
+  let dragging = false, lastX = 0, lastY = 0;
+  let autoRot = true;
+  let hoverStar = null;
+
+  const skills = [
+    'React','Next.js','Python','TypeScript','Supabase',
+    'Tailwind','Computer Vision','Git','Docker','Machine Learning',
+    'JavaScript','HTML/CSS','Vercel','Figma','Node.js'
+  ];
+
+  // Fibonacci sphere
+  const stars = skills.map((name, i) => {
+    const golden = Math.PI*(3-Math.sqrt(5));
+    const y = 1 - (i/(skills.length-1))*2;
+    const r = Math.sqrt(1-y*y);
+    const theta = golden*i;
+    return { x: Math.cos(theta)*r, y, z: Math.sin(theta)*r, name, size: Math.random()*1.5+1.5 };
+  });
+
+  // extra background stars
+  const bgStars = Array.from({length:40}, () => {
+    const u=Math.random()*2-1, v=Math.random()*2-1, w=Math.random()*2-1;
+    const l=Math.hypot(u,v,w);
+    return { x:u/l*1.35, y:v/l*1.35, z:w/l*1.35, size:0.8, name:null };
+  });
+
+  const allStars = [...bgStars, ...stars];
+
+  canvas.addEventListener('mousedown', e => { dragging=true; autoRot=false; lastX=e.clientX; lastY=e.clientY; });
+  window.addEventListener('mouseup', () => { dragging=false; });
+  window.addEventListener('mousemove', e => {
+    if (dragging) {
+      rotY += (e.clientX-lastX)*0.008;
+      rotX += (e.clientY-lastY)*0.008;
+      lastX=e.clientX; lastY=e.clientY;
+    }
+    // hover detection done in draw
+    const r = canvas.getBoundingClientRect();
+    canvas._mx = e.clientX-r.left; canvas._my = e.clientY-r.top;
+  });
+  canvas.addEventListener('mouseleave', () => { canvas._mx=-999; canvas._my=-999; hoverStar=null; });
+
+  function rotate(p) {
+    // Y axis
+    const cosY=Math.cos(rotY), sinY=Math.sin(rotY);
+    const x1 = p.x*cosY - p.z*sinY;
+    const z1 = p.x*sinY + p.z*cosY;
+    // X axis
+    const cosX=Math.cos(rotX), sinX=Math.sin(rotX);
+    const y2 = p.y*cosX - z1*sinX;
+    const z2 = p.y*sinX + z1*cosX;
+    return {x:x1, y:y2, z:z2};
+  }
+
+  function resize() {
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W; canvas.height = H;
+  }
+
+  function draw() {
+    resize();
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2, cy=H/2;
+    const R = Math.min(W,H)*0.38;
+
+    if (autoRot) rotY += 0.004;
+
+    const projected = allStars.map(s => {
+      const r = rotate(s);
+      const scale = R / (1.8 + r.z*0.5);
+      return { sx: cx+r.x*scale, sy: cy+r.y*scale, z: r.z, size: s.size, name: s.name };
+    });
+
+    // sort by z
+    const sorted = projected.map((p,i)=>({...p,i})).sort((a,b)=>a.z-b.z);
+
+    // draw connections between named stars
+    const named = sorted.filter(p=>p.name);
+    for (let i=0;i<named.length;i++) {
+      for (let j=i+1;j<named.length;j++) {
+        const dx=named[i].sx-named[j].sx, dy=named[i].sy-named[j].sy;
+        const d=Math.hypot(dx,dy);
+        if (d<70) {
+          const alpha = (1-d/70)*0.18 * ((named[i].z+1)/2) * ((named[j].z+1)/2);
+          ctx.strokeStyle=`rgba(232,228,220,${alpha})`;
+          ctx.lineWidth=0.5;
+          ctx.beginPath();
+          ctx.moveTo(named[i].sx,named[i].sy);
+          ctx.lineTo(named[j].sx,named[j].sy);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // hover check
+    hoverStar = null;
+    const mx = canvas._mx||−999, my = canvas._my||-999;
+
+    sorted.forEach(p => {
+      const brightness = (p.z+1)/2;
+      const r = p.size * (0.5 + brightness*0.8);
+
+      if (p.name) {
+        const dx=p.sx-mx, dy=p.sy-my;
+        if (Math.hypot(dx,dy)<12 && p.z>0) hoverStar=p;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.sx,p.sy,r,0,Math.PI*2);
+      ctx.fillStyle = p.name
+        ? `rgba(232,228,220,${0.3+brightness*0.7})`
+        : `rgba(232,228,220,${0.1+brightness*0.3})`;
+      ctx.fill();
+    });
+
+    // tooltip
+    if (hoverStar) {
+      ctx.fillStyle='rgba(232,228,220,0.1)';
+      ctx.strokeStyle='rgba(232,228,220,0.4)';
+      ctx.lineWidth=0.5;
+      const tw = hoverStar.name.length*7+16;
+      ctx.fillRect(hoverStar.sx-tw/2, hoverStar.sy-26, tw, 18);
+      ctx.strokeRect(hoverStar.sx-tw/2, hoverStar.sy-26, tw, 18);
+      ctx.fillStyle='#e8e4dc';
+      ctx.font='10px Courier New';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(hoverStar.name, hoverStar.sx, hoverStar.sy-17);
+    }
+
+    // center sphere glow
+    const glow = ctx.createRadialGradient(cx,cy,0,cx,cy,R*0.25);
+    glow.addColorStop(0,'rgba(232,228,220,0.04)');
+    glow.addColorStop(1,'rgba(232,228,220,0)');
+    ctx.beginPath();
+    ctx.arc(cx,cy,R*0.25,0,Math.PI*2);
+    ctx.fillStyle=glow;
+    ctx.fill();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
