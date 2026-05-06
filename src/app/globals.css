@@ -678,3 +678,33 @@ body.terminal-route > * {
   position: relative;
   z-index: 1;
 }
+
+/* ==========================================================================
+   Animated photo (hero) — float + border breathe
+   ========================================================================== */
+@keyframes photo-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes photo-breathe-light {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(26, 26, 26, 0.6); }
+  50%      { box-shadow: 0 0 0 1px rgba(26, 26, 26, 1.0); }
+}
+
+@keyframes photo-breathe-dark {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(232, 228, 220, 0.6); }
+  50%      { box-shadow: 0 0 0 1px rgba(232, 228, 220, 1.0); }
+}
+
+.photo-anim {
+  animation: photo-float 4s ease-in-out infinite, photo-breathe-light 3s ease-in-out infinite;
+}
+
+.dark .photo-anim {
+  animation: photo-float 4s ease-in-out infinite, photo-breathe-dark 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-anim { animation: none; }
+}

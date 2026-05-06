@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { personalInfo } from "@/data/personal";
-import { AsciiPortrait } from "@/components/hero/ascii-portrait";
+import { AnimatedPhoto } from "@/components/hero/animated-photo";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { TerminalButton } from "@/components/terminal/terminal-button";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
@@ -91,12 +91,12 @@ export function HeroTerminal() {
           </div>
         </div>
 
-        {/* Right column — AsciiPortrait: ASCII halftone on hover */}
+        {/* Right column — AnimatedPhoto: Float + border breathe */}
         <div
-          className="border border-[color:var(--ink)] overflow-hidden relative"
+          className="overflow-hidden relative"
           style={{ height: 400 }}
         >
-          <AsciiPortrait imageSrc={personalInfo.profileImage} />
+          <AnimatedPhoto imageSrc={personalInfo.profileImage} />
         </div>
       </div>
     </section>
