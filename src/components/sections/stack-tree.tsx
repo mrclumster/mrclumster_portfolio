@@ -7,7 +7,6 @@ function categoryDir(name: string) {
 export function StackTree() {
   return (
     <div className="font-mono text-[13px] leading-[1.6]">
-      <p className="opacity-60 mb-2">$ ls -la ~/stack</p>
       <div className="space-y-3">
         {techStack.map((cat) => (
           <div key={cat.category}>

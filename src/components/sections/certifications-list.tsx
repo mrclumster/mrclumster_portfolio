@@ -49,7 +49,6 @@ function Row({ cert }: { cert: Certification }) {
 export function CertificationsList() {
   return (
     <div className="space-y-2">
-      <p className="opacity-60 text-[12px]">$ ls cert/</p>
       <div className="divide-y divide-[color:var(--ink)]/15">
         {certifications.map((c) => (
           <Row key={c.title} cert={c} />

@@ -51,7 +51,6 @@ function ExperienceEntry({ entry, index, total }: { entry: Experience; index: nu
 export function ExperienceLog() {
   return (
     <div className="space-y-6">
-      <p className="opacity-60 text-[12px]">$ git log --oneline-ish ~/career</p>
       {experiences.map((entry, i) => (
         <ExperienceEntry key={i} entry={entry} index={i} total={experiences.length} />
       ))}
