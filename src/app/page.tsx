@@ -30,7 +30,31 @@ export default function Home() {
           </section>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12">
+        <div className="relative grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12">
+          {/* Vertical divider with ASCII ticks — desktop only */}
+          <div
+            aria-hidden
+            className="hidden lg:block absolute top-0 bottom-0 pointer-events-none"
+            style={{
+              left: "calc(60% - 0.75rem)",
+              width: 1,
+              background: "var(--ink)",
+              opacity: 0.3,
+            }}
+          >
+            <span
+              className="absolute -top-2 -left-1.5 font-mono text-[10px] leading-none"
+              style={{ color: "var(--ink)", opacity: 0.6 }}
+            >
+              ┤
+            </span>
+            <span
+              className="absolute -bottom-2 -left-1.5 font-mono text-[10px] leading-none"
+              style={{ color: "var(--ink)", opacity: 0.6 }}
+            >
+              ├
+            </span>
+          </div>
           {/* Left column: career then education stacked */}
           <div className="space-y-10">
             <section aria-labelledby="career-heading" className="space-y-4">

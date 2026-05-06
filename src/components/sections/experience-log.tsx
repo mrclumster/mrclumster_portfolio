@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { experiences, type Experience } from "@/data/experience";
 
 function shortHash(input: string): string {
@@ -8,13 +11,33 @@ function shortHash(input: string): string {
   return (h >>> 0).toString(16).padStart(7, "0").slice(0, 7);
 }
 
-function ExperienceEntry({ entry, index, total }: { entry: Experience; index: number; total: number }) {
+function ExperienceEntry({
+  entry,
+  index,
+  total,
+  copied,
+  onCopy,
+}: {
+  entry: Experience;
+  index: number;
+  total: number;
+  copied: boolean;
+  onCopy: (hash: string) => void;
+}) {
   const head = index === 0;
+  const hash = shortHash(entry.title + entry.company);
   return (
     <article className="space-y-1 text-[13px] leading-[1.6]">
       <p>
         <span className="opacity-60">commit </span>
-        <span>{shortHash(entry.title + entry.company)}</span>
+        <button
+          type="button"
+          onClick={() => onCopy(hash)}
+          className="hover:underline underline-offset-4 cursor-pointer font-mono"
+        >
+          {hash}
+        </button>
+        {copied && <span className="ml-2 opacity-60 text-[11px]">(copied)</span>}
         {head ? <span className="ml-2 opacity-60">(HEAD -&gt; current)</span> : null}
         {!head && index === total - 1 ? <span className="ml-2 opacity-60">(initial)</span> : null}
       </p>
@@ -49,11 +72,26 @@ function ExperienceEntry({ entry, index, total }: { entry: Experience; index: nu
 }
 
 export function ExperienceLog() {
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   return (
     <div className="space-y-6">
       {experiences.map((entry, i) => (
-        <ExperienceEntry key={i} entry={entry} index={i} total={experiences.length} />
+        <ExperienceEntry
+          key={i}
+          entry={entry}
+          index={i}
+          total={experiences.length}
+          copied={copiedIdx === i}
+          onCopy={(hash) => {
+            navigator.clipboard.writeText(hash);
+            setCopiedIdx(i);
+            setTimeout(() => setCopiedIdx(null), 1200);
+          }}
+        />
       ))}
+      <p className="font-mono text-[10px] mt-6 select-none" style={{ opacity: 0.3 }}>
+        └─ end of log ─┘
+      </p>
     </div>
   );
 }

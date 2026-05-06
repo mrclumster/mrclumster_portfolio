@@ -54,6 +54,9 @@ export function CertificationsList() {
           <Row key={c.title} cert={c} />
         ))}
       </div>
+      <p className="font-mono text-[10px] mt-4 select-none" style={{ opacity: 0.3 }}>
+        └─ end of log ─┘
+      </p>
     </div>
   );
 }
