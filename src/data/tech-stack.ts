@@ -1,6 +1,7 @@
 export type TechItem = {
   name: string;
   color: string;
+  version?: string;
 };
 
 export type TechCategory = {
