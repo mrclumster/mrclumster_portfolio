@@ -3,7 +3,7 @@ import { AsciiDivider } from "@/components/terminal/ascii-divider";
 import { HeroTerminal } from "@/components/sections/hero-terminal";
 import { UptimeLine } from "@/components/sections/uptime-line";
 import { AboutTerminal } from "@/components/sections/about-terminal";
-import { StackCloud } from "@/components/sections/stack-cloud";
+import { StackTable } from "@/components/sections/stack-table";
 import { ExperienceLog } from "@/components/sections/experience-log";
 import { EducationBlock } from "@/components/sections/education-block";
 import { CertificationsList } from "@/components/sections/certifications-list";
@@ -26,7 +26,7 @@ export default function Home() {
           <AboutTerminal />
           <section aria-labelledby="stack-heading" className="space-y-4">
             <AsciiDivider label="stack" />
-            <StackCloud />
+            <StackTable />
           </section>
         </div>
 
