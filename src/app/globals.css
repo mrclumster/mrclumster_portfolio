@@ -9,6 +9,12 @@
    site to consume these. Existing tokens above stay until then.
    ========================================================================== */
 :root {
+  /* Terminal redesign tokens (paper / ink / alarm) */
+  --paper: #f4f2ed;
+  --ink: #1a1a1a;
+  --muted-fg: rgba(26, 26, 26, 0.55);
+  --alarm: #c0392b;
+
   /* Editorial palette — warm off-white, near-black, single cool-blue accent */
   --color-bg: oklch(98% 0.005 80);
   --color-fg: oklch(18% 0 0);
@@ -40,6 +46,11 @@
 }
 
 .dark {
+  --paper: #1a1a1a;
+  --ink: #e8e4dc;
+  --muted-fg: rgba(232, 228, 220, 0.55);
+  --alarm: #e74c3c;
+
   --color-bg: oklch(14% 0.01 250);
   --color-fg: oklch(96% 0.005 80);
   --color-muted: oklch(62% 0.01 250);
@@ -590,4 +601,43 @@
    with browser bilinear filtering (default). */
 .adventure-canvas-container canvas {
   image-rendering: auto;
+}
+
+/* ==========================================================================
+   Terminal redesign — selection reveal & body class
+   ========================================================================== */
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hr-keyword { color: var(--alarm); }
+.hr-secret  { color: var(--paper); }
+
+@media print {
+  .hr-secret { color: var(--ink); }
+}
+
+body.terminal-route {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+body.terminal-route a:hover { text-decoration: underline; text-underline-offset: 0.18em; }
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+@media print {
+  body.terminal-route {
+    background: #fff;
+    color: #000;
+  }
+  header, nav, footer { display: none !important; }
+  .print\:hidden { display: none !important; }
+  @page { margin: 0.6in; }
 }
