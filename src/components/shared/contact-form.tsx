@@ -4,10 +4,10 @@ import { useState, useRef, type ChangeEvent } from "react";
 import confetti from "canvas-confetti";
 import { Mail, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 
 const inputClassName =
-  "w-full rounded-lg bg-background/50 px-3 py-2 text-sm text-foreground ring-1 ring-foreground/10 placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent-brand/50 transition-[ring-color] duration-200";
+  "w-full rounded-none border-0 border-b border-foreground/15 bg-transparent px-0 py-3 text-base text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-foreground transition-[border-color] duration-200";
 
 const LIMITS = { name: 80, email: 120, message: 500 };
 const MIN_MESSAGE = 10;
@@ -116,7 +116,7 @@ export function ContactForm() {
             particleCount: 80,
             spread: 70,
             startVelocity: 30,
-            colors: ["#6366f1", "#818cf8", "#a5b4fc", "#f59e0b", "#34d399"],
+            colors: ["#6366f1", "#818cf8", "#a5b4fc"],
           });
         }
       }
@@ -199,7 +199,7 @@ export function ContactForm() {
               </span>
             )}
           </span>
-          <span className={cn("text-[11px] tabular-nums", msgNearLimit ? "text-accent-warm" : "text-muted-foreground/50")}>
+          <span className={cn("text-[11px] tabular-nums font-mono", msgNearLimit ? "text-foreground" : "text-muted-foreground/50")}>
             {msgLen}/{LIMITS.message}
           </span>
         </div>
@@ -209,19 +209,20 @@ export function ContactForm() {
         <p className="text-xs text-destructive">{serverError}</p>
       )}
 
-      <button
+      <MagneticButton
         ref={submitBtnRef}
         type="submit"
         disabled={status === "loading"}
         className={cn(
-          buttonVariants({ size: "default" }),
-          "w-full sm:w-auto sm:self-center cursor-pointer"
+          "h-12 px-6 mt-2 self-center rounded-full bg-foreground text-background",
+          "font-mono text-[11px] tracking-widest uppercase cursor-pointer",
+          "disabled:opacity-60 disabled:cursor-not-allowed",
         )}
       >
         {status === "loading" ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Sending...
+            Sending
           </>
         ) : (
           <>
@@ -229,7 +230,7 @@ export function ContactForm() {
             Send Message
           </>
         )}
-      </button>
+      </MagneticButton>
     </form>
   );
 }

@@ -4,6 +4,50 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ==========================================================================
+   Phase 0 — New design tokens (additive). Phase 2 migrates the rest of the
+   site to consume these. Existing tokens above stay until then.
+   ========================================================================== */
+:root {
+  /* Editorial palette — warm off-white, near-black, single cool-blue accent */
+  --color-bg: oklch(98% 0.005 80);
+  --color-fg: oklch(18% 0 0);
+  --color-muted: oklch(45% 0 0);
+  --color-subtle: oklch(92% 0.005 80);
+  --color-surface: oklch(100% 0 0 / 0.5);
+  --color-accent: oklch(60% 0.18 250);
+
+  /* Typography clamps */
+  --text-eyebrow: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+  --text-body: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.75rem);
+  --text-h2: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+  --text-display-xl: clamp(3rem, 1rem + 7vw, 7.5rem);
+
+  /* Spacing & rhythm */
+  --space-section: clamp(4rem, 3rem + 4vw, 8rem);
+  --space-card: clamp(1.25rem, 1rem + 0.8vw, 2rem);
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 320ms;
+  --duration-slow: 600ms;
+}
+
+.dark {
+  --color-bg: oklch(14% 0.01 250);
+  --color-fg: oklch(96% 0.005 80);
+  --color-muted: oklch(62% 0.01 250);
+  --color-subtle: oklch(22% 0.01 250);
+  --color-surface: oklch(20% 0.01 250 / 0.6);
+  --color-accent: oklch(68% 0.20 250);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -53,8 +97,9 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Phase 2 — bridged to new editorial palette (warm off-white / near-black). */
+  --background: oklch(98% 0.005 80);
+  --foreground: oklch(18% 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -70,9 +115,12 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.40 0.18 250 / 40%);
-  --accent-brand: oklch(0.40 0.18 250);
-  --accent-warm: oklch(0.65 0.17 45);
+  --ring: oklch(60% 0.18 250 / 40%);
+  /* Phase 2 — single accent. Both legacy names now resolve to --color-accent
+     so consumers that still reference accent-brand / accent-warm get the new
+     editorial accent instead of the deprecated coral. */
+  --accent-brand: var(--color-accent);
+  --accent-warm: var(--color-accent);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -92,8 +140,8 @@
 }
 
 .dark {
-  --background: oklch(0.14 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: oklch(14% 0.01 250);
+  --foreground: oklch(96% 0.005 80);
   --card: oklch(0.19 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.24 0 0);
@@ -109,9 +157,9 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.55 0.18 250 / 40%);
-  --accent-brand: oklch(0.55 0.18 250);
-  --accent-warm: oklch(0.75 0.17 55);
+  --ring: oklch(68% 0.20 250 / 40%);
+  --accent-brand: var(--color-accent);
+  --accent-warm: var(--color-accent);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -353,6 +401,168 @@
   0%   { opacity: 0; }
   20%  { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* ==========================================================================
+   Phase 3 — Editorial primitives
+   ========================================================================== */
+
+/* Eyebrow label — mono, small caps, tracked-out */
+.eyebrow-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-eyebrow);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.eyebrow-label .eyebrow-num {
+  color: var(--color-accent);
+  margin-right: 0.5em;
+}
+
+/* Display headlines */
+.display-headline {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--text-h2);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.display-headline .accent-italic {
+  font-family: var(--font-serif-italic);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--color-accent);
+}
+.display-xl {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--text-display-xl);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  padding-bottom: 0.08em;
+}
+
+/* Animated conic-gradient border (hero card) */
+@property --ab-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes ab-rotate {
+  to { --ab-angle: 360deg; }
+}
+.animated-border-host {
+  border-radius: var(--ab-radius, 1rem);
+}
+.animated-border-host::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--ab-thickness, 1px);
+  background: conic-gradient(
+    from var(--ab-angle),
+    var(--color-accent),
+    color-mix(in oklch, var(--color-accent) 0%, transparent),
+    color-mix(in oklch, var(--color-fg) 5%, transparent),
+    color-mix(in oklch, var(--color-accent) 0%, transparent),
+    var(--color-accent)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  animation: ab-rotate var(--ab-duration, 8s) linear infinite;
+}
+
+/* Redacted-text — pure selection-reveal effect.
+   Text is rendered transparent. A repeating linear-gradient paints a thin
+   accent I-beam at the start of each visual line, regardless of where the
+   wrapping happens. OS selection paints chosen characters with the foreground
+   color so the text reveals only as the cursor sweeps over it. */
+.redacted-text {
+  color: transparent;
+  position: relative;
+  caret-color: var(--color-accent);
+}
+.redacted-text .redacted-line {
+  position: relative;
+  display: block;
+  padding-left: 0.7em;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0.18em,
+    var(--color-accent) 0.18em,
+    var(--color-accent) calc(0.18em + 0.85em),
+    transparent calc(0.18em + 0.85em)
+  );
+  background-repeat: repeat-y;
+  background-size: 2px 1.7em;
+  background-position: 0 0;
+  opacity: 1;
+}
+.redacted-text .redacted-line::selection,
+.redacted-text ::selection,
+.redacted-text::selection {
+  color: var(--color-fg);
+  background: color-mix(in oklch, var(--color-accent) 22%, transparent);
+}
+/* Keyboard-only reveal — clicks stay invisible, but Tab still grants access. */
+.redacted-text:focus-visible {
+  color: var(--color-fg);
+  outline: 1px dashed color-mix(in oklch, var(--color-fg) 25%, transparent);
+  outline-offset: 4px;
+}
+
+/* Hero name char-by-char reveal helper */
+@keyframes hero-name-char {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-char-play {
+  animation: hero-name-char 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Project card cursor-following label */
+.project-cursor-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--color-accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transform: translate(16px, 16px);
+  transition: opacity 200ms ease;
+}
+
+/* Sticky eyebrow — desktop only */
+@media (min-width: 1024px) {
+  .sticky-eyebrow {
+    position: sticky;
+    top: 5rem;
+    z-index: 5;
+  }
+}
+
+/* Page enter wipe — Phase 1. Vertical accent line sweeps left→right while
+   page content reveals via clip-path. Triggered by app/template.tsx and
+   gated to once-per-session. */
+@keyframes page-enter-line {
+  0%   { transform: translateX(0); opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+@keyframes page-enter-clip {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0% 0 0); }
+}
+.page-enter-clip {
+  animation: page-enter-clip 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Accessibility: respect reduced motion preference */

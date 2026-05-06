@@ -1,19 +1,28 @@
 import type { Metadata } from "next";
-import { Inter, Sora } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
 import { PortfolioChrome } from "@/components/layout/portfolio-chrome";
 import "./globals.css";
 
-const inter = Inter({
+const geistSans = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const sora = Sora({
-  variable: "--font-display",
+const geistMono = Geist_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  display: "swap",
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif-italic",
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["italic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -45,9 +54,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${sora.variable} h-full`} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <head>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full`} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-sans antialiased bg-noise bg-page-gradient overflow-x-hidden">
         <script
+          id="ld-json-person"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -67,26 +77,33 @@ export default function RootLayout({
             }),
           }}
         />
-      </head>
-      <body className="min-h-full flex flex-col font-sans antialiased bg-noise bg-page-gradient overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
         >
-          {/* Animated gradient mesh — full viewport */}
+          {/* Atmosphere — single-accent drifting blobs */}
           <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
             <div
-              className="absolute -top-32 -left-20 h-[500px] w-[500px] rounded-full bg-blue-600/5 dark:bg-blue-600/15 blur-3xl will-change-transform"
-              style={{ animation: "blob-drift-1 25s ease-in-out infinite" }}
+              className="absolute -top-32 -left-20 h-[500px] w-[500px] rounded-full blur-3xl will-change-transform"
+              style={{
+                background: "color-mix(in oklch, var(--color-accent) 6%, transparent)",
+                animation: "blob-drift-1 25s ease-in-out infinite",
+              }}
             />
             <div
-              className="absolute top-1/2 right-0 h-[400px] w-[400px] rounded-full bg-purple-600/4 dark:bg-purple-600/10 blur-3xl will-change-transform"
-              style={{ animation: "blob-drift-2 30s ease-in-out infinite" }}
+              className="absolute top-1/2 right-0 h-[400px] w-[400px] rounded-full blur-3xl will-change-transform"
+              style={{
+                background: "color-mix(in oklch, var(--color-accent) 4%, transparent)",
+                animation: "blob-drift-2 30s ease-in-out infinite",
+              }}
             />
             <div
-              className="absolute bottom-0 left-1/3 h-[450px] w-[450px] rounded-full bg-teal-500/4 dark:bg-teal-500/10 blur-3xl will-change-transform"
-              style={{ animation: "blob-drift-3 28s ease-in-out infinite" }}
+              className="absolute bottom-0 left-1/3 h-[450px] w-[450px] rounded-full blur-3xl will-change-transform"
+              style={{
+                background: "color-mix(in oklch, var(--color-accent) 3%, transparent)",
+                animation: "blob-drift-3 28s ease-in-out infinite",
+              }}
             />
           </div>
           <PortfolioChrome>

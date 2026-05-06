@@ -6,7 +6,9 @@
       "Bash(find \"/c/aziztebbeng/mrclumster_portfolio/public/game\" -type f -exec ls -lh {} \\\\;)",
       "Bash(awk '{print $5 \"\\\\t\" $9}')",
       "Bash(npm ls *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "PowerShell(npm install *)",
+      "Bash(node *)"
     ]
   }
 }

@@ -1,20 +1,54 @@
-"use client";
-
-import { AnimateIn } from "@/components/shared/animate-in";
+import { cn } from "@/lib/utils";
 
 interface SectionHeadingProps {
-  title: string;
+  /** Plain text portion of the headline. */
+  children: React.ReactNode;
+  /** Optional italic-serif accent word rendered after the main text. */
+  accentWord?: string;
+  /** Trailing punctuation after the accent word (e.g. "."). */
+  accentPunct?: string;
+  className?: string;
+  as?: "h1" | "h2" | "h3";
+  size?: "h2" | "display";
+  /** Legacy back-compat — old call sites pass title; routed through children. */
+  title?: string;
+  /** Legacy back-compat — old call sites pass subtitle; rendered as muted line under headline. */
   subtitle?: string;
 }
 
-export function SectionHeading({ title, subtitle }: SectionHeadingProps) {
+/**
+ * Editorial section headline. Pairs a sans display word with one optional
+ * italic-serif accent word — e.g.  Selected *work.*
+ */
+export function SectionHeading({
+  children,
+  accentWord,
+  accentPunct,
+  className,
+  as: Tag = "h2",
+  size = "h2",
+  title,
+  subtitle,
+}: SectionHeadingProps) {
+  const content = children ?? title;
   return (
-    <AnimateIn className="mb-4">
-      <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>
-      <div className="mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-accent-brand to-accent-brand/40" />
+    <div className={cn("space-y-2", className)}>
+      <Tag
+        className={cn(
+          size === "display" ? "display-xl" : "display-headline",
+        )}
+      >
+        {content}
+        {accentWord && (
+          <>
+            {" "}
+            <span className="accent-italic">{accentWord}{accentPunct}</span>
+          </>
+        )}
+      </Tag>
       {subtitle && (
-        <p className="mt-2 text-muted-foreground">{subtitle}</p>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
       )}
-    </AnimateIn>
+    </div>
   );
 }
