@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { personalInfo } from "@/data/personal";
+import { ShatteredPortrait } from "@/components/hero/shattered-portrait";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { TerminalButton } from "@/components/terminal/terminal-button";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
@@ -91,19 +91,12 @@ export function HeroTerminal() {
           </div>
         </div>
 
-        {/* Right column — profile photo (Phase 2: becomes ShatteredPortrait) */}
+        {/* Right column — ShatteredPortrait: photo shards on hover */}
         <div
           className="border border-[color:var(--ink)] overflow-hidden relative"
           style={{ height: 400 }}
         >
-          <Image
-            src={personalInfo.profileImage}
-            alt="Aziz Tebbeng"
-            fill
-            sizes="(min-width: 1024px) 400px, 100vw"
-            className="object-cover object-top grayscale"
-            priority
-          />
+          <ShatteredPortrait imageSrc={personalInfo.profileImage} />
         </div>
       </div>
     </section>
