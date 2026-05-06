@@ -2,9 +2,11 @@
 
 import { useState, useRef } from "react";
 import confetti from "canvas-confetti";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle } from "lucide-react";
 import { TerminalInput, TerminalTextarea, TerminalLabel } from "@/components/terminal/terminal-input";
 import { TerminalButton } from "@/components/terminal/terminal-button";
+import { personalInfo } from "@/data/personal";
+import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from "@/components/shared/icons";
 
 const LIMITS = { name: 80, email: 120, message: 500 };
 const MIN_MESSAGE = 10;
@@ -24,6 +26,7 @@ export function ContactTerminal() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [serverError, setServerError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [emailRevealed, setEmailRevealed] = useState(false);
   const submitBtnRef = useRef<HTMLButtonElement>(null);
 
   function handleChange(field: keyof typeof formData, value: string) {
@@ -88,57 +91,239 @@ export function ContactTerminal() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl text-[14px]">
-      <p className="opacity-60 text-[12px]">$ contact --send</p>
+    <div className="grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-0 border border-[color:var(--ink)]" style={{ borderColor: "var(--ink)" }}>
 
-      <div>
-        <TerminalLabel>from / name</TerminalLabel>
-        <TerminalInput
-          value={formData.name}
-          onChange={(e) => handleChange("name", e.target.value)}
-          onBlur={() => handleBlur("name")}
-          placeholder="your name"
-        />
-        {fieldErrors.name && <p className="text-[12px] mt-1 text-[color:var(--alarm)]">{fieldErrors.name}</p>}
+      {/* ── LEFT: Operator dossier ── */}
+      <div
+        className="relative flex flex-col justify-between p-6 lg:p-8 border-b lg:border-b-0 lg:border-r"
+        style={{ borderColor: "var(--ink)" }}
+      >
+        {/* Large decorative bracket */}
+        <span
+          aria-hidden
+          className="absolute top-4 right-4 font-mono select-none pointer-events-none"
+          style={{
+            fontSize: "clamp(5rem, 8vw, 9rem)",
+            lineHeight: 1,
+            color: "var(--ink)",
+            opacity: 0.04,
+            fontWeight: 900,
+          }}
+        >
+          {"{"}
+        </span>
+
+        <div className="space-y-6 relative z-10">
+          {/* Status badge */}
+          <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">
+            <span
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{
+                background: "var(--ink)",
+                animation: "pulse 2.4s ease-in-out infinite",
+              }}
+              aria-hidden
+            />
+            <span style={{ opacity: 0.5 }}>status</span>
+            <span className="ml-1" style={{ opacity: 0.9 }}>{personalInfo.status.label}</span>
+          </div>
+
+          {/* Heading */}
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.2em] mb-2" style={{ opacity: 0.4 }}>
+              // open channel
+            </p>
+            <p
+              className="font-mono leading-snug"
+              style={{ fontSize: "clamp(1.25rem, 1rem + 1.2vw, 1.75rem)", color: "var(--ink)" }}
+            >
+              Let&apos;s build<br />
+              something<br />
+              <em style={{ fontStyle: "normal", opacity: 0.45 }}>together.</em>
+            </p>
+          </div>
+
+          {/* Email */}
+          <div className="space-y-1">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ opacity: 0.4 }}>
+              channel / email
+            </p>
+            <button
+              type="button"
+              onClick={() => setEmailRevealed((v) => !v)}
+              className="font-mono text-[0.8125rem] text-left transition-opacity hover:opacity-100"
+              style={{ color: "var(--ink)", opacity: emailRevealed ? 1 : 0.55 }}
+              aria-label="Reveal email address"
+            >
+              {emailRevealed ? (
+                <a
+                  href={`mailto:${personalInfo.email}`}
+                  className="hover:underline underline-offset-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {personalInfo.email}
+                </a>
+              ) : (
+                <span>
+                  <span style={{ opacity: 0.4 }}>[hover to reveal] </span>
+                  {personalInfo.email.replace(/./g, "·")}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Social links */}
+          <div className="space-y-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ opacity: 0.4 }}>
+              networks
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {personalInfo.socialLinks.github && (
+                <TerminalButton href={personalInfo.socialLinks.github} target="_blank" rel="noopener noreferrer">
+                  <GithubIcon className="h-3 w-3" /> github
+                </TerminalButton>
+              )}
+              {personalInfo.socialLinks.linkedin && (
+                <TerminalButton href={personalInfo.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                  <LinkedinIcon className="h-3 w-3" /> linkedin
+                </TerminalButton>
+              )}
+              {personalInfo.socialLinks.facebook && (
+                <TerminalButton href={personalInfo.socialLinks.facebook} target="_blank" rel="noopener noreferrer">
+                  <FacebookIcon className="h-3 w-3" /> facebook
+                </TerminalButton>
+              )}
+              {personalInfo.socialLinks.instagram && (
+                <TerminalButton href={personalInfo.socialLinks.instagram} target="_blank" rel="noopener noreferrer">
+                  <InstagramIcon className="h-3 w-3" /> instagram
+                </TerminalButton>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom coord line */}
+        <p
+          className="font-mono text-[10px] mt-8 lg:mt-0"
+          style={{ opacity: 0.25, letterSpacing: "0.1em" }}
+        >
+          {personalInfo.location.toUpperCase()} · {new Date().getFullYear()}
+        </p>
       </div>
 
-      <div>
-        <TerminalLabel>email</TerminalLabel>
-        <TerminalInput
-          type="email"
-          value={formData.email}
-          onChange={(e) => handleChange("email", e.target.value)}
-          onBlur={() => handleBlur("email")}
-          placeholder="you@domain.com"
-        />
-        {fieldErrors.email && <p className="text-[12px] mt-1 text-[color:var(--alarm)]">{fieldErrors.email}</p>}
-      </div>
+      {/* ── RIGHT: Transmission composer ── */}
+      <div className="p-6 lg:p-8">
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-6 font-mono text-[11px]" style={{ opacity: 0.4 }}>
+          <span>&gt;_</span>
+          <span className="uppercase tracking-widest">compose transmission</span>
+        </div>
 
-      <div>
-        <TerminalLabel>message</TerminalLabel>
-        <TerminalTextarea
-          value={formData.message}
-          onChange={(e) => handleChange("message", e.target.value)}
-          onBlur={() => handleBlur("message")}
-          placeholder="say something nice"
-        />
-        {fieldErrors.message && <p className="text-[12px] mt-1 text-[color:var(--alarm)]">{fieldErrors.message}</p>}
-      </div>
+        {status === "success" ? (
+          <div className="flex flex-col gap-4 py-8 font-mono">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 shrink-0" style={{ color: "var(--ink)" }} />
+              <span className="text-[0.9375rem]" style={{ color: "var(--ink)" }}>
+                transmission received.
+              </span>
+            </div>
+            <p className="text-[0.8125rem]" style={{ opacity: 0.5 }}>
+              I&apos;ll get back to you shortly. Stand by.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStatus("idle")}
+              className="mt-2 self-start font-mono text-[0.8125rem] underline underline-offset-4"
+              style={{ opacity: 0.5 }}
+            >
+              send another
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <TerminalLabel>FROM / NAME</TerminalLabel>
+              <TerminalInput
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                onBlur={() => handleBlur("name")}
+                placeholder="your name"
+                autoComplete="name"
+              />
+              {fieldErrors.name && (
+                <p className="font-mono text-[11px] mt-1" style={{ color: "var(--alarm)" }}>
+                  ! {fieldErrors.name}
+                </p>
+              )}
+            </div>
 
-      <div className="flex items-center gap-3 pt-2">
-        <button ref={submitBtnRef} type="submit" disabled={status === "loading"} className="contents">
-          <TerminalButton>{status === "loading" ? "submitting…" : "submit"}</TerminalButton>
-        </button>
-        {status === "success" && (
-          <span className="inline-flex items-center gap-1 text-[12px]"><CheckCircle className="h-3.5 w-3.5" /> sent</span>
+            <div>
+              <TerminalLabel>CHANNEL / EMAIL</TerminalLabel>
+              <TerminalInput
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                onBlur={() => handleBlur("email")}
+                placeholder="you@domain.com"
+                autoComplete="email"
+              />
+              {fieldErrors.email && (
+                <p className="font-mono text-[11px] mt-1" style={{ color: "var(--alarm)" }}>
+                  ! {fieldErrors.email}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <TerminalLabel>PAYLOAD / MESSAGE</TerminalLabel>
+              <TerminalTextarea
+                value={formData.message}
+                onChange={(e) => handleChange("message", e.target.value)}
+                onBlur={() => handleBlur("message")}
+                placeholder="say something nice"
+              />
+              {fieldErrors.message && (
+                <p className="font-mono text-[11px] mt-1" style={{ color: "var(--alarm)" }}>
+                  ! {fieldErrors.message}
+                </p>
+              )}
+            </div>
+
+            <div className="pt-1 space-y-3">
+              <button
+                ref={submitBtnRef}
+                type="submit"
+                disabled={status === "loading"}
+                className="w-full font-mono text-[0.875rem] py-3 tracking-wider transition-opacity disabled:opacity-40 hover:opacity-80"
+                style={{
+                  background: "var(--ink)",
+                  color: "var(--paper)",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                {status === "loading" ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span
+                      className="inline-block w-2 h-2 rounded-full animate-ping"
+                      style={{ background: "var(--paper)", opacity: 0.7 }}
+                    />
+                    transmitting…
+                  </span>
+                ) : (
+                  ">_ send_message"
+                )}
+              </button>
+
+              {status === "error" && (
+                <div className="flex items-center gap-2 font-mono text-[12px]" style={{ color: "var(--alarm)" }}>
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>! TRANSMISSION FAILED — {serverError || "unknown error"}</span>
+                </div>
+              )}
+            </div>
+          </form>
         )}
-        {status === "error" && (
-          <span className="inline-flex items-center gap-1 text-[12px] text-[color:var(--alarm)]">
-            <AlertCircle className="h-3.5 w-3.5" /> {serverError || "failed"}
-          </span>
-        )}
-        {status === "loading" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
       </div>
-    </form>
+    </div>
   );
 }
