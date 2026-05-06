@@ -7,6 +7,7 @@ import { TerminalInput, TerminalTextarea, TerminalLabel } from "@/components/ter
 import { TerminalButton } from "@/components/terminal/terminal-button";
 import { personalInfo } from "@/data/personal";
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from "@/components/shared/icons";
+import { OrigamiBirds } from "./origami-birds";
 
 const LIMITS = { name: 80, email: 120, message: 500 };
 const MIN_MESSAGE = 10;
@@ -91,7 +92,9 @@ export function ContactTerminal() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-0 border border-[color:var(--ink)]" style={{ borderColor: "var(--ink)" }}>
+    <div className="relative">
+      <OrigamiBirds />
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-0 border border-[color:var(--ink)]" style={{ borderColor: "var(--ink)" }}>
 
       {/* ── LEFT: Operator dossier ── */}
       <div
@@ -324,6 +327,7 @@ export function ContactTerminal() {
           </form>
         )}
       </div>
+    </div>
     </div>
   );
 }
