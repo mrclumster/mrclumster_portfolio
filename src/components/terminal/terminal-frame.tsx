@@ -25,7 +25,7 @@ export function TerminalFrame({ prompt = "cat index.md", children }: TerminalFra
   const next = current === "dark" ? "light" : "dark";
 
   return (
-    <div className="relative z-[2]">
+    <div>
       <header className="sticky top-0 z-30 flex items-baseline justify-between gap-6 border-b border-[color:var(--ink)] bg-[color:var(--paper)] px-4 py-2 text-[12px] sm:px-6 lg:px-8">
         <span className="truncate">
           <span className="opacity-70">aziz@portfolio</span>
