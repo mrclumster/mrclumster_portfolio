@@ -1,4 +1,6 @@
 import { TerminalFrame } from "@/components/terminal/terminal-frame";
+import { DriftingType } from "@/components/background/drifting-type";
+import { CursorSpotlight } from "@/components/background/cursor-spotlight";
 import { AsciiDivider } from "@/components/terminal/ascii-divider";
 import { HeroTerminal } from "@/components/sections/hero-terminal";
 import { UptimeLine } from "@/components/sections/uptime-line";
@@ -15,7 +17,10 @@ export default function Home() {
   const featuredProjects = projects.filter((p) => p.featured);
 
   return (
-    <TerminalFrame prompt="cat index.md">
+    <>
+      <DriftingType />
+      <CursorSpotlight />
+      <TerminalFrame prompt="cat index.md">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-16">
         <AsciiDivider number="01" label="introduction" />
         <HeroTerminal />
@@ -101,5 +106,6 @@ export default function Home() {
         </section>
       </div>
     </TerminalFrame>
+    </>
   );
 }

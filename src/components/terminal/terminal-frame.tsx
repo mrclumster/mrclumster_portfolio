@@ -25,7 +25,7 @@ export function TerminalFrame({ prompt = "cat index.md", children }: TerminalFra
   const next = current === "dark" ? "light" : "dark";
 
   return (
-    <>
+    <div className="relative z-[2]">
       <header className="sticky top-0 z-30 flex items-baseline justify-between gap-6 border-b border-[color:var(--ink)] bg-[color:var(--paper)] px-4 py-2 text-[12px] sm:px-6 lg:px-8">
         <span className="truncate">
           <span className="opacity-70">aziz@portfolio</span>
@@ -51,6 +51,6 @@ export function TerminalFrame({ prompt = "cat index.md", children }: TerminalFra
         <span className="opacity-50">:~ %</span>
         <span className="ml-2 inline-block w-[0.6em] animate-[blink_1s_steps(2,end)_infinite] bg-[color:var(--ink)] align-[-0.1em] h-[1em]" />
       </footer>
-    </>
+    </div>
   );
 }
