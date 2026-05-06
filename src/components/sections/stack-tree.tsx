@@ -1,4 +1,5 @@
 import { techStack } from "@/data/tech-stack";
+import { NeuralNetwork } from "./neural-network";
 
 function categoryDir(name: string) {
   return name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -6,7 +7,8 @@ function categoryDir(name: string) {
 
 export function StackTree() {
   return (
-    <div className="font-mono text-[13px] leading-[1.6]">
+    <div className="font-mono text-[13px] leading-[1.6] space-y-4">
+      <NeuralNetwork />
       <div className="space-y-3">
         {techStack.map((cat) => (
           <div key={cat.category}>
