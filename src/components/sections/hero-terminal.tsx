@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { personalInfo } from "@/data/personal";
-import { PhotoConfigurator } from "@/components/hero/photo-configurator";
+import { CursorEyes } from "@/components/hero/cursor-eyes";
+import { PhotoFrame } from "@/components/hero/photo-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { TerminalButton } from "@/components/terminal/terminal-button";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
@@ -91,12 +92,12 @@ export function HeroTerminal() {
           </div>
         </div>
 
-        {/* Right column — PhotoConfigurator: Float + border breathe */}
-        <div
-          className="relative"
-          style={{ height: 360 }}
-        >
-          <PhotoConfigurator imageSrc={personalInfo.profileImage} />
+        {/* Right column — cursor-tracking eyes + colored photo */}
+        <div className="flex flex-col gap-3" style={{ height: 400 }}>
+          <CursorEyes />
+          <div className="relative flex-1">
+            <PhotoFrame imageSrc={personalInfo.profileImage} />
+          </div>
         </div>
       </div>
     </section>
