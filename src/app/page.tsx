@@ -31,7 +31,7 @@ export default function Home() {
         </div>
 
         <div className="relative grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12">
-          {/* Vertical divider with ASCII ticks — desktop only */}
+          {/* Vertical divider with git log graph commit dots — desktop only */}
           <div
             aria-hidden
             className="hidden lg:block absolute top-0 bottom-0 pointer-events-none"
@@ -39,21 +39,37 @@ export default function Home() {
               left: "calc(60% - 0.75rem)",
               width: 1,
               background: "var(--ink)",
-              opacity: 0.3,
+              opacity: 0.35,
             }}
           >
-            <span
-              className="absolute -top-2 -left-1.5 font-mono text-[10px] leading-none"
-              style={{ color: "var(--ink)", opacity: 0.6 }}
-            >
-              ┤
-            </span>
-            <span
-              className="absolute -bottom-2 -left-1.5 font-mono text-[10px] leading-none"
-              style={{ color: "var(--ink)", opacity: 0.6 }}
-            >
-              ├
-            </span>
+            {[
+              { top: "4%", hash: "a3f9c10", label: "career", head: true },
+              { top: "22%", hash: "7e4b2d8", label: "experience-1", head: false },
+              { top: "48%", hash: "5d8c4b1", label: "experience-2", head: false },
+              { top: "65%", hash: "c1d9f2a", label: "education", head: false },
+              { top: "88%", hash: "f4a8e21", label: "end", head: false },
+            ].map((d, i) => (
+              <div key={i} className="absolute" style={{ top: d.top, left: "-5px" }}>
+                <span
+                  className="font-mono leading-none"
+                  style={{ fontSize: "12px", color: "var(--ink)", opacity: 0.7 }}
+                >
+                  ●
+                </span>
+                <span
+                  className="absolute font-mono whitespace-nowrap leading-none"
+                  style={{
+                    right: "16px",
+                    top: "2px",
+                    fontSize: "10px",
+                    color: "var(--muted-fg)",
+                    opacity: 0.6,
+                  }}
+                >
+                  {d.hash} {d.label}{d.head ? " (HEAD)" : ""}
+                </span>
+              </div>
+            ))}
           </div>
           {/* Left column: career then education stacked */}
           <div className="space-y-10">
