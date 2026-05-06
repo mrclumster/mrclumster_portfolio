@@ -30,20 +30,25 @@ export default function Home() {
           </section>
         </div>
 
-        <section aria-labelledby="career-heading" className="space-y-4">
-          <AsciiDivider number="03" label="career" />
-          <ExperienceLog />
-        </section>
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12">
+          {/* Left column: career then education stacked */}
+          <div className="space-y-10">
+            <section aria-labelledby="career-heading" className="space-y-4">
+              <AsciiDivider number="03" label="career" />
+              <ExperienceLog />
+            </section>
+            <section aria-labelledby="education-heading" className="space-y-4">
+              <AsciiDivider label="education" />
+              <EducationBlock />
+            </section>
+          </div>
 
-        <section aria-labelledby="education-heading" className="space-y-4">
-          <AsciiDivider label="education" />
-          <EducationBlock />
-        </section>
-
-        <section aria-labelledby="certifications-heading" className="space-y-4">
-          <AsciiDivider label="certifications" />
-          <CertificationsList />
-        </section>
+          {/* Right column: certifications */}
+          <section aria-labelledby="certifications-heading" className="space-y-4">
+            <AsciiDivider label="certifications" />
+            <CertificationsList />
+          </section>
+        </div>
 
         <section id="projects" aria-labelledby="projects-heading" className="space-y-6">
           <AsciiDivider number="04" label="selected_work" />
