@@ -3,11 +3,10 @@
 import { personalInfo } from "@/data/personal";
 import { AsciiBanner } from "@/components/hero/ascii-banner";
 import { HeroButtons } from "@/components/hero/hero-buttons";
-import { CursorEyes } from "@/components/hero/cursor-eyes";
-import { PhotoFrame } from "@/components/hero/photo-frame";
+import { AsciiFrame } from "@/components/hero/ascii-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
-import { ParticleConstellation } from "@/components/hero/particle-constellation";
+import { HeroBackdrop } from "@/components/hero/hero-backdrop";
 
 export function HeroTerminal() {
   const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
@@ -23,10 +22,7 @@ export function HeroTerminal() {
       aria-labelledby="hero-heading"
       className="relative"
     >
-      {/* B — Particle constellation: full-section background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <ParticleConstellation />
-      </div>
+      <HeroBackdrop />
 
       <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-[7fr_5fr] lg:items-start">
         {/* Left column — identity */}
@@ -56,13 +52,8 @@ export function HeroTerminal() {
           <HeroButtons />
         </div>
 
-        {/* Right column — cursor-tracking eyes + colored photo */}
-        <div className="flex flex-col gap-3" style={{ height: 400 }}>
-          <CursorEyes />
-          <div className="relative flex-1">
-            <PhotoFrame imageSrc={personalInfo.profileImage} />
-          </div>
-        </div>
+        {/* Right column — ASCII frame around photo */}
+        <AsciiFrame imageSrc={personalInfo.profileImage} />
       </div>
     </section>
   );
