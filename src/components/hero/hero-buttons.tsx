@@ -11,19 +11,25 @@ function BracketLink({ href, external, children }: BracketLinkProps) {
   const className =
     "font-mono whitespace-nowrap transition-colors duration-150 hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)] focus-visible:bg-[color:var(--ink)] focus-visible:text-[color:var(--paper)] focus-visible:outline-none";
 
-  const content = `[ ${children} ]`;
+  const inner = (
+    <>
+      <span aria-hidden>[ </span>
+      <span>{children}</span>
+      <span aria-hidden> ]</span>
+    </>
+  );
 
   if (external) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
+        {inner}
       </a>
     );
   }
 
   return (
     <Link href={href} className={className}>
-      {content}
+      {inner}
     </Link>
   );
 }
