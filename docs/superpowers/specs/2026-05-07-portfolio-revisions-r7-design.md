@@ -87,24 +87,25 @@ The 5 eye-pairs from R5 keep their existing pupil-tracks-cursor behavior. The ch
 
 **Replaces:** `<ParticleConstellation />` in `hero-terminal.tsx`. Imports of `particle-constellation` and the absolute-positioned wrapper for it are removed.
 
-**New background component:** `<HeroBackdrop />` — pure CSS, no canvas, no Three.js.
+**New background component:** `<HeroBackdrop />` — pure CSS + a single `pointermove` listener. No canvas, no Three.js. **Hero section only** — not applied to any other section. The existing site-wide R4 grain + vignette are unchanged and continue to apply.
 
-Two layers stacked behind the hero content:
+**Behavior — Linear/Render-style cursor-spotlight grid reveal:**
 
-**Layer A — grid:**
-- Pure CSS background-image with two repeating-linear-gradients (vertical + horizontal lines) at 32px spacing.
-- Color: `var(--ink)` at `4%` opacity (very faint).
-- Positioned absolute, fills the hero section.
+A grid pattern is rendered at full opacity into the section background, but a radial-gradient mask hides it everywhere except a ~280px-radius circle following the cursor. So at rest the section looks empty (only the existing site grain shows); as the user moves their mouse over the hero, the grid lines reveal under the cursor like the page is "responding."
 
-**Layer B — drifting fake comments:**
-- 4 hardcoded fake-comment strings, each absolutely positioned with a CSS animation that translates them slowly across the section.
-- Strings: `// rendering hero...` / `/* TODO: hire me */` / `# uptime: 99.97%` / `// build #4421 — ok`.
-- Color: `var(--ink)` at `8%` opacity.
-- Each starts at a different vertical offset and animates `translateX` from `-40%` → `120%` over 60–90s, looping. Different durations per comment so they don't sync.
-- `prefers-reduced-motion: reduce` → animations paused.
-- `pointer-events: none` so nothing in the bg interferes with clicks.
+**Implementation shape:**
 
-This is a hero-section-only background. Other sections are unaffected.
+- Single absolutely-positioned `<div>` filling the hero section (`absolute inset-0 pointer-events-none`).
+- `background-image`: a stacked pair of CSS linear-gradients (vertical + horizontal lines at 32px spacing). Lines drawn at full `var(--ink)` opacity inside the gradient image — the mask, not the line color, controls visibility.
+- `mask-image` (and `-webkit-mask-image` for Safari): a `radial-gradient(circle at var(--mx) var(--my), black 0%, black 12%, transparent 60%)`. Inside the inner stop the grid is fully visible; it fades to invisible by the outer stop.
+- Two CSS custom properties on the wrapper: `--mx` and `--my`, both default to `-9999px` (mask off-screen → grid invisible at first paint).
+- A single `useEffect` registers a `pointermove` listener on the hero section element. On move, it computes cursor coordinates relative to that section and writes them to `--mx` / `--my` via `style.setProperty`. On `pointerleave`, both vars reset to `-9999px` (grid hides).
+- `prefers-reduced-motion: reduce` → the grid is shown at a static 4% opacity covering the whole section (no cursor follow), so users with reduced-motion still get a backdrop instead of a featureless one.
+- `pointer-events: none` on the backdrop layer so it doesn't steal clicks from foreground bits.
+- Grid line color picks up `var(--ink)`, so it inverts correctly in dark mode without extra rules.
+- The hero section element gets `position: relative` (already does) so the absolute backdrop child anchors correctly.
+
+This is hero-section-only. Other sections inherit the site's existing background (paper + grain + vignette) untouched.
 
 ### 5. Spacing / layout
 
@@ -136,7 +137,7 @@ The right column wrapper currently uses `flex flex-col gap-3` with `height: 400`
 
 - `src/app/globals.css`:
   - Add `--bit-l` and `--bit-c` custom properties under `:root` (light defaults) and the dark-mode override block.
-  - Add the keyframes for the 4 drifting comments (`@keyframes drift-1`, `drift-2`, `drift-3`, `drift-4`).
+  - No keyframes added — backdrop is event-driven, not timeline-driven. The backdrop component owns its own CSS via `style` props or a co-located CSS module; the only globals.css change is the bit color tokens.
 
 ### Possibly-removed files (plan to verify)
 
@@ -183,8 +184,9 @@ If `Math.random()` is somehow unavailable (it isn't) the shuffle would no-op —
 - Move mouse across hero — pupils in the 5 eye-pairs track cursor.
 - Hover bits — background inverts (matches `HeroButtons` hover).
 - Refresh — defaults return.
-- Background grid + 4 drifting comments visible at low opacity, motion looks calm not noisy.
-- `prefers-reduced-motion: reduce` — comment drifting paused.
+- Background: at rest the hero appears empty (only site grain visible). Moving the cursor over the hero reveals a grid under the pointer in a soft circle (~280px radius). Moving the cursor out hides the grid.
+- `prefers-reduced-motion: reduce` — grid shown statically at low opacity, no cursor-follow.
+- Hero section ONLY — scrolling past the hero, no grid backdrop appears in any other section.
 - Mobile (375px): right column stacks below left column, frame still renders without horizontal scroll, photo still visible.
 - No new console errors / warnings.
 
@@ -196,6 +198,8 @@ If `Math.random()` is somehow unavailable (it isn't) the shuffle would no-op —
 - **Eye-pair tracking with hue:** the existing `cursor-eyes.tsx` writes `transform` directly on a pupil ref. We're now layering a `color` change on the parent for hue. These two should be orthogonal (different DOM nodes, different properties) but the plan should call this out as a verification point.
 - **Bundle weight win** is real but unmeasured — `<ParticleConstellation />` pulls Three.js + R3F. Removing its usage doesn't remove the imports if the file still exists; the plan should check whether tree-shaking actually drops them, or whether `git rm` of the file is needed for the bundle benefit.
 - **Random shuffle producing low-contrast hues** — fixed S/L mitigates but doesn't eliminate. If a particular hue lands on near-paper background, it may be hard to read for one click cycle. Acceptable cost; the shuffle is a toy.
+- **Mask-image browser support:** `mask-image` is supported in all modern browsers (Chrome, Firefox, Safari with `-webkit-mask-image`). The plan must include the `-webkit-` prefix. If a user is on a very old browser without mask-image support, they'll see the grid at full opacity covering the whole section — degraded gracefully (still readable foreground).
+- **Two cursor-driven systems on the same section:** the eye-pair pupils already use `pointermove` on `window`. The new backdrop uses `pointermove` on the hero section element. Two listeners is fine, but the plan should keep them in their own components and not consolidate — they have different scopes (window-wide vs. section-local) and merging them would couple the eyes to the backdrop unnecessarily.
 
 ---
 
