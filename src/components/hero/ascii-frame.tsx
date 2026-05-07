@@ -11,17 +11,18 @@ interface BitDef {
   defaultHue: number;
   glyph?: string;
   eyePair?: boolean;
+  eyeVariant?: 1 | 2 | 3 | 4 | 5;
   className?: string;
 }
 
 const HUE_STEP = 30;
 
 const EYE_PAIRS: BitDef[] = [
-  { id: "eye-1", position: { top: 0, left: 0 }, ariaLabel: "Eye pair 1, click to recolor", defaultHue: 0, eyePair: true },
-  { id: "eye-2", position: { top: 0, left: 56 }, ariaLabel: "Eye pair 2, click to recolor", defaultHue: 60, eyePair: true },
-  { id: "eye-3", position: { top: 0, left: 112 }, ariaLabel: "Eye pair 3, click to recolor", defaultHue: 120, eyePair: true },
-  { id: "eye-4", position: { top: 0, left: 168 }, ariaLabel: "Eye pair 4, click to recolor", defaultHue: 200, eyePair: true },
-  { id: "eye-5", position: { top: 0, left: 224 }, ariaLabel: "Eye pair 5, click to recolor", defaultHue: 280, eyePair: true },
+  { id: "eye-1", position: { top: 0, left: 0 }, ariaLabel: "Eye pair 1, click to recolor", defaultHue: 0, eyePair: true, eyeVariant: 1 },
+  { id: "eye-2", position: { top: 0, left: 56 }, ariaLabel: "Eye pair 2, click to recolor", defaultHue: 60, eyePair: true, eyeVariant: 2 },
+  { id: "eye-3", position: { top: 0, left: 112 }, ariaLabel: "Eye pair 3, click to recolor", defaultHue: 120, eyePair: true, eyeVariant: 3 },
+  { id: "eye-4", position: { top: 0, left: 168 }, ariaLabel: "Eye pair 4, click to recolor", defaultHue: 200, eyePair: true, eyeVariant: 4 },
+  { id: "eye-5", position: { top: 0, left: 224 }, ariaLabel: "Eye pair 5, click to recolor", defaultHue: 280, eyePair: true, eyeVariant: 5 },
 ];
 
 const FRAME_BITS: BitDef[] = [
@@ -95,6 +96,7 @@ export function AsciiFrame({ imageSrc }: AsciiFrameProps) {
           ariaLabel={b.ariaLabel}
           glyph={b.glyph}
           eyePair={b.eyePair}
+          eyeVariant={b.eyeVariant}
           className={b.className}
         />
       ))}

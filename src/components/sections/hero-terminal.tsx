@@ -6,8 +6,6 @@ import { HeroButtons } from "@/components/hero/hero-buttons";
 import { AsciiFrame } from "@/components/hero/ascii-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
-import { HeroBackdrop } from "@/components/hero/hero-backdrop";
-
 export function HeroTerminal() {
   const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
     typeSpeed: 55,
@@ -22,8 +20,6 @@ export function HeroTerminal() {
       aria-labelledby="hero-heading"
       className="relative"
     >
-      <HeroBackdrop />
-
       <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-[7fr_5fr] lg:items-start">
         {/* Left column — identity */}
         <div className="space-y-5 py-4">
