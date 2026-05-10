@@ -7,6 +7,8 @@ import { AsciiFrame } from "@/components/hero/ascii-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
 import { ParticleConstellation } from "@/components/hero/particle-constellation";
+import { UptimeLine } from "@/components/sections/uptime-line";
+
 export function HeroTerminal() {
   const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
     typeSpeed: 55,
@@ -49,6 +51,10 @@ export function HeroTerminal() {
             </KeyValue>
             <KeyValue k="status">{personalInfo.status.label}</KeyValue>
           </KeyValueList>
+
+          <div className="pt-2 opacity-80">
+            <UptimeLine />
+          </div>
 
           <HeroButtons />
         </div>

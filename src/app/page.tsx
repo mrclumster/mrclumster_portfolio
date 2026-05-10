@@ -1,7 +1,6 @@
 import { TerminalFrame } from "@/components/terminal/terminal-frame";
 import { AsciiDivider } from "@/components/terminal/ascii-divider";
 import { HeroTerminal } from "@/components/sections/hero-terminal";
-import { UptimeLine } from "@/components/sections/uptime-line";
 import { AboutTerminal } from "@/components/sections/about-terminal";
 import { StackTable } from "@/components/sections/stack-table";
 import { ExperienceLog } from "@/components/sections/experience-log";
@@ -19,8 +18,6 @@ export default function Home() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-16">
         <AsciiDivider number="01" label="introduction" />
         <HeroTerminal />
-
-        <UptimeLine />
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <AboutTerminal />
