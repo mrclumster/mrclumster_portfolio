@@ -10,11 +10,16 @@ const BRACKET_PAIRS = [
   ["(", ")"],
 ];
 
-const EYE_COUNT = 9;
-const ARC_RADIUS = 130;
-// Span from -60 degrees to +60 degrees
+const LAYERS = [
+  { count: 11, radius: 200 }, // Outer layer
+  { count: 9,  radius: 170 }, // Middle layer
+  { count: 7,  radius: 140 }, // Inner layer
+];
+
 const START_ANGLE = -Math.PI / 3;
 const END_ANGLE = Math.PI / 3;
+const CONTAINER_WIDTH = 460;
+const CONTAINER_HEIGHT = 180;
 
 export function TerminalEyeArc() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -30,33 +35,44 @@ export function TerminalEyeArc() {
   }, []);
 
   const eyes = useMemo(() => {
-    return Array.from({ length: EYE_COUNT }).map((_, i) => {
-      // Interpolate angle from -60 to +60 degrees
-      const t = i / (EYE_COUNT - 1);
-      const angle = START_ANGLE + t * (END_ANGLE - START_ANGLE);
-      
-      // Calculate x, y position along the circular arc
-      // Center of the arc is roughly at (0, ARC_RADIUS)
-      const x = Math.sin(angle) * ARC_RADIUS;
-      const y = ARC_RADIUS - Math.cos(angle) * ARC_RADIUS;
-      
-      const brackets = BRACKET_PAIRS[i % BRACKET_PAIRS.length];
-      
-      return {
-        id: i,
-        leftBracket: brackets[0],
-        rightBracket: brackets[1],
-        x: x + 170, // Shift to center in 340px container
-        y: y + 10,  // Base offset
-        rotation: angle * (180 / Math.PI), // Point towards center
-      };
+    const allEyes: {
+      id: number;
+      leftBracket: string;
+      rightBracket: string;
+      x: number;
+      y: number;
+      rotation: number;
+    }[] = [];
+    let idCounter = 0;
+
+    LAYERS.forEach((layer) => {
+      for (let i = 0; i < layer.count; i++) {
+        const t = i / (layer.count - 1);
+        const angle = START_ANGLE + t * (END_ANGLE - START_ANGLE);
+        
+        const x = Math.sin(angle) * layer.radius;
+        const y = layer.radius - Math.cos(angle) * layer.radius;
+        
+        const brackets = BRACKET_PAIRS[idCounter % BRACKET_PAIRS.length];
+        
+        allEyes.push({
+          id: idCounter++,
+          leftBracket: brackets[0],
+          rightBracket: brackets[1],
+          x: x + CONTAINER_WIDTH / 2,
+          y: y + 20,
+          rotation: angle * (180 / Math.PI),
+        });
+      }
     });
+
+    return allEyes;
   }, []);
 
-  if (!mounted) return <div style={{ width: 340, height: 100 }} />;
+  if (!mounted) return <div style={{ width: CONTAINER_WIDTH, height: CONTAINER_HEIGHT }} />;
 
   return (
-    <div className="relative mx-auto select-none pointer-events-none" style={{ width: 340, height: 100 }} aria-hidden>
+    <div className="relative mx-auto select-none pointer-events-none" style={{ width: CONTAINER_WIDTH, height: CONTAINER_HEIGHT }} aria-hidden>
       {eyes.map((eye) => (
         <ArcEye 
           key={eye.id}
