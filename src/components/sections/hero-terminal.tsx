@@ -5,7 +5,7 @@ import { AsciiBanner } from "@/components/hero/ascii-banner";
 import { HeroButtons } from "@/components/hero/hero-buttons";
 import { AsciiFrame } from "@/components/hero/ascii-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
-import { KeyValueList } from "@/components/terminal/key-value";
+import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
 import { ParticleConstellation } from "@/components/hero/particle-constellation";
 export function HeroTerminal() {
   const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
