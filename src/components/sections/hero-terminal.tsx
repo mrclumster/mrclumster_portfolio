@@ -2,11 +2,11 @@
 
 import { personalInfo } from "@/data/personal";
 import { AsciiBanner } from "@/components/hero/ascii-banner";
-import { TerminalEyeArc } from "@/components/hero/terminal-eye-arc";
 import { HeroButtons } from "@/components/hero/hero-buttons";
 import { AsciiFrame } from "@/components/hero/ascii-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
-import { KeyValue, KeyValueList } from "@/components/terminal/key-value";
+import { KeyValueList } from "@/components/terminal/key-value";
+import { ParticleConstellation } from "@/components/hero/particle-constellation";
 export function HeroTerminal() {
   const { displayText: headline } = useTypingLoop([...personalInfo.headlines], {
     typeSpeed: 55,
@@ -21,6 +21,10 @@ export function HeroTerminal() {
       aria-labelledby="hero-heading"
       className="relative"
     >
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <ParticleConstellation />
+      </div>
+
       <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-[7fr_5fr] lg:items-start">
         {/* Left column — identity */}
         <div className="space-y-5 py-4">
@@ -29,10 +33,6 @@ export function HeroTerminal() {
           </h1>
 
           <AsciiBanner />
-
-          <div className="flex justify-center -my-4 h-[100px]">
-            <TerminalEyeArc />
-          </div>
 
           <p style={{ fontSize: "clamp(1rem, 0.9rem + 0.5vw, 1.25rem)" }}>
             <span aria-hidden>{"> "}</span>
