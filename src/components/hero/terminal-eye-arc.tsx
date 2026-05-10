@@ -11,15 +11,15 @@ const BRACKET_PAIRS = [
 ];
 
 const LAYERS = [
-  { count: 11, radius: 200 }, // Outer layer
-  { count: 9,  radius: 170 }, // Middle layer
+  { count: 11, radius: 190 }, // Outer layer
+  { count: 9,  radius: 165 }, // Middle layer
   { count: 7,  radius: 140 }, // Inner layer
 ];
 
-const START_ANGLE = -Math.PI / 3;
-const END_ANGLE = Math.PI / 3;
-const CONTAINER_WIDTH = 460;
-const CONTAINER_HEIGHT = 180;
+const START_ANGLE = -Math.PI / 4;
+const END_ANGLE = Math.PI / 4;
+const CONTAINER_WIDTH = 400;
+const CONTAINER_HEIGHT = 160;
 
 export function TerminalEyeArc() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
