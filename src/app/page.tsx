@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <TerminalFrame prompt="cat index.md">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-12">
         <AsciiDivider number="01" label="introduction" />
         <HeroTerminal />
 
