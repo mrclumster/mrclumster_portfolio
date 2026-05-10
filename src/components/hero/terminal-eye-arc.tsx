@@ -51,7 +51,9 @@ export function TerminalEyeArc() {
         const angle = START_ANGLE + t * (END_ANGLE - START_ANGLE);
         
         const x = Math.sin(angle) * layer.radius;
-        const y = layer.radius - Math.cos(angle) * layer.radius;
+        // Fix: Use a single shared focal point for all layers so they don't stack
+        const FOCAL_Y = 200;
+        const y = FOCAL_Y - Math.cos(angle) * layer.radius;
         
         const brackets = BRACKET_PAIRS[idCounter % BRACKET_PAIRS.length];
         
@@ -60,7 +62,7 @@ export function TerminalEyeArc() {
           leftBracket: brackets[0],
           rightBracket: brackets[1],
           x: x + CONTAINER_WIDTH / 2,
-          y: y + 20,
+          y: y,
           rotation: angle * (180 / Math.PI),
         });
       }
