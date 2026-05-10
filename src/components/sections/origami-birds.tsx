@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -102,9 +102,15 @@ function Birds() {
 }
 
 export function OrigamiBirds() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return null;
   }
+
+  if (!mounted) return null;
+
   return (
     <Canvas
       camera={{ position: [0, 0, 9], fov: 55 }}

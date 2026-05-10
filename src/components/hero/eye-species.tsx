@@ -183,12 +183,12 @@ export const EYE_SPECIES: Record<EyeSpeciesType, (props: EyeProps) => React.Reac
     </div>
   ),
   static: ({ pupilX, pupilY, isBlinking }) => (
-    <div className="w-5 h-5 border border-[color:var(--ink)] rounded-full relative overflow-hidden bg-black">
-      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.65\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E')" }} />
+    <div className="w-5 h-5 border border-[color:var(--ink)] rounded-full relative overflow-hidden bg-black flex items-center justify-center">
+      <div className="absolute inset-0 opacity-40 bg-[repeating-linear-gradient(45deg,#222,#000_1px)]" />
       {!isBlinking && (
         <div 
-          className="w-1.5 h-1.5 bg-white rounded-full absolute top-1/2 left-1/2"
-          style={{ transform: `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))` }}
+          className="w-1.5 h-1.5 bg-white rounded-full relative z-10"
+          style={{ transform: `translate(${pupilX}px, ${pupilY}px)` }}
         />
       )}
     </div>

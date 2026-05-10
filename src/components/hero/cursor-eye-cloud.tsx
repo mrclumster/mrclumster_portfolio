@@ -18,10 +18,13 @@ export function CursorEyeCloud() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isTracking, setIsTracking] = useState(false);
+  const [eyes, setEyes] = useState<{ id: number; species: EyeSpeciesType; x: number; y: number }[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  // Generate stable random positions and species on first mount
-  const eyes = useMemo(() => {
-    return Array.from({ length: EYE_COUNT }).map((_, i) => {
+  // Generate stable random positions and species on mount (client-side only)
+  useEffect(() => {
+    setMounted(true);
+    const generatedEyes = Array.from({ length: EYE_COUNT }).map((_, i) => {
       // Parabolic arc: y = a * x^2
       // Normalize x to -1 to 1 range
       const t = (i / (EYE_COUNT - 1)) * 2 - 1;
@@ -36,6 +39,7 @@ export function CursorEyeCloud() {
         y: yBase + (Math.random() - 0.5) * 25,
       };
     });
+    setEyes(generatedEyes);
   }, []);
 
   useEffect(() => {
@@ -59,6 +63,8 @@ export function CursorEyeCloud() {
     window.addEventListener("pointermove", handleMove);
     return () => window.removeEventListener("pointermove", handleMove);
   }, []);
+
+  if (!mounted) return <div style={{ width: CLOUD_WIDTH, height: CLOUD_HEIGHT + 20 }} />;
 
   return (
     <div 

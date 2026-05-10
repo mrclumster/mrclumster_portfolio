@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -137,6 +137,10 @@ function Particles() {
 }
 
 export function ParticleConstellation() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <div className="absolute inset-0 w-full h-full pointer-events-none" />;
+
   return (
     <Canvas
       className="absolute inset-0 w-full h-full pointer-events-auto"
