@@ -11,16 +11,16 @@ export function AsciiFrame({ imageSrc }: AsciiFrameProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4">
       {/* Terminal Eye Arc centered above the photo */}
-      <div className="flex justify-center -mb-8 h-[100px]">
+      <div className="flex justify-center -mb-24 h-[180px] z-10">
         <TerminalEyeArc />
       </div>
 
       {/* Photo Frame centered below the arc */}
       <div
-        className="relative"
+        className="relative z-0"
         style={{
-          width: 200,
-          height: 260,
+          width: 280,
+          height: 364,
         }}
       >
         <PhotoFrame imageSrc={imageSrc} />
