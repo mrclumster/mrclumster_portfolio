@@ -44,3 +44,5 @@ next-env.d.ts
 # scratch dirs created during conversion. The real photos live under trip/.
 public/images/optimized_trip/
 public/images/optimized/
+
+.superpowers/

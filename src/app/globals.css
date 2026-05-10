@@ -15,6 +15,10 @@
   --muted-fg: rgba(26, 26, 26, 0.55);
   --alarm: #c0392b;
 
+  /* R7 — ASCII bit color: fixed L/C, only hue varies */
+  --bit-l: 35%;
+  --bit-c: 0.18;
+
   /* Editorial palette — warm off-white, near-black, single cool-blue accent */
   --color-bg: oklch(98% 0.005 80);
   --color-fg: oklch(18% 0 0);
@@ -50,6 +54,9 @@
   --ink: #e8e4dc;
   --muted-fg: rgba(232, 228, 220, 0.55);
   --alarm: #e74c3c;
+
+  --bit-l: 80%;
+  --bit-c: 0.18;
 
   --color-bg: oklch(14% 0.01 250);
   --color-fg: oklch(96% 0.005 80);
