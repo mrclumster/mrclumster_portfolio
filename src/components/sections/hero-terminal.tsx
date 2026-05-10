@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { personalInfo } from "@/data/personal";
-import { CursorEyes } from "@/components/hero/cursor-eyes";
+import { CursorEyeCloud } from "@/components/hero/cursor-eye-cloud";
 import { PhotoFrame } from "@/components/hero/photo-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
 import { TerminalButton } from "@/components/terminal/terminal-button";
@@ -94,7 +94,7 @@ export function HeroTerminal() {
 
         {/* Right column — cursor-tracking eyes + colored photo */}
         <div className="flex flex-col gap-3" style={{ height: 400 }}>
-          <CursorEyes />
+          <CursorEyeCloud />
           <div className="relative flex-1">
             <PhotoFrame imageSrc={personalInfo.profileImage} />
           </div>
