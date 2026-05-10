@@ -2,6 +2,7 @@
 
 import { personalInfo } from "@/data/personal";
 import { AsciiBanner } from "@/components/hero/ascii-banner";
+import { TerminalEyeArc } from "@/components/hero/terminal-eye-arc";
 import { HeroButtons } from "@/components/hero/hero-buttons";
 import { AsciiFrame } from "@/components/hero/ascii-frame";
 import { useTypingLoop } from "@/hooks/use-typing";
@@ -28,6 +29,10 @@ export function HeroTerminal() {
           </h1>
 
           <AsciiBanner />
+
+          <div className="flex justify-center -my-4 h-[100px]">
+            <TerminalEyeArc />
+          </div>
 
           <p style={{ fontSize: "clamp(1rem, 0.9rem + 0.5vw, 1.25rem)" }}>
             <span aria-hidden>{"> "}</span>
