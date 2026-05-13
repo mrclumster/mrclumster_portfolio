@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternative About Concepts</title>
+    <style>
+        :root {
+            --ink: #1a1a1a;
+            --paper: #fdfcfb;
+            --muted: rgba(26, 26, 26, 0.4);
+            --accent: #d97706;
+        }
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 2rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+        
+        /* Stack Concept: ASCII Distribution Graph */
+        .ascii-graph {
+            font-size: 12px;
+            white-space: pre;
+            line-height: 1.2;
+        }
+        .graph-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .graph-label {
+            width: 100px;
+            opacity: 0.7;
+        }
+        .graph-bar {
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+
+        /* GitHub Concept: Vertical Activity Stream */
+        .activity-stream {
+            border: 1px solid var(--ink);
+            padding: 1rem;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background: #fff;
+        }
+        .activity-item {
+            font-size: 11px;
+            margin-bottom: 10px;
+            border-left: 2px solid var(--ink);
+            padding-left: 8px;
+        }
+        .timestamp { color: var(--muted); }
+        .activity-stream::after {
+            content: "";
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 40px;
+            background: linear-gradient(transparent, #fff);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Bio Column -->
+        <div class="column">
+            <div class="section-title">02 | PROFILE</div>
+            <div style="font-size: 15px;">
+                <p>[ Loading bio... ]</p>
+                <p>I am a fullstack developer focused on creating software that solves real-world problems. Whether it's architecting <strong>FishFresh</strong> for AI-driven food safety or building <strong>Barangay Connect</strong> for community management, I thrive on turning complex logic into seamless experiences.</p>
+                <p>Scroll down to see the code in action.</p>
+            </div>
+
+            <div class="section-title" style="margin-top: 3rem;">GITHUB_ACTIVITY.log</div>
+            <div class="activity-stream">
+                <div class="activity-item">
+                    <span class="timestamp">[2026-05-10 14:22]</span><br>
+                    PUSH: 12 commits to `main` (portfolio-v2)
+                </div>
+                <div class="activity-item">
+                    <span class="timestamp">[2026-05-08 09:15]</span><br>
+                    MERGE: PR #42 (feature/binocular-eyes)
+                </div>
+                <div class="activity-item">
+                    <span class="timestamp">[2026-05-05 21:40]</span><br>
+                    ISSUE: Fixed responsive overflow in `Hero`
+                </div>
+                <div class="activity-item">
+                    <span class="timestamp">[2026-04-28 11:02]</span><br>
+                    CREATE: Initialized `fish-fresh-v2`
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack Column -->
+        <div class="column">
+            <div class="section-title">CORE_CAPABILITIES</div>
+            <div class="ascii-graph">
+<div class="graph-line"><div class="graph-label">FRONTEND</div><div class="graph-bar">██████████████████▒ 92%</div></div>
+<div class="graph-line"><div class="graph-label">BACKEND </div><div class="graph-bar">████████████████░░░ 85%</div></div>
+<div class="graph-line"><div class="graph-label">ML/AI   </div><div class="graph-bar">████████████░░░░░░░ 70%</div></div>
+<div class="graph-line"><div class="graph-label">DEVOPS  </div><div class="graph-bar">██████████████░░░░░ 78%</div></div>
+<div class="graph-line"><div class="graph-label">DESIGN  </div><div class="graph-bar">█████████████████░░ 88%</div></div>
+
+<div style="margin-top: 2rem; opacity: 0.5; font-style: italic;">
+// Raw proficiency distribution
+// Computed from 100+ projects
+</div>
+            </div>
+
+            <div class="section-title" style="margin-top: 3rem;">TAG_CLOUD</div>
+            <div style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">Next.js</span>
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">TypeScript</span>
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">Python</span>
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">FastAPI</span>
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">Tailwind</span>
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">Docker</span>
+                <span style="border: 1px solid var(--ink); padding: 2px 6px;">PostgreSQL</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

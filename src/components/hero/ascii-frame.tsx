@@ -9,9 +9,9 @@ interface AsciiFrameProps {
 
 export function AsciiFrame({ imageSrc }: AsciiFrameProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-4">
+    <div className="flex flex-col items-center justify-center h-full gap-4 -mt-8">
       {/* Terminal Eye Arc centered above the photo */}
-      <div className="flex justify-center -mb-24 h-[180px] z-10">
+      <div className="flex justify-center -mb-8 h-[140px] z-10">
         <TerminalEyeArc />
       </div>
 

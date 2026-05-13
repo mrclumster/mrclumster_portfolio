@@ -23,10 +23,6 @@ export function HeroTerminal() {
       aria-labelledby="hero-heading"
       className="relative"
     >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <ParticleConstellation />
-      </div>
-
       <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-[7fr_5fr] lg:items-start">
         {/* Left column — identity */}
         <div className="space-y-5 py-4">

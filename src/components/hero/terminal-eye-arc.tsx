@@ -11,15 +11,17 @@ const BRACKET_PAIRS = [
 ];
 
 const LAYERS = [
-  { count: 11, radius: 190 }, // Outer layer
-  { count: 9,  radius: 165 }, // Middle layer
-  { count: 7,  radius: 140 }, // Inner layer
+  { count: 9, radius: 420 }, // Outer layer (reduced from 11)
+  { count: 7, radius: 395 }, // Middle layer (reduced from 9)
+  { count: 5, radius: 370 }, // Inner layer (reduced from 7)
 ];
 
-const START_ANGLE = -Math.PI / 4;
-const END_ANGLE = Math.PI / 4;
-const CONTAINER_WIDTH = 400;
-const CONTAINER_HEIGHT = 160;
+const START_ANGLE = -Math.PI / 6;
+const END_ANGLE = Math.PI / 6;
+const CONTAINER_WIDTH = 500;
+const CONTAINER_HEIGHT = 120;
+
+const SHAPES = ["circle", "square", "diamond"];
 
 export function TerminalEyeArc() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -42,6 +44,7 @@ export function TerminalEyeArc() {
       x: number;
       y: number;
       rotation: number;
+      shape: string;
     }[] = [];
     let idCounter = 0;
 
@@ -52,7 +55,7 @@ export function TerminalEyeArc() {
         
         const x = Math.sin(angle) * layer.radius;
         // Fix: Use a single shared focal point for all layers so they don't stack
-        const FOCAL_Y = 200;
+        const FOCAL_Y = 440;
         const y = FOCAL_Y - Math.cos(angle) * layer.radius;
         
         const brackets = BRACKET_PAIRS[idCounter % BRACKET_PAIRS.length];
@@ -64,6 +67,7 @@ export function TerminalEyeArc() {
           x: x + CONTAINER_WIDTH / 2,
           y: y,
           rotation: angle * (180 / Math.PI),
+          shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
         });
       }
     });
@@ -84,6 +88,7 @@ export function TerminalEyeArc() {
           y={eye.y}
           rotation={eye.rotation}
           mousePos={mousePos}
+          shape={eye.shape}
         />
       ))}
     </div>

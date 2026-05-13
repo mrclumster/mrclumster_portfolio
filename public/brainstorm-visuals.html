@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header & Footer Concepts</title>
+    <style>
+        :root {
+            --ink: #1a1a1a;
+            --paper: #f5f5f5;
+            --muted: rgba(26, 26, 26, 0.5);
+        }
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 2rem;
+            margin: 0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .concept {
+            border: 1px solid var(--ink);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            min-height: 400px;
+        }
+        .concept-title {
+            font-weight: bold;
+            border-bottom: 1px solid var(--ink);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        header, footer {
+            border: 1px dashed var(--muted);
+            padding: 0.5rem;
+            font-size: 12px;
+        }
+        .mock-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.3;
+            border: 1px solid transparent;
+        }
+
+        /* Concept A: System Overlay */
+        .system-header {
+            display: flex;
+            justify-content: space-between;
+        }
+        .system-footer {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Concept B: Decorative ASCII */
+        .ascii-header {
+            text-align: center;
+            border: 1px solid var(--ink);
+            position: relative;
+        }
+        .ascii-header::before {
+            content: "╔══════════════════════════════════╗";
+            display: block;
+        }
+        .ascii-header::after {
+            content: "╚══════════════════════════════════╝";
+            display: block;
+        }
+        .ascii-footer {
+            border-top: 1px double var(--ink);
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Header & Footer Redesign Concepts</h1>
+    <div class="container">
+        <!-- Option 1 -->
+        <div class="concept">
+            <div class="concept-title">Option 1: Minimalist System Overlay</div>
+            <header class="system-header">
+                <div>[MODE: INTERACTIVE] aziz@portfolio:~/home</div>
+                <div>12:44:02 PM | UTF-8</div>
+            </header>
+            <div class="mock-content">&lt; Page Content &gt;</div>
+            <footer class="system-footer">
+                <div>(C) 2026 AZIZ_V1.0.0</div>
+                <div>BRANCH: MASTER* | MEM: 42MB</div>
+            </footer>
+        </div>
+
+        <!-- Option 2 -->
+        <div class="concept">
+            <div class="concept-title">Option 2: Rich Decorative ASCII</div>
+            <header class="ascii-header">
+                <div>// -- PORTFOLIO_MANIFEST -- //</div>
+                <div>[ ABOUT ] [ WORK ] [ CONTACT ]</div>
+            </header>
+            <div class="mock-content">&lt; Page Content &gt;</div>
+            <footer class="ascii-footer">
+                <div>+------------------------------------------------+</div>
+                <div>| STATUS: ONLINE | BUILT: MAY 11 | LOCATION: DZ  |</div>
+                <div>+------------------------------------------------+</div>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

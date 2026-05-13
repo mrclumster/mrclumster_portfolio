@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Section Concepts</title>
+    <style>
+        :root {
+            --ink: #1a1a1a;
+            --paper: #fdfcfb;
+            --muted: rgba(26, 26, 26, 0.4);
+            --accent: #d97706;
+        }
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 2rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Bio Style */
+        .bio-text {
+            font-size: 15px;
+        }
+        .secret {
+            background: #eee;
+            color: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0 2px;
+        }
+        .secret:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+        .cta {
+            margin-top: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Tech Stack Concept: Status Bars */
+        .stack-item {
+            margin-bottom: 1rem;
+        }
+        .stack-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .progress-bg {
+            height: 8px;
+            border: 1px solid var(--ink);
+            background: white;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--ink);
+        }
+
+        /* GitHub Concept: Minimalist */
+        .github-mock {
+            margin-top: 2rem;
+            border: 1px solid var(--ink);
+            padding: 1rem;
+            opacity: 0.8;
+        }
+        .squares {
+            display: grid;
+            grid-template-columns: repeat(20, 10px);
+            gap: 3px;
+        }
+        .square {
+            width: 10px;
+            height: 10px;
+            background: #eee;
+        }
+        .square.active { background: var(--ink); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Column: Bio & GitHub -->
+        <div class="column">
+            <div class="section-title">02 | ABOUT</div>
+            <div class="bio-text">
+                <p>
+                    I build full-stack digital solutions that bridge the gap between complex data and human needs. 
+                    From architecting <strong>FishFresh</strong> (AI freshness assessment) to scaling 
+                    <strong>Barangay Connect</strong>, I focus on building technology with real-world impact.
+                    <span class="secret"> (Translation: I turn caffeine into working features and bugs into lessons.)</span>
+                </p>
+                <p>
+                    I specialize in crafting seamless user experiences backed by robust, scalable architectures.
+                    <span class="secret"> (I also have a strangely deep relationship with console.log)</span>
+                </p>
+                <a href="#projects" class="cta">└─ SCROLL TO VIEW PROJECTS ─┘</a>
+            </div>
+
+            <div class="github-mock">
+                <div style="font-size: 11px; margin-bottom: 8px;">CONTRIBUTIONS_LOG: 2025-2026</div>
+                <div class="squares">
+                    <!-- Just a few mock squares -->
+                    <div class="square active"></div><div class="square"></div><div class="square active"></div>
+                    <div class="square active"></div><div class="square"></div><div class="square active"></div>
+                    <div class="square"></div><div class="square active"></div><div class="square active"></div>
+                    <div class="square"></div><div class="square"></div><div class="square active"></div>
+                    <div class="square active"></div><div class="square active"></div><div class="square"></div>
+                    <div class="square"></div><div class="square active"></div><div class="square"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Tech Stack -->
+        <div class="column">
+            <div class="section-title">SYSTEM_CORE.dll</div>
+            <div style="font-size: 11px; margin-bottom: 2rem; opacity: 0.6;">// TECHNOLOGY_PROFICIENCY_LEVELS</div>
+            
+            <div class="stack-item">
+                <div class="stack-label"><span>NEXT.JS / REACT</span><span>90%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 90%;"></div></div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-label"><span>TYPESCRIPT / NODE</span><span>85%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 85%;"></div></div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-label"><span>PYTHON / ML</span><span>75%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 75%;"></div></div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-label"><span>POSTGRES / SQL</span><span>80%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 80%;"></div></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

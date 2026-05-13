@@ -1,43 +1,47 @@
 "use client";
 
-import { useState } from "react";
-import { techStack } from "@/data/tech-stack";
-
 export function StackTable() {
-  const [hovered, setHovered] = useState<string | null>(null);
+  const categories = [
+    {
+      title: "Frontend Development",
+      items: ["React", "Next.js", "Tailwind CSS", "Framer Motion", "Three.js"],
+    },
+    {
+      title: "Backend & Databases",
+      items: ["Node.js", "PostgreSQL", "PHP", "Supabase", "REST APIs"],
+    },
+    {
+      title: "Mobile & Cross-Platform",
+      items: ["Flutter", "React Native", "Dart"],
+    },
+    {
+      title: "Applied AI & Vision",
+      items: ["PyTorch", "TensorFlow Lite", "YOLOv8", "ResNet50"],
+    },
+    {
+      title: "DevOps & Security",
+      items: ["Docker", "CI/CD", "Git", "OWASP Standards"],
+    },
+  ];
 
   return (
-    <div
-      className="font-mono text-[13px] leading-[1.6]"
-      onMouseLeave={() => setHovered(null)}
-    >
-      <p className="opacity-50 mb-3">$ skill --list</p>
-
-      {techStack.map((cat) => (
-        <div key={cat.category} className="mb-4">
-          <p className="opacity-40 mb-1 italic">// {cat.category.toLowerCase()}</p>
-          {cat.items.map((it) => {
-            const key = `${cat.category}-${it.name}`;
-            const isHovered = hovered === key;
-            const isDimmed = hovered !== null && hovered !== key;
-            return (
-              <div
-                key={key}
-                onMouseEnter={() => setHovered(key)}
-                className="px-2 py-0.5 transition-all duration-150 cursor-default"
-                style={{
-                  background: isHovered ? "var(--ink)" : "transparent",
-                  color: isHovered ? "var(--paper)" : "var(--ink)",
-                  opacity: isDimmed ? 0.25 : 0.85,
-                  fontWeight: isHovered ? 600 : 400,
-                }}
-              >
-                {it.name.toLowerCase()}
-              </div>
-            );
-          })}
-        </div>
-      ))}
+    <div className="font-mono text-[13px] leading-relaxed">
+      <div className="grid grid-cols-1 gap-6">
+        {categories.map((cat) => (
+          <div key={cat.title} className="border border-[color:var(--ink)] p-4 relative group hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)] transition-colors duration-200">
+            <span className="absolute -top-2.5 left-2 bg-[color:var(--paper)] px-1.5 text-[10px] font-bold uppercase tracking-widest border border-[color:var(--ink)] group-hover:bg-[color:var(--ink)] group-hover:text-[color:var(--paper)]">
+              {cat.title}
+            </span>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {cat.items.map((item) => (
+                <span key={item} className="opacity-80 after:content-['/'] after:ml-2 after:opacity-30 last:after:content-['']">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

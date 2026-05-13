@@ -11,37 +11,49 @@ export type TechCategory = {
 
 export const techStack: TechCategory[] = [
   {
-    category: "Frontend",
+    category: "Frontend Development",
     items: [
-      { name: "JavaScript", color: "#f7df1e" },
-      { name: "TypeScript", color: "#3178c6" },
       { name: "React", color: "#61dafb" },
-      { name: "React Native", color: "#61dafb" },
-      { name: "Next.js", color: "#a0a0a0" },
+      { name: "Next.js", color: "#ffffff" },
       { name: "Tailwind CSS", color: "#06b6d4" },
-      { name: "HTML/CSS", color: "#e34f26" },
+      { name: "Framer Motion", color: "#ff0055" },
+      { name: "Three.js", color: "#ffffff" },
     ],
   },
   {
-    category: "Backend & ML",
+    category: "Backend & Databases",
     items: [
-      { name: "Python", color: "#3776ab" },
+      { name: "Node.js", color: "#339933" },
+      { name: "PostgreSQL", color: "#4169e1" },
+      { name: "PHP", color: "#777bb4" },
       { name: "Supabase", color: "#3ecf8e" },
-      { name: "Machine Learning", color: "#ff6f00" },
-      { name: "Computer Vision", color: "#76b900" },
-      { name: "Face Recognition", color: "#e040fb" },
+      { name: "REST APIs", color: "#00ff00" },
     ],
   },
   {
-    category: "Tools & Platforms",
+    category: "Mobile & Cross-Platform",
     items: [
-      { name: "Git", color: "#f05032" },
-      { name: "GitHub", color: "#a0a0a0" },
-      { name: "VS Code", color: "#007acc" },
-      { name: "Vercel", color: "#a0a0a0" },
+      { name: "Flutter", color: "#02569b" },
+      { name: "React Native", color: "#61dafb" },
+      { name: "Dart", color: "#0175c2" },
+    ],
+  },
+  {
+    category: "Applied AI & Vision",
+    items: [
+      { name: "PyTorch", color: "#ee4c2c" },
+      { name: "TensorFlow Lite", color: "#ff6f00" },
+      { name: "YOLOv8", color: "#00ffff" },
+      { name: "ResNet50", color: "#ffcc00" },
+    ],
+  },
+  {
+    category: "DevOps & Security",
+    items: [
       { name: "Docker", color: "#2496ed" },
-      { name: "Kaggle", color: "#20beff" },
-      { name: "Roboflow", color: "#6706ce" },
+      { name: "CI/CD", color: "#ffffff" },
+      { name: "Git", color: "#f05032" },
+      { name: "OWASP Standards", color: "#ffffff" },
     ],
   },
 ];

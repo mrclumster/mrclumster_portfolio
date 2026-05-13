@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function ResumePage() {
   return (
-    <TerminalFrame prompt="less resume.txt">
+    <TerminalFrame>
       <article className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 print:py-0 print:px-0 space-y-12">
         <header className="space-y-2">
           <h1 className="font-bold text-[clamp(2rem,1.4rem+2vw,3rem)] leading-[1.05] tracking-[-0.02em]">

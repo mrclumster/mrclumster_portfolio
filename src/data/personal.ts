@@ -20,23 +20,24 @@ export const personalInfo = {
   location: "Zamboanga City, Philippines",
   bio: [
     [
-      { type: "text", value: "I am a fourth-year " },
-      { type: "keyword", value: "Bachelor of Science in Information Technology" },
-      { type: "text", value: " student with a strong passion for web development and machine learning. I am currently completing my " },
-      { type: "keyword", value: "internship at Nexzys Intelligence" },
-      { type: "text", value: " under Vintazk Outsourcing, where I contribute to building full-stack digital solutions for local government systems." },
-      { type: "secret", value: " (Translation: I write SQL on Mondays and pretend I understood it by Friday.)" },
+      { type: "text", value: "I am a " },
+      { type: "keyword", value: "Fullstack Developer" },
+      { type: "text", value: " dedicated to building software that solves real-world problems. From architecting " },
+      { type: "keyword", value: "FishFresh" },
+      { type: "text", value: " (AI-driven food safety) to scaling " },
+      { type: "keyword", value: "Barangay Connect" },
+      { type: "text", value: ", I thrive on turning complex logic into seamless experiences." },
+      { type: "secret", value: " (Translation: I turn caffeine into working features and bugs into lessons.)" },
     ],
     [
-      { type: "text", value: "As the Machine Learning Engineer for our " },
-      { type: "keyword", value: "Capstone Project" },
-      { type: "text", value: ", " },
-      { type: "keyword", value: "FishFresh" },
-      { type: "text", value: ", I developed the computer vision model for real-time fish freshness assessment. I am also actively working on " },
-      { type: "keyword", value: "Barangay Connect" },
-      { type: "text", value: ", a comprehensive digital barangay system. I am driven by the goal of creating technology that delivers meaningful impact to communities." },
-      { type: "secret", value: " (Also driven by 3 cups of coffee and a slowly degrading sleep schedule.)" },
+      { type: "text", value: "I specialize in crafting robust, scalable architectures with a focus on impact and user-centric design. I believe technology should deliver meaningful value to communities." },
+      { type: "secret", value: " (I also have a strangely deep relationship with console.log.)" },
     ],
+    [
+      { type: "text", value: "I build for impact. " },
+      { type: "keyword", value: "Scroll down" },
+      { type: "text", value: " to see these projects in action." },
+    ]
   ] satisfies Bio,
   email: "aziztebbeng@gmail.com",
   socialLinks: {
