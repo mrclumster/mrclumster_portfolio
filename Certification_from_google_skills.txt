@@ -1,0 +1,32 @@
+Cloud Digital Leader Certification
+	- Digital Transformation with Google Cloud - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23754955
+		- https://cdn.qwiklabs.com/6xUK2PRpVXBXPfceAsFMtLwhoEfwpXtmN5ityJjCdjU%3D
+	- Exploring Data Transformation with Google Cloud - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23755682
+		- https://cdn.qwiklabs.com/cjGVnoF%2FOdfhTVoDqKjUZhwt7oXFDcBmdki6VS4jkUk%3D
+	- Innovating with Google Cloud Artificial Intelligence - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23756004
+		- https://cdn.qwiklabs.com/SC6UVmdeE73p3qS2iV3AqxIM1%2FuQ7ZsoStMBrtfZ6to%3D
+	- Modernize Infrastructure and Applications with Google Cloud - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23757179
+		- https://cdn.qwiklabs.com/jlifW5L5RBFmN7cKHUHRt0RzZCNwc7r1C8m4kAM7qMU%3D
+	- Trust and Security with Google Cloud - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23757456
+		- https://cdn.qwiklabs.com/40DWgR6ckA%2FXi0LsQN8eB%2FkNoiWgT0TxC6GTa00d%2Bj0%3D
+	- Scaling with Google Cloud Operations - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23757673
+		- https://cdn.qwiklabs.com/HeLDV1uMA6WhSaD50vdScxDqprXidaKJQGYYKWvn4aA%3D
+
+Associate Cloud Engineer Certification
+	- Preparing for Your Associate Cloud Engineer Journey - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23754466
+		- https://cdn.qwiklabs.com/syPw10WsSHyYbq%2FTxOHXMvrPwYxowGY20emm1AN3gew%3D
+
+Google Cloud AI Infrastructure
+	- AI Infrastructure: Introduction to AI Hypercomputer - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23715745
+		- https://cdn.qwiklabs.com/nK9hQxanudyuRC1BvmYXupqpxAadYMAJRjjehG%2FKsdc%3D
+	- AI Infrastructure: Cloud GPUs - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23715843
+		- https://cdn.qwiklabs.com/S3Fk0X5U9Xz76aXgmk4CAsmyzzHm4dsLx6Jic8OKQGU%3D
+	- AI Infrastructure: Cloud TPUs - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23715972
+		- https://cdn.qwiklabs.com/YU4aGcbO%2FwXYPN4M16ewenm%2FgE%2FhhZPMEwaY61eyar8%3D
+	- AI Infrastructure: Deployment Types - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23716148
+		- https://cdn.qwiklabs.com/GNTCHYxUsqpfgD3B9d1tjnI6giwuhhQz9dAF48tXzqg%3D
+	- AI Infrastructure: Storage Options - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23716243
+		- https://cdn.qwiklabs.com/dj3lgWO7VenGNfVOsJPlmoGIFOx%2B%2BV%2FHD85Y%2FbDCcd4%3D
+	- AI Infrastructure: Networking Techniques - https://www.skills.google/public_profiles/28681945-e84c-47c3-a1ed-0575f4d8b1a5/badges/23716893
+		- https://cdn.qwiklabs.com/xLjCLC5dxOS%2Bwct6YawZVYik4%2BO%2BWzVAxc7SZuN%2FkoE%3D
+	

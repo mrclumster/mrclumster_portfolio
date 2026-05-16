@@ -1,48 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { experiences, type Experience } from "@/data/experience";
 
-function shortHash(input: string): string {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) {
-    h = (h * 31 + input.charCodeAt(i)) | 0;
-  }
-  return (h >>> 0).toString(16).padStart(7, "0").slice(0, 7);
-}
-
-function ExperienceEntry({
-  entry,
-  index,
-  total,
-  copied,
-  onCopy,
-}: {
-  entry: Experience;
-  index: number;
-  total: number;
-  copied: boolean;
-  onCopy: (hash: string) => void;
-}) {
-  const head = index === 0;
-  const hash = shortHash(entry.title + entry.company);
+function ExperienceEntry({ entry }: { entry: Experience }) {
   return (
     <article className="space-y-1 text-[13px] leading-[1.6]">
-      <p>
-        <span className="opacity-60">commit </span>
-        <button
-          type="button"
-          onClick={() => onCopy(hash)}
-          className="hover:underline underline-offset-4 cursor-pointer font-mono"
-        >
-          {hash}
-        </button>
-        {copied && <span className="ml-2 opacity-60 text-[11px]">(copied)</span>}
-        {head ? <span className="ml-2 opacity-60">(HEAD -&gt; current)</span> : null}
-        {!head && index === total - 1 ? <span className="ml-2 opacity-60">(initial)</span> : null}
-      </p>
-      <p>
-        <span className="opacity-60">Author: </span>
+      <div className="flex gap-2">
+        <span className="opacity-60 shrink-0">{">"} Role: </span>
+        <span className="font-semibold">{entry.title}</span>
+      </div>
+      <div className="flex gap-2">
+        <span className="opacity-60 shrink-0">{">"} Org:  </span>
         {entry.companyUrl ? (
           <a href={entry.companyUrl} target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4">
             {entry.company}
@@ -50,44 +18,34 @@ function ExperienceEntry({
         ) : (
           entry.company
         )}
-      </p>
-      <p>
-        <span className="opacity-60">Date:   </span>
-        {entry.period}
-      </p>
-      <p className="pt-2 pl-4 font-semibold">{entry.title}</p>
-      <p className="pl-4 opacity-80">{entry.description}</p>
-      {entry.highlights && entry.highlights.length > 0 && (
-        <ul className="pl-4 list-none space-y-0.5">
-          {entry.highlights.map((h, i) => (
-            <li key={i}>
-              <span className="opacity-60">- </span>
-              {h}
-            </li>
-          ))}
-        </ul>
-      )}
+      </div>
+      <div className="flex gap-2">
+        <span className="opacity-60 shrink-0">{">"} Date: </span>
+        <span>{entry.period}</span>
+      </div>
+      
+      <div className="mt-4 pl-4 space-y-2 border-l border-[color:var(--ink)]/10">
+        <p className="opacity-80">{entry.description}</p>
+        {entry.highlights && entry.highlights.length > 0 && (
+          <ul className="list-none space-y-1">
+            {entry.highlights.map((h, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="opacity-40">-</span>
+                <span>{h}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </article>
   );
 }
 
 export function ExperienceLog() {
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {experiences.map((entry, i) => (
-        <ExperienceEntry
-          key={i}
-          entry={entry}
-          index={i}
-          total={experiences.length}
-          copied={copiedIdx === i}
-          onCopy={(hash) => {
-            navigator.clipboard.writeText(hash);
-            setCopiedIdx(i);
-            setTimeout(() => setCopiedIdx(null), 1200);
-          }}
-        />
+        <ExperienceEntry key={i} entry={entry} />
       ))}
       <p className="font-mono text-[10px] mt-6 select-none" style={{ opacity: 0.3 }}>
         └─ end of log ─┘

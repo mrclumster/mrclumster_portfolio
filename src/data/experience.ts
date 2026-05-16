@@ -11,7 +11,7 @@ export const experiences: Experience[] = [
   {
     title: "Intern Software Developer",
     company: "Nexzys Intelligence (Vintazk Outsourcing)",
-    period: "2026 - Present",
+    period: "Feb 2026 - May 2026",
     description:
       "Backend developer for Barangay Connect — a digital barangay system for Barangay Calarian with a mobile app, admin panel, and face-recognition kiosk, all powered by a shared Supabase backend.",
     highlights: [

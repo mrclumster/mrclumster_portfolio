@@ -20,19 +20,21 @@ export function SidePet() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!isJumping) {
-        setX((prev) => {
-          const next = prev + direction * 2;
-          if (next > 100 || next < -100) {
-            setDirection((d) => -d);
-            return prev;
-          }
-          return next;
-        });
-      }
+      setX((prev) => {
+        const next = prev + direction * 2;
+        if (next >= 100) {
+          setDirection(-1);
+          return 99; // Bounce back immediately
+        }
+        if (next <= -100) {
+          setDirection(1);
+          return -99; // Bounce back immediately
+        }
+        return next;
+      });
     }, 100);
     return () => clearInterval(interval);
-  }, [direction, isJumping]);
+  }, [direction]);
 
   const handleClick = () => {
     setIsJumping(true);
@@ -51,7 +53,7 @@ export function SidePet() {
     <div className="relative h-12 mt-8 border-b border-[color:var(--ink)] border-dashed overflow-visible">
       <motion.div
         className="absolute bottom-0 cursor-pointer"
-        animate={{ x: `${x}%`, scaleX: direction }}
+        animate={{ x: `${x}%` }}
         style={{ left: "50%" }}
         onClick={handleClick}
       >
@@ -59,7 +61,7 @@ export function SidePet() {
           {bubble && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: -40 }}
+              animate={{ opacity: 1, y: -64 }}
               exit={{ opacity: 0 }}
               className="absolute left-1/2 -translate-x-1/2 bg-[color:var(--ink)] text-[color:var(--paper)] text-[10px] px-2 py-1 whitespace-nowrap font-mono"
             >
@@ -72,9 +74,12 @@ export function SidePet() {
         <motion.img
           src="cloud.svg"
           alt="Cloud the Cat"
-          className="w-10 h-10"
+          className="w-14 h-14"
           style={{ imageRendering: "pixelated" }}
-          animate={isJumping ? { y: [0, -20, 0], rotate: [0, 360] } : {}}
+          animate={{
+            scaleX: direction,
+            ...(isJumping ? { y: [0, -20, 0], rotate: [0, 360] } : { y: 0, rotate: 0 })
+          }}
           transition={{ duration: 0.5 }}
         />
       </motion.div>
