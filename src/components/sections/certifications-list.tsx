@@ -17,9 +17,10 @@ import {
   Cloud, 
   Cpu, 
   Terminal, 
-  Lightbulb 
+  Lightbulb,
+  Check
 } from "lucide-react";
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +30,6 @@ const PDFPage = dynamic(() => import("react-pdf").then((mod) => mod.Page), { ssr
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-
-// We still need the original pdfjs for the worker config, but we'll import it inside the client component or guard it
-let pdfjsVersion = "4.10.38"; // Fallback version if import fails during SSR
 
 const IconMap = {
   Landmark,
@@ -60,44 +58,36 @@ function CertificatePreview({ file, title }: { file: string; title: string }) {
   const mouseXSpring = useSpring(x, { stiffness: 100, damping: 30 });
   const mouseYSpring = useSpring(y, { stiffness: 100, damping: 30 });
 
-  const rotateX = useTransform(mouseYSpring, [0, 1], [7, -7]);
-  const rotateY = useTransform(mouseXSpring, [0, 1], [-7, 7]);
+  const rotateX = useTransform(mouseYSpring, [0, 1], [10, -10]);
+  const rotateY = useTransform(mouseXSpring, [0, 1], [-10, 10]);
 
-  // Stable width measurement
+  // Height and Width for absolute 1-screen fit (Optimized specifically for PDFs)
+  const pdfHeight = Math.min(window.innerHeight * 0.64, 720);
+  const pdfWidth = pdfHeight * 1.414;
+
   React.useEffect(() => {
-    const updateWidth = () => {
+    const updateDimensions = () => {
       if (containerRef.current) {
         const width = containerRef.current.clientWidth;
         if (width > 0) setContainerWidth(width);
       }
     };
 
-    // Wait for modal animation to settle before first measurement
-    const timer = setTimeout(updateWidth, 500);
-
-    // Responsive resize with debounce
-    let resizeTimer: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(updateWidth, 200);
-    };
-
-    window.addEventListener("resize", handleResize);
+    updateDimensions();
+    const timer = setTimeout(updateDimensions, 100);
+    window.addEventListener("resize", updateDimensions);
     return () => {
       clearTimeout(timer);
-      clearTimeout(resizeTimer);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", updateDimensions);
     };
-  }, [file]); // Re-measure if file changes (e.g. switching courses)
+  }, []);
 
-  // Setup worker on the client side only
   React.useEffect(() => {
     import("react-pdf").then(({ pdfjs }) => {
       pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
     });
   }, []);
 
-  // Reset loaded state when file changes
   React.useEffect(() => {
     setIsLoaded(false);
   }, [file]);
@@ -108,68 +98,84 @@ function CertificatePreview({ file, title }: { file: string; title: string }) {
     y.set((event.clientY - rect.top) / rect.height);
   }
 
-  function handleMouseLeave() {
-    x.set(0.5);
-    y.set(0.5);
-  }
-
   return (
     <div 
       ref={containerRef}
-      className="relative w-full aspect-[1.414/1] group cursor-default overflow-visible bg-[color:var(--ink)]/[0.02] rounded-sm"
-      style={{ perspective: "1000px" }}
+      className="relative w-full group cursor-default overflow-visible flex justify-center"
+      style={{ perspective: "1200px" }}
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => { x.set(0.5); y.set(0.5); }}
     >
       <motion.div
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="w-full h-full shadow-lg rounded-sm overflow-hidden border border-[color:var(--ink)]/10 bg-white flex items-center justify-center transition-shadow duration-500 group-hover:shadow-2xl"
+        className="w-full max-w-fit relative flex items-center justify-center transition-shadow duration-500 overflow-visible"
       >
-        {containerWidth > 0 && (
-          <PDFDocument 
-            key={file}
-            file={file} 
-            onLoadSuccess={() => setIsLoaded(true)}
-            loading={<div className="absolute inset-0 bg-[color:var(--ink)]/5 animate-pulse" />}
-            className="max-w-full"
-          >
-            <PDFPage 
-              pageNumber={1} 
-              renderTextLayer={false} 
-              renderAnnotationLayer={false}
-              width={containerWidth}
-              className={cn(
-                "transition-opacity duration-700",
-                isLoaded ? "opacity-100" : "opacity-0"
+        {/* Glass Container - Unified Style, now matches PDF Rectangle */}
+        <div className="absolute inset-0 bg-[color:var(--paper)]/40 backdrop-blur-xl rounded-3xl border border-[color:var(--ink)]/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)] transition-shadow duration-500" />
+        
+        {/* Holographic Shimmer Overlay */}
+        <motion.div 
+          className="absolute inset-0 rounded-3xl pointer-events-none z-20 overflow-hidden opacity-30 group-hover:opacity-40 transition-opacity duration-500"
+          style={{
+            background: useTransform(
+              [mouseXSpring, mouseYSpring],
+              ([x, y]: number[]) => `radial-gradient(circle at ${x * 100}% ${y * 100}%, white 0%, transparent 50%)`
+            ),
+          }}
+        />
+
+        <div className="relative p-3 z-10 overflow-visible" style={{ height: pdfHeight + 24, width: pdfWidth + 24 }}>
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={file}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="absolute inset-0 flex items-center justify-center p-3"
+              style={{ transformStyle: "preserve-3d", transform: "translateZ(40px)" }}
+            >
+              {containerWidth > 0 && (
+                <PDFDocument 
+                  file={file} 
+                  onLoadSuccess={() => setIsLoaded(true)}
+                  loading={<div style={{ height: pdfHeight, width: pdfWidth }} className="bg-[color:var(--ink)]/5 animate-pulse rounded-xl" />}
+                >
+                  <PDFPage 
+                    pageNumber={1} 
+                    renderTextLayer={false} 
+                    renderAnnotationLayer={false}
+                    height={pdfHeight}
+                    className="rounded-xl overflow-hidden shadow-2xl"
+                  />
+                </PDFDocument>
               )}
-            />
-          </PDFDocument>
-        )}
+            </motion.div>
+          </AnimatePresence>
+          
+          {/* Spacer to keep parent dimensions stable and matching the PDF rectangle */}
+          <div style={{ height: pdfHeight, width: pdfWidth }} className="invisible pointer-events-none" />
+        </div>
         
         {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[color:var(--ink)]/[0.01]">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
             <div className="w-6 h-6 border-2 border-[color:var(--ink)]/5 border-t-[color:var(--ink)]/20 rounded-full animate-spin" />
           </div>
         )}
-        
-        {/* Subtle sheen overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       </motion.div>
     </div>
   );
 }
 
-function BadgePreview({ image, title }: { image: string; title: string }) {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-
+function HolographicBadge({ image, title }: { image: string; title: string }) {
   const x = useMotionValue(0.5);
   const y = useMotionValue(0.5);
 
   const mouseXSpring = useSpring(x, { stiffness: 100, damping: 30 });
   const mouseYSpring = useSpring(y, { stiffness: 100, damping: 30 });
 
-  const rotateX = useTransform(mouseYSpring, [0, 1], [10, -10]);
-  const rotateY = useTransform(mouseXSpring, [0, 1], [-10, 10]);
+  const rotateX = useTransform(mouseYSpring, [0, 1], [15, -15]);
+  const rotateY = useTransform(mouseXSpring, [0, 1], [-15, 15]);
 
   function handleMouseMove(event: React.MouseEvent) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -184,30 +190,104 @@ function BadgePreview({ image, title }: { image: string; title: string }) {
 
   return (
     <div 
-      ref={containerRef}
-      className="relative w-full aspect-[1.414/1] group cursor-default overflow-visible bg-[color:var(--ink)]/[0.02] rounded-sm"
-      style={{ perspective: "1000px" }}
+      className="relative w-full aspect-square group cursor-default overflow-visible flex justify-center"
+      style={{ perspective: "1200px" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
       <motion.div
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="w-full h-full shadow-lg rounded-sm overflow-hidden border border-[color:var(--ink)]/10 bg-white flex items-center justify-center transition-shadow duration-500 group-hover:shadow-2xl p-8"
+        className="w-full h-full relative flex items-center justify-center transition-shadow duration-500"
       >
+        {/* Glass Container - Restored to inset-0 for a true square halo with bold visibility */}
+        <div className="absolute inset-0 bg-[color:var(--paper)] opacity-60 backdrop-blur-xl rounded-[2.5rem] border border-[color:var(--ink)]/20 shadow-[0_20px_50px_rgba(0,0,0,0.1)] group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.2)] transition-all duration-500" />
+        
+        {/* Holographic Shimmer Overlay */}
+        <motion.div 
+          className="absolute inset-0 rounded-[2.5rem] pointer-events-none z-20 overflow-hidden opacity-30 group-hover:opacity-40 transition-opacity duration-500"
+          style={{
+            background: useTransform(
+              [mouseXSpring, mouseYSpring],
+              ([x, y]: number[]) => `radial-gradient(circle at ${x * 100}% ${y * 100}%, white 0%, transparent 50%)`
+            ),
+          }}
+        />
+
+        {/* The Badge Image with Depth - Scaled to 98% for maximum impact and minimal glass halo */}
         <motion.img 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           src={image} 
           alt={title}
-          className="max-w-full max-h-full object-contain drop-shadow-2xl relative z-10"
-          style={{ transform: "translateZ(50px)" }} // Add depth to the badge itself
+          className="w-[98%] h-[98%] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.25)] relative z-10 p-2"
+          style={{ transform: "translateZ(80px)" }}
         />
-        
-        {/* Subtle sheen overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--ink)]/[0.02] to-transparent pointer-events-none" />
+
+        {/* Inner subtle glow */}
+        <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
       </motion.div>
+    </div>
+  );
+}
+
+function ModuleSidebar({ 
+  cert, 
+  selectedSub, 
+  onSelect 
+}: { 
+  cert: Certification; 
+  selectedSub: Certification | null; 
+  onSelect: (sub: Certification | null) => void;
+}) {
+  return (
+    <div className="flex flex-col h-full bg-[color:var(--ink)]/[0.02] border-r border-[color:var(--ink)]/5 p-4 overflow-y-auto">
+      <nav className="flex flex-col gap-1">
+        {cert.pdfUrl && (
+          <button
+            onClick={() => onSelect(null)}
+            className={cn(
+              "flex items-center gap-3 w-full text-left p-2.5 rounded-lg text-[12px] transition-all duration-200",
+              selectedSub === null
+                ? "bg-[color:var(--paper)] shadow-sm ring-1 ring-[color:var(--ink)]/10 font-medium text-[color:var(--ink)]"
+                : "hover:bg-[color:var(--ink)]/5 opacity-60 hover:opacity-100 text-[color:var(--ink)]"
+            )}
+          >
+            <div className={cn(
+              "w-1.5 h-1.5 rounded-full shrink-0",
+              selectedSub === null ? "bg-blue-500" : "bg-[color:var(--ink)]/20"
+            )} />
+            {cert.groupLabel || "Overview"}
+          </button>
+        )}
+
+        <div className="mt-4 mb-2 px-2 text-[10px] font-bold uppercase tracking-widest opacity-40 text-[color:var(--ink)]">
+          {cert.itemLabel || "Modules"}
+        </div>
+        
+        {cert.subCertificates?.map((sub) => {
+          const isSelected = selectedSub?.title === sub.title;
+
+          return (
+            <button
+              key={sub.title}
+              onClick={() => onSelect(sub)}
+              className={cn(
+                "flex items-center gap-3 w-full text-left p-2.5 rounded-lg text-[12px] transition-all duration-200 group text-[color:var(--ink)]",
+                isSelected
+                  ? "bg-[color:var(--paper)] shadow-sm ring-1 ring-[color:var(--ink)]/10 font-medium"
+                  : "hover:bg-[color:var(--ink)]/5 opacity-60 hover:opacity-100"
+              )}
+            >
+              <div className={cn(
+                "w-1.5 h-1.5 rounded-full shrink-0 transition-colors",
+                isSelected ? "bg-blue-500" : "bg-[color:var(--ink)]/20"
+              )} />
+              <span className="truncate">{sub.title}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
@@ -228,122 +308,111 @@ function Row({ cert }: { cert: Certification }) {
         <span className="truncate">{cert.title}</span>
         <span className="opacity-60">{cert.year}</span>
       </ModalTrigger>
-      <ModalContent className={cn("max-w-2xl", cert.subCertificates && "max-w-4xl")}>
-        <div className="flex items-center gap-3 pr-8">
-          <div className="p-2 bg-[color:var(--ink)]/5 border border-[color:var(--ink)]/10 rounded-md">
-            <CertIcon name={cert.icon} className="h-5 w-5 opacity-80" />
-          </div>
-          <div>
-            <ModalTitle>{cert.title}</ModalTitle>
-            <ModalDescription>{cert.issuer} · {cert.year}</ModalDescription>
-          </div>
-        </div>
-
-        <div className={cn("mt-6", cert.subCertificates && "grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6")}>
+      <ModalContent className={cn(
+        "max-w-7xl bg-[color:var(--paper)] backdrop-blur-xl border border-[color:var(--ink)]/10 p-0 overflow-hidden text-[color:var(--ink)]",
+        !cert.subCertificates && "max-w-4xl"
+      )}>
+        <div className={cn("grid h-full", cert.subCertificates ? "grid-cols-1 md:grid-cols-[280px_1fr]" : "grid-cols-1")}>
           {cert.subCertificates && (
-            <div className="flex flex-col gap-1 overflow-y-auto max-h-[40vh] md:max-h-[60vh] border-b md:border-b-0 md:border-r border-[color:var(--ink)]/10 pb-4 md:pb-0 md:pr-4">
-              {cert.pdfUrl && (
-                <>
-                  <p className="text-[10px] uppercase tracking-wider opacity-40 mb-2 font-bold">{cert.groupLabel || "Program Overview"}</p>
-                  <button
-                    onClick={() => setSelectedSub(null)}
-                    className={cn(
-                      "text-left p-2 text-[12px] transition-colors rounded mb-2",
-                      selectedSub === null
-                        ? "bg-[color:var(--ink)] text-[color:var(--paper)]"
-                        : "hover:bg-[color:var(--ink)]/5"
-                    )}
-                  >
-                    {cert.title.includes("Professional Certificate") ? "Professional Certificate" : "Main Certificate"}
-                  </button>
-                </>
-              )}
-              
-              <p className="text-[10px] uppercase tracking-wider opacity-40 mb-2 font-bold mt-2">{cert.itemLabel || "Individual Courses"}</p>
-              {cert.subCertificates.map((sub) => (
-                <button
-                  key={sub.title}
-                  onClick={() => setSelectedSub(sub)}
-                  className={cn(
-                    "text-left p-2 text-[12px] transition-colors rounded",
-                    selectedSub?.title === sub.title
-                      ? "bg-[color:var(--ink)] text-[color:var(--paper)]"
-                      : "hover:bg-[color:var(--ink)]/5"
-                  )}
-                >
-                  {sub.title}
-                </button>
-              ))}
-            </div>
+            <ModuleSidebar 
+              cert={cert} 
+              selectedSub={selectedSub} 
+              onSelect={setSelectedSub} 
+            />
           )}
 
-          <div className="flex flex-col gap-4">
-            {cert.subCertificates && (
-               <div className="mb-2">
-                 <h4 className="text-[14px] font-medium leading-tight">{currentCert.title}</h4>
-                 <p className="text-[12px] opacity-60">{currentCert.issuer} · {currentCert.year}</p>
-               </div>
-            )}
-            
-            {currentCert.pdfUrl ? (
-              <div className="w-full flex flex-col items-center">
-                <CertificatePreview file={currentCert.pdfUrl} title={currentCert.title} />
-                <div className="mt-6 flex w-full items-center justify-between">
-                  <a 
-                    href={currentCert.pdfUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-2 hover:underline underline-offset-4 text-[13px]"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Open PDF in New Tab
-                  </a>
+          <div className="flex-grow flex flex-col h-[90vh]">
+            {/* Header area inside content - Tightened */}
+            <div className="p-5 pb-3 border-b border-[color:var(--ink)]/5 bg-[color:var(--paper)]/50">
+              <div className="flex items-center gap-4">
+                <div className="p-1.5 bg-[color:var(--ink)]/5 rounded-xl border border-[color:var(--ink)]/10">
+                  <CertIcon name={cert.icon} className="h-4.5 w-4.5 opacity-80" />
+                </div>
+                <div className="flex-grow">
+                  <ModalTitle className="text-base font-bold tracking-tight">{currentCert.title}</ModalTitle>
+                  <ModalDescription className="text-[11px] font-medium opacity-60">
+                    {currentCert.issuer} · {currentCert.year}
+                  </ModalDescription>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Preview Area - Anchored to top to remove perceived extra space */}
+            <div className="flex-grow px-8 pb-8 pt-6 flex flex-col items-center justify-start bg-gradient-to-b from-transparent to-[color:var(--ink)]/[0.02]">
+              {currentCert.pdfUrl ? (
+                <div className="w-full flex flex-col items-center space-y-4">
+                  <div className="w-full relative flex justify-center">
+                    <CertificatePreview file={currentCert.pdfUrl} title={currentCert.title} />
+                  </div>
+                  
+                  {/* Unified button style for PDFs - matching badges */}
+                  <div className="flex items-center justify-center gap-6 px-2 w-full relative z-50">
+                    <a 
+                      href={currentCert.pdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="group inline-flex items-center gap-3 px-8 py-3 border border-[color:var(--ink)]/10 bg-[color:var(--paper)]/50 backdrop-blur-sm text-[color:var(--ink)] rounded-full text-xs font-bold tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                    >
+                      FULL RESOLUTION PDF
+                      <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </a>
+                    {currentCert.credentialUrl && (
+                      <a 
+                        href={currentCert.credentialUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="group inline-flex items-center gap-3 px-8 py-3 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-xs font-bold tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                      >
+                        VERIFY CREDENTIAL
+                        <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ) : currentCert.badgeUrl ? (
+                <div className="w-full flex-grow flex flex-col items-center justify-start pt-0 space-y-0">
+                  <div className="w-full max-w-[600px] aspect-square relative">
+                    <HolographicBadge image={currentCert.badgeUrl} title={currentCert.title} />
+                  </div>
+                  <div className="w-full flex justify-center relative z-50 mt-6">
+                    {currentCert.credentialUrl && (
+                      <a 
+                        href={currentCert.credentialUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="group inline-flex items-center gap-3 px-8 py-3 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-xs font-bold tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                      >
+                        VERIFY CREDENTIAL
+                        <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-grow flex flex-col items-center justify-center py-20 px-10 text-center space-y-6">
+                  <div className="w-20 h-20 bg-[color:var(--ink)]/[0.03] rounded-3xl flex items-center justify-center border border-dashed border-[color:var(--ink)]/10">
+                    <CertIcon name={cert.icon} className="h-10 w-10 opacity-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium opacity-40">Credential document not available for preview.</p>
+                    {currentCert.credentialUrl && (
+                      <p className="text-xs opacity-30 italic">Verification available via external link below.</p>
+                    )}
+                  </div>
                   {currentCert.credentialUrl && (
                     <a 
                       href={currentCert.credentialUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-2 hover:underline underline-offset-4 text-[13px] opacity-70 hover:opacity-100 transition-opacity"
+                      className="inline-flex items-center gap-3 px-8 py-3 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-xs font-bold tracking-widest shadow-md hover:opacity-90 transition-opacity"
                     >
+                      VIEW CREDENTIAL
                       <ExternalLink className="h-3.5 w-3.5" />
-                      Verify Credential
                     </a>
                   )}
                 </div>
-              </div>
-            ) : currentCert.badgeUrl ? (
-              <div className="w-full flex flex-col items-center">
-                <BadgePreview image={currentCert.badgeUrl} title={currentCert.title} />
-                <div className="mt-6 flex w-full items-center justify-end">
-                  {currentCert.credentialUrl && (
-                    <a 
-                      href={currentCert.credentialUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-2 hover:underline underline-offset-4 text-[13px] opacity-70 hover:opacity-100 transition-opacity"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      Verify Credential
-                    </a>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="flex-grow flex flex-col items-center justify-center border border-dashed border-[color:var(--ink)]/20 rounded-lg p-12 text-center bg-[color:var(--ink)]/[0.02] min-h-[30vh]">
-                <p className="text-[13px] opacity-70 mb-4">Certificate document not available for preview.</p>
-                {currentCert.credentialUrl && (
-                  <a 
-                    href={currentCert.credentialUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-[13px] hover:opacity-90 transition-opacity"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    View Credential
-                  </a>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </ModalContent>
