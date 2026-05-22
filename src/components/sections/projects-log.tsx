@@ -16,7 +16,8 @@ interface Props {
 const ProjectIcon = ({ name }: { name?: string }) => {
   if (!name) return <LucideIcons.Folder className="w-6 h-6 opacity-60" />;
   
-  const IconComponent = (LucideIcons as Record<string, LucideIcons.LucideIcon>)[name];
+  // Cast to unknown first to safely bridge the incompatible module types
+  const IconComponent = (LucideIcons as unknown as Record<string, LucideIcons.LucideIcon>)[name];
   if (!IconComponent) return <LucideIcons.Folder className="w-6 h-6 opacity-60" />;
   
   return <IconComponent className="w-6 h-6 opacity-80" />;
