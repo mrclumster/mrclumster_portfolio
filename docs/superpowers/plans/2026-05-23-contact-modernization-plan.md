@@ -1,9 +1,89 @@
+# Contact Modernization & Sanitization Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Modernize the Contact section with a card-based layout, spotlight effects, and robust Zod-based sanitization.
+
+**Architecture:** We will update the API route to use Zod for server-side validation and sanitization. Then, we will refactor the `ContactTerminal` component into two specialized cards ("Dossier" and "Composer") using the "Dev Directory" visual language and local mouse tracking for the spotlight effect.
+
+**Tech Stack:** Next.js, React, Zod, Framer Motion, Lucide React.
+
+**STRICT RULE:** NO GIT COMMANDS.
+
+---
+
+### Task 1: Robust Server-Side Sanitization
+
+**Files:**
+- Modify: `src/app/api/contact/route.ts`
+
+- [ ] **Step 1: Implement Zod schema and sanitization**
+Update the POST handler to use Zod and strip HTML from name and message.
+
+```typescript
+import { Resend } from "resend";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Sanitization helper
+const stripHtml = (str: string) => str.replace(/<[^>]*>?/gm, '');
+
+const contactSchema = z.object({
+  name: z.string().min(2).max(80).transform(stripHtml),
+  email: z.string().email().toLowerCase(),
+  message: z.string().min(10).max(500).transform(stripHtml),
+});
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const result = contactSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid input data." }, { status: 400 });
+    }
+
+    const { name, email, message } = result.data;
+
+    const { error } = await resend.emails.send({
+      from: "Portfolio Contact <onboarding@resend.dev>",
+      to: ["aziztebbeng@gmail.com"],
+      replyTo: email,
+      subject: `Portfolio Contact from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    });
+
+    if (error) {
+      return NextResponse.json({ error: "Failed to send email." }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
+  }
+}
+```
+
+---
+
+### Task 2: Refactor Contact Component into Modern Cards
+
+**Files:**
+- Modify: `src/components/sections/contact-terminal.tsx`
+
+- [ ] **Step 1: Rewrite Component with Card Design and Spotlight**
+Refactor the UI into two cards using local mouse tracking for the spotlight effect.
+
+```tsx
 "use client";
 
 import { useState, useRef } from "react";
 import confetti from "canvas-confetti";
-import { CheckCircle, AlertCircle, Send } from "lucide-react";
+import { CheckCircle, AlertCircle, User, Mail, MessageSquare, Send, Github, Linkedin, Facebook, Instagram } from "lucide-react";
 import { TerminalInput, TerminalTextarea, TerminalLabel } from "@/components/terminal/terminal-input";
+import { TerminalButton } from "@/components/terminal/terminal-button";
 import { personalInfo } from "@/data/personal";
 import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from "@/components/shared/icons";
 import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
@@ -78,8 +158,8 @@ export function ContactTerminal() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6">
       {/* Dossier Card */}
-      <ContactCard className="p-8 flex flex-col min-h-[420px]">
-        <div className="space-y-10">
+      <ContactCard className="p-8 flex flex-col justify-between min-h-[350px]">
+        <div className="space-y-8">
           <div>
             <div className="flex items-center gap-2 mb-4 font-mono text-[10px] uppercase tracking-widest opacity-40">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--ink)] animate-pulse" />
@@ -89,50 +169,23 @@ export function ContactTerminal() {
             <p className="font-mono text-sm opacity-50 italic">Available for select projects and collaborations.</p>
           </div>
 
-          <div className="space-y-6">
-             <div className="space-y-1.5">
+          <div className="space-y-4">
+             <div className="space-y-1">
                 <p className="font-mono text-[10px] uppercase tracking-widest opacity-40">channel / email</p>
-                <button 
-                  type="button"
-                  onClick={() => setEmailRevealed(!emailRevealed)} 
-                  className="font-mono text-sm hover:opacity-100 transition-opacity opacity-70"
-                >
+                <button onClick={() => setEmailRevealed(!emailRevealed)} className="font-mono text-sm hover:opacity-100 transition-opacity opacity-70">
                    {emailRevealed ? personalInfo.email : "[click to reveal] " + personalInfo.email.replace(/./g, "·")}
                 </button>
              </div>
-             <div className="space-y-3">
+             <div className="space-y-2">
                 <p className="font-mono text-[10px] uppercase tracking-widest opacity-40">networks</p>
-                <div className="flex flex-wrap gap-4">
-                   {personalInfo.socialLinks.github && (
-                     <a href={personalInfo.socialLinks.github} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <GithubIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                   {personalInfo.socialLinks.linkedin && (
-                     <a href={personalInfo.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <LinkedinIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                   {personalInfo.socialLinks.facebook && (
-                     <a href={personalInfo.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <FacebookIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                   {personalInfo.socialLinks.instagram && (
-                     <a href={personalInfo.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <InstagramIcon className="w-5 h-5" />
-                     </a>
-                   )}
+                <div className="flex flex-wrap gap-3">
+                   {personalInfo.socialLinks.github && <a href={personalInfo.socialLinks.github} target="_blank" className="opacity-60 hover:opacity-100 transition-opacity"><Github className="w-5 h-5" /></a>}
+                   {personalInfo.socialLinks.linkedin && <a href={personalInfo.socialLinks.linkedin} target="_blank" className="opacity-60 hover:opacity-100 transition-opacity"><Linkedin className="w-5 h-5" /></a>}
                 </div>
              </div>
           </div>
         </div>
-        
-        <div className="mt-auto pt-16">
-          <p className="font-mono text-[10px] opacity-20 tracking-widest uppercase">
-            {personalInfo.location} {"//"} {new Date().getFullYear()}
-          </p>
-        </div>
+        <p className="font-mono text-[10px] opacity-20 tracking-widest uppercase">{personalInfo.location} // {new Date().getFullYear()}</p>
       </ContactCard>
 
       {/* Composer Card */}
@@ -146,7 +199,7 @@ export function ContactTerminal() {
           <div className="flex flex-col items-center justify-center h-full py-12 space-y-4">
              <CheckCircle className="w-12 h-12 opacity-80" />
              <p className="font-mono text-lg font-bold uppercase tracking-tight">Transmission Received</p>
-             <button type="button" onClick={() => setStatus("idle")} className="font-mono text-xs underline opacity-50">send another</button>
+             <button onClick={() => setStatus("idle")} className="font-mono text-xs underline opacity-50">send another</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -160,7 +213,6 @@ export function ContactTerminal() {
                 onChange={(e) => handleChange("name", e.target.value)} 
                 maxLength={80}
                 placeholder="your name" 
-                required
               />
             </div>
 
@@ -171,7 +223,6 @@ export function ContactTerminal() {
                 value={formData.email} 
                 onChange={(e) => handleChange("email", e.target.value)} 
                 placeholder="you@domain.com" 
-                required
               />
             </div>
 
@@ -185,7 +236,6 @@ export function ContactTerminal() {
                 onChange={(e) => handleChange("message", e.target.value)} 
                 maxLength={500}
                 placeholder="say something nice" 
-                required
               />
             </div>
 
@@ -207,3 +257,15 @@ export function ContactTerminal() {
     </div>
   );
 }
+```
+
+---
+
+### Task 3: Verification
+
+- [ ] **Step 1: Check Linting**
+Run: `npx eslint src/app/api/contact/route.ts src/components/sections/contact-terminal.tsx`
+Expected: No errors.
+
+- [ ] **Step 2: Functional Check (Mental)**
+Verify that Zod schema correctly transforms strings by stripping HTML tags before they reach the Resend call.

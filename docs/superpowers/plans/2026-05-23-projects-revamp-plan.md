@@ -1,15 +1,24 @@
-export type Project = {
-  title: string;
-  description: string;
-  image?: string; // Kept for type compatibility if needed elsewhere, but unused here
-  icon?: string;
-  tags: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  featured: boolean;
-  gradientColor?: string;
-};
+# Projects Section Implementation Plan (v2 - Professional Icons)
 
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Refactor the projects section to use professional Lucide icons instead of emojis, and ensure all 8 projects are correctly populated with their respective icons.
+
+**Architecture:** Update `projects.ts` to use Lucide icon names. Update `ProjectsLog.tsx` to dynamically render Lucide components based on these names.
+
+**Tech Stack:** Next.js, React, Tailwind CSS 4, Framer Motion, Lucide React.
+
+---
+
+### Task 1: Update Projects Data with Icon Names
+
+**Files:**
+- Modify: `src/data/projects.ts`
+
+- [ ] **Step 1: Replace emojis with Lucide icon names**
+Update the `icon` field for each project.
+
+```typescript
 export const projects: Project[] = [
   {
     title: "FishFresh",
@@ -79,3 +88,40 @@ export const projects: Project[] = [
     featured: false,
   }
 ];
+```
+
+---
+
+### Task 2: Dynamic Icon Rendering in ProjectsLog
+
+**Files:**
+- Modify: `src/components/sections/projects-log.tsx`
+
+- [ ] **Step 1: Implement Dynamic Icon Component**
+Update the component to import icons from `lucide-react` and render them dynamically.
+
+```tsx
+import * as LucideIcons from "lucide-react";
+
+// Helper component to render icons by name
+const ProjectIcon = ({ name }: { name?: string }) => {
+  if (!name) return <LucideIcons.Folder className="w-6 h-6 opacity-60" />;
+  
+  const IconComponent = (LucideIcons as any)[name];
+  if (!IconComponent) return <LucideIcons.Folder className="w-6 h-6 opacity-60" />;
+  
+  return <IconComponent className="w-6 h-6 opacity-80" />;
+};
+```
+
+- [ ] **Step 2: Update ProjectCard to use ProjectIcon**
+Replace the emoji rendering with `<ProjectIcon name={project.icon} />`.
+
+---
+
+### Task 3: Final Verification
+
+- [ ] **Step 1: Run Lint**
+Run: `npx eslint src/data/projects.ts src/components/sections/projects-log.tsx`
+
+---

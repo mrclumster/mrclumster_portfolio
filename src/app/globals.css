@@ -12,6 +12,7 @@
   /* Terminal redesign tokens (paper / ink / alarm) */
   --paper: #f4f2ed;
   --ink: #1a1a1a;
+  --ink-rgb: 26, 26, 26;
   --muted-fg: rgba(26, 26, 26, 0.55);
   --alarm: #c0392b;
 
@@ -52,6 +53,7 @@
 .dark {
   --paper: #1a1a1a;
   --ink: #e8e4dc;
+  --ink-rgb: 232, 228, 220;
   --muted-fg: rgba(232, 228, 220, 0.55);
   --alarm: #e74c3c;
 

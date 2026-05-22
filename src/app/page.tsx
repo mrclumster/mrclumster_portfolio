@@ -11,8 +11,6 @@ import { ContactTerminal } from "@/components/sections/contact-terminal";
 import { projects } from "@/data/projects";
 
 export default function Home() {
-  const featuredProjects = projects.filter((p) => p.featured);
-
   return (
     <TerminalFrame>
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-12">
@@ -88,8 +86,8 @@ export default function Home() {
         </div>
 
         <section id="projects" aria-labelledby="projects-heading" className="space-y-6">
-          <AsciiDivider number="04" label="selected_work" />
-          <ProjectsLog projects={featuredProjects} />
+          <AsciiDivider number="04" label="projects" />
+          <ProjectsLog projects={projects} />
         </section>
 
         <section id="contact" aria-labelledby="contact-heading" className="space-y-4">
