@@ -6,7 +6,7 @@ export type BioSegment =
 export type Bio = BioSegment[][];
 
 export const personalInfo = {
-  name: "Aziz Tebbeng",
+  name: "Abdel-Aziz Tebbeng",
   headline: "Aspiring Full-Stack Developer & ML Enthusiast",
   headlines: [
     "Full-Stack Developer",

@@ -39,6 +39,7 @@ export function HeroTerminal() {
           </p>
 
           <KeyValueList>
+            <KeyValue k="name">{personalInfo.name}</KeyValue>
             <KeyValue k="location">{personalInfo.location}</KeyValue>
             <KeyValue k="email">
               <a href={`mailto:${personalInfo.email}`} className="hover:underline underline-offset-4">
