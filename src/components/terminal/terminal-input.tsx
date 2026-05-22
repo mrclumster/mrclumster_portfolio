@@ -15,6 +15,10 @@ export function TerminalTextarea(props: ComponentProps<"textarea">) {
   return <textarea className={`${fieldBase} resize-none ${className ?? ""}`.trim()} rows={4} {...rest} />;
 }
 
-export function TerminalLabel({ children }: { children: React.ReactNode }) {
-  return <span className="block text-[11px] uppercase tracking-[0.08em] opacity-60 mb-1">{children}</span>;
+export function TerminalLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span className={`block text-[11px] uppercase tracking-[0.08em] opacity-60 mb-1 ${className ?? ""}`.trim()}>
+      {children}
+    </span>
+  );
 }
