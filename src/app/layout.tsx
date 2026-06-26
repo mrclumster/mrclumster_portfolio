@@ -47,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col font-sans antialiased terminal-route">
+      <body className="min-h-full flex flex-col font-sans antialiased bg-background text-foreground">
         <Script
           id="ld-json-person"
           type="application/ld+json"

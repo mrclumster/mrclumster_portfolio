@@ -1,209 +1,49 @@
 "use client";
-
-import { useState, useRef } from "react";
-import confetti from "canvas-confetti";
-import { CheckCircle, AlertCircle, Send } from "lucide-react";
-import { TerminalInput, TerminalTextarea, TerminalLabel } from "@/components/terminal/terminal-input";
 import { personalInfo } from "@/data/personal";
-import { GithubIcon, LinkedinIcon, FacebookIcon, InstagramIcon } from "@/components/shared/icons";
-import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
-
-function ContactCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 500, damping: 50 });
-  const springY = useSpring(mouseY, { stiffness: 500, damping: 50 });
-
-  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
-    const { left, top } = currentTarget.getBoundingClientRect();
-    mouseX.set(clientX - left);
-    mouseY.set(clientY - top);
-  }
-
-  const background = useMotionTemplate`radial-gradient(400px circle at ${springX}px ${springY}px, rgba(var(--ink-rgb), 0.1), transparent 80%)`;
-  const border = useMotionTemplate`radial-gradient(250px circle at ${springX}px ${springY}px, rgba(var(--ink-rgb), 0.35), transparent 80%)`;
-
-  return (
-    <motion.div
-      onMouseMove={handleMouseMove}
-      className={`group relative bg-[var(--paper)] overflow-hidden transition-all duration-300 ${className}`}
-    >
-      <motion.div className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100" style={{ background }} />
-      <motion.div
-        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100 z-30"
-        style={{ 
-          border: '1px solid transparent',
-          backgroundImage: border,
-          backgroundOrigin: 'border-box',
-          backgroundClip: 'border-box',
-          maskImage: 'linear-gradient(black, black), linear-gradient(black, black)',
-          maskComposite: 'exclude',
-          WebkitMaskComposite: 'xor',
-        }}
-      />
-      <div className="absolute inset-0 pointer-events-none z-10 border border-[var(--ink)] opacity-10" />
-      <div className="relative z-20 h-full">{children}</div>
-    </motion.div>
-  );
-}
 
 export function ContactTerminal() {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [emailRevealed, setEmailRevealed] = useState(false);
-  const submitBtnRef = useRef<HTMLButtonElement>(null);
-
-  const handleChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("loading");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error();
-      setStatus("success");
-      setFormData({ name: "", email: "", message: "" });
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-    } catch {
-      setStatus("error");
-    }
-  };
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6">
-      {/* Dossier Card */}
-      <ContactCard className="p-8 flex flex-col min-h-[420px]">
-        <div className="space-y-10">
-          <div>
-            <div className="flex items-center gap-2 mb-4 font-mono text-[10px] uppercase tracking-widest opacity-40">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--ink)] animate-pulse" />
-              dossier_05
-            </div>
-            <h2 className="font-mono text-2xl font-bold uppercase tracking-tighter mb-2">Let&apos;s build something together.</h2>
-            <p className="font-mono text-sm opacity-50 italic">Available for select projects and collaborations.</p>
-          </div>
+    <div className="w-full flex flex-col items-center justify-center text-center">
+      <h2 className="text-[clamp(4rem,12vw,14rem)] font-extrabold tracking-tighter leading-[0.8] mb-12 text-foreground">
+        LET'S
+        <br/>
+        TALK.
+      </h2>
+      
+      <a 
+        href={`mailto:${personalInfo.email}`}
+        className="text-2xl md:text-5xl font-bold tracking-tight hover:italic transition-all duration-300 text-muted-foreground hover:text-foreground mb-16"
+      >
+        {personalInfo.email}
+      </a>
 
-          <div className="space-y-6">
-             <div className="space-y-1.5">
-                <p className="font-mono text-[10px] uppercase tracking-widest opacity-40">channel / email</p>
-                <button 
-                  type="button"
-                  onClick={() => setEmailRevealed(!emailRevealed)} 
-                  className="font-mono text-sm hover:opacity-100 transition-opacity opacity-70"
-                >
-                   {emailRevealed ? personalInfo.email : "[click to reveal] " + personalInfo.email.replace(/./g, "·")}
-                </button>
-             </div>
-             <div className="space-y-3">
-                <p className="font-mono text-[10px] uppercase tracking-widest opacity-40">networks</p>
-                <div className="flex flex-wrap gap-4">
-                   {personalInfo.socialLinks.github && (
-                     <a href={personalInfo.socialLinks.github} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <GithubIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                   {personalInfo.socialLinks.linkedin && (
-                     <a href={personalInfo.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <LinkedinIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                   {personalInfo.socialLinks.facebook && (
-                     <a href={personalInfo.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <FacebookIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                   {personalInfo.socialLinks.instagram && (
-                     <a href={personalInfo.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="opacity-60 hover:opacity-100 transition-opacity">
-                       <InstagramIcon className="w-5 h-5" />
-                     </a>
-                   )}
-                </div>
-             </div>
-          </div>
-        </div>
-        
-        <div className="mt-auto pt-16">
-          <p className="font-mono text-[10px] opacity-20 tracking-widest uppercase">
-            {personalInfo.location} {"//"} {new Date().getFullYear()}
-          </p>
-        </div>
-      </ContactCard>
-
-      {/* Composer Card */}
-      <ContactCard className="p-8">
-        <div className="flex items-center gap-2 mb-8 font-mono text-[10px] uppercase tracking-widest opacity-40">
-          <Send className="w-3 h-3" />
-          compose_transmission
-        </div>
-
-        {status === "success" ? (
-          <div className="flex flex-col items-center justify-center h-full py-12 space-y-4">
-             <CheckCircle className="w-12 h-12 opacity-80" />
-             <p className="font-mono text-lg font-bold uppercase tracking-tight">Transmission Received</p>
-             <button type="button" onClick={() => setStatus("idle")} className="font-mono text-xs underline opacity-50">send another</button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <TerminalLabel className="text-[10px]">FROM / NAME</TerminalLabel>
-                <span className="font-mono text-[9px] opacity-30">{formData.name.length}/80</span>
-              </div>
-              <TerminalInput 
-                value={formData.name} 
-                onChange={(e) => handleChange("name", e.target.value)} 
-                maxLength={80}
-                placeholder="your name" 
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <TerminalLabel className="text-[10px]">CHANNEL / EMAIL</TerminalLabel>
-              <TerminalInput 
-                type="email" 
-                value={formData.email} 
-                onChange={(e) => handleChange("email", e.target.value)} 
-                placeholder="you@domain.com" 
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <TerminalLabel className="text-[10px]">PAYLOAD / MESSAGE</TerminalLabel>
-                <span className="font-mono text-[9px] opacity-30">{formData.message.length}/500</span>
-              </div>
-              <TerminalTextarea 
-                value={formData.message} 
-                onChange={(e) => handleChange("message", e.target.value)} 
-                maxLength={500}
-                placeholder="say something nice" 
-                required
-              />
-            </div>
-
-            <button 
-              ref={submitBtnRef}
-              disabled={status === "loading"}
-              className="w-full bg-[var(--ink)] text-[var(--paper)] font-mono py-4 text-xs uppercase tracking-[0.2em] font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {status === "loading" ? "transmitting..." : ">_ send_message"}
-            </button>
-            {status === "error" && (
-              <div className="flex items-center gap-2 font-mono text-[10px] text-red-500">
-                <AlertCircle className="w-3 h-3" /> transmission_failed
-              </div>
-            )}
-          </form>
+      <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+        {personalInfo.socialLinks.github && (
+          <a href={personalInfo.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-sm uppercase tracking-widest font-bold hover:opacity-50 transition-opacity">
+            GitHub
+          </a>
         )}
-      </ContactCard>
+        {personalInfo.socialLinks.linkedin && (
+          <a href={personalInfo.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm uppercase tracking-widest font-bold hover:opacity-50 transition-opacity">
+            LinkedIn
+          </a>
+        )}
+        {personalInfo.socialLinks.facebook && (
+          <a href={personalInfo.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-sm uppercase tracking-widest font-bold hover:opacity-50 transition-opacity">
+            Facebook
+          </a>
+        )}
+        {personalInfo.socialLinks.instagram && (
+          <a href={personalInfo.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-sm uppercase tracking-widest font-bold hover:opacity-50 transition-opacity">
+            Instagram
+          </a>
+        )}
+      </div>
+      
+      <div className="mt-32 w-full flex justify-between items-center text-xs uppercase tracking-[0.2em] font-bold text-muted-foreground border-t border-border pt-8">
+        <span>© {new Date().getFullYear()}</span>
+        <span>{personalInfo.location}</span>
+      </div>
     </div>
   );
 }

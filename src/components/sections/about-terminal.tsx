@@ -1,19 +1,62 @@
-import { personalInfo } from "@/data/personal";
-import { AsciiDivider } from "@/components/terminal/ascii-divider";
-import { HighlightReveal } from "@/components/shared/highlight-reveal";
-import { SidePet } from "@/components/shared/side-pet";
+"use client";
+
+import { useRef, useEffect } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useReducedMotion } from "motion/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function AboutTerminal() {
+  const container = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+
+  useEffect(() => {
+    if (reduce || !container.current || !textRef.current) return;
+    
+    const words = textRef.current.querySelectorAll('.scrub-word');
+    
+    const ctx = gsap.context(() => {
+      gsap.fromTo(words, 
+        { opacity: 0.1, y: 10 },
+        {
+          opacity: 1,
+          y: 0,
+          stagger: 0.1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container.current,
+            start: "center center",
+            end: "+=150%", // Pin and scrub
+            scrub: 1,      
+            pin: true,
+            pinSpacing: true, 
+          }
+        }
+      );
+    }, container);
+    
+    return () => ctx.revert();
+  }, [reduce]);
+
+  // Keep it ultra minimal to focus purely on the scrollytelling effect
+  const minimalText = "I build for impact. Less talk, more action. Scroll down to see my work.";
+  const wordsArray = minimalText.split(" ");
+
   return (
-    <section id="about" aria-labelledby="about-heading" className="space-y-4">
-      <AsciiDivider number="02" label="about" />
-      <p className="text-[11px] opacity-50">{"// select to reveal hidden notes"}</p>
-      <div className="space-y-4">
-        {personalInfo.bio.map((paragraph, i) => (
-          <HighlightReveal key={i} paragraph={paragraph} />
+    <div ref={container} className="w-full flex flex-col items-center justify-center min-h-screen text-center py-20">
+      <div 
+        ref={textRef}
+        className="text-[clamp(2.5rem,6vw,5rem)] font-extrabold tracking-tight leading-[1.1] max-w-5xl text-foreground"
+      >
+        {wordsArray.map((word, i) => (
+          <span key={i}>
+            <span className="scrub-word inline-block">{word}</span>
+            {i < wordsArray.length - 1 && " "}
+          </span>
         ))}
       </div>
-      <SidePet />
-    </section>
+    </div>
   );
 }

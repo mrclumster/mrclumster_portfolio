@@ -2,19 +2,16 @@ import { education } from "@/data/education";
 
 export function EducationBlock() {
   return (
-    <div className="space-y-4 text-[13px] leading-[1.6]">
-      <ul className="space-y-3">
+    <div className="space-y-8">
+      <ul className="space-y-8">
         {education.map((edu, i) => (
-          <li key={i}>
-            <p className="font-semibold">{edu.degree}</p>
-            <p className="opacity-80">{edu.school}</p>
-            <p className="opacity-60 text-[12px]">{edu.period}</p>
+          <li key={i} className="flex flex-col gap-1">
+            <h3 className="text-xl font-semibold text-foreground">{edu.degree}</h3>
+            <p className="text-primary font-medium">{edu.school}</p>
+            <p className="text-sm font-medium text-muted-foreground mt-2">{edu.period}</p>
           </li>
         ))}
       </ul>
-      <p className="font-mono text-[10px] mt-4 select-none" style={{ opacity: 0.3 }}>
-        └─ end of log ─┘
-      </p>
     </div>
   );
 }

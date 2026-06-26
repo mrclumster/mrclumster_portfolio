@@ -1,35 +1,37 @@
 import Link from "next/link";
 import { personalInfo } from "@/data/personal";
 
-interface BracketLinkProps {
+interface ButtonLinkProps {
   href: string;
   external?: boolean;
   children: string;
+  primary?: boolean;
 }
 
-function BracketLink({ href, external, children }: BracketLinkProps) {
-  const className =
-    "font-mono whitespace-nowrap transition-colors duration-150 hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)] focus-visible:bg-[color:var(--ink)] focus-visible:text-[color:var(--paper)] focus-visible:outline-none";
-
-  const inner = (
-    <>
-      <span aria-hidden>[ </span>
-      <span>{children}</span>
-      <span aria-hidden> ]</span>
-    </>
-  );
+function ButtonLink({ href, external, children, primary }: ButtonLinkProps) {
+  const className = `
+    inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium
+    active:scale-[0.97] active:opacity-80 active:blur-[1px]
+    focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
+    disabled:pointer-events-none disabled:opacity-50
+    h-10 px-6 py-2 border backdrop-blur-md
+    transition-[transform,filter,opacity,background-color,border-color,color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]
+    ${primary 
+      ? "bg-foreground/5 border-foreground/20 text-foreground hover:bg-foreground/10" 
+      : "bg-background/50 border-foreground/10 text-foreground/80 hover:bg-background/80 hover:text-foreground"}
+  `;
 
   if (external) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-        {inner}
+        {children}
       </a>
     );
   }
 
   return (
     <Link href={href} className={className}>
-      {inner}
+      {children}
     </Link>
   );
 }
@@ -39,15 +41,12 @@ export function HeroButtons() {
   return (
     <nav
       aria-label="Primary actions"
-      className="flex flex-wrap gap-x-3 gap-y-2"
-      style={{ fontSize: "clamp(0.78rem, 0.75rem + 0.15vw, 0.875rem)" }}
+      className="flex flex-wrap gap-4 mt-8"
     >
-      <BracketLink href="#projects">view_work</BracketLink>
-      <BracketLink href="/resume">resume.pdf</BracketLink>
-      {socialLinks.github && <BracketLink href={socialLinks.github} external>github</BracketLink>}
-      {socialLinks.linkedin && <BracketLink href={socialLinks.linkedin} external>linkedin</BracketLink>}
-      {socialLinks.facebook && <BracketLink href={socialLinks.facebook} external>facebook</BracketLink>}
-      {socialLinks.instagram && <BracketLink href={socialLinks.instagram} external>instagram</BracketLink>}
+      <ButtonLink href="#projects" primary>View Work</ButtonLink>
+      <ButtonLink href="/resume" external>Resume</ButtonLink>
+      {socialLinks.github && <ButtonLink href={socialLinks.github} external>GitHub</ButtonLink>}
+      {socialLinks.linkedin && <ButtonLink href={socialLinks.linkedin} external>LinkedIn</ButtonLink>}
     </nav>
   );
 }

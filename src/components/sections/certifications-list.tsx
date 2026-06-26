@@ -20,7 +20,7 @@ import {
   Lightbulb,
   Check
 } from "lucide-react";
-import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 
@@ -61,7 +61,6 @@ function CertificatePreview({ file, title }: { file: string; title: string }) {
   const rotateX = useTransform(mouseYSpring, [0, 1], [10, -10]);
   const rotateY = useTransform(mouseXSpring, [0, 1], [-10, 10]);
 
-  // Height and Width for absolute 1-screen fit (Optimized specifically for PDFs)
   const pdfHeight = Math.min(window.innerHeight * 0.64, 720);
   const pdfWidth = pdfHeight * 1.414;
 
@@ -110,12 +109,10 @@ function CertificatePreview({ file, title }: { file: string; title: string }) {
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         className="w-full max-w-fit relative flex items-center justify-center transition-shadow duration-500 overflow-visible"
       >
-        {/* Glass Container - Unified Style, now matches PDF Rectangle */}
-        <div className="absolute inset-0 bg-[color:var(--paper)]/40 backdrop-blur-xl rounded-3xl border border-[color:var(--ink)]/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)] transition-shadow duration-500" />
+        <div className="absolute inset-0 bg-background/40 backdrop-blur-xl rounded-3xl border border-border shadow-xl transition-shadow duration-500" />
         
-        {/* Holographic Shimmer Overlay */}
         <motion.div 
-          className="absolute inset-0 rounded-3xl pointer-events-none z-20 overflow-hidden opacity-30 group-hover:opacity-40 transition-opacity duration-500"
+          className="absolute inset-0 rounded-3xl pointer-events-none z-20 overflow-hidden opacity-30 transition-opacity duration-500"
           style={{
             background: useTransform(
               [mouseXSpring, mouseYSpring],
@@ -139,7 +136,7 @@ function CertificatePreview({ file, title }: { file: string; title: string }) {
                 <PDFDocument 
                   file={file} 
                   onLoadSuccess={() => setIsLoaded(true)}
-                  loading={<div style={{ height: pdfHeight, width: pdfWidth }} className="bg-[color:var(--ink)]/5 animate-pulse rounded-xl" />}
+                  loading={<div style={{ height: pdfHeight, width: pdfWidth }} className="bg-foreground/5 animate-pulse rounded-xl" />}
                 >
                   <PDFPage 
                     pageNumber={1} 
@@ -152,14 +149,12 @@ function CertificatePreview({ file, title }: { file: string; title: string }) {
               )}
             </motion.div>
           </AnimatePresence>
-          
-          {/* Spacer to keep parent dimensions stable and matching the PDF rectangle */}
           <div style={{ height: pdfHeight, width: pdfWidth }} className="invisible pointer-events-none" />
         </div>
         
         {!isLoaded && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-            <div className="w-6 h-6 border-2 border-[color:var(--ink)]/5 border-t-[color:var(--ink)]/20 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-foreground/5 border-t-foreground/20 rounded-full animate-spin" />
           </div>
         )}
       </motion.div>
@@ -199,12 +194,10 @@ function HolographicBadge({ image, title }: { image: string; title: string }) {
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         className="w-full h-full relative flex items-center justify-center transition-shadow duration-500"
       >
-        {/* Glass Container - Restored to inset-0 for a true square halo with bold visibility */}
-        <div className="absolute inset-0 bg-[color:var(--paper)] opacity-60 backdrop-blur-xl rounded-[2.5rem] border border-[color:var(--ink)]/20 shadow-[0_20px_50px_rgba(0,0,0,0.1)] group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.2)] transition-all duration-500" />
+        <div className="absolute inset-0 bg-background opacity-60 backdrop-blur-xl rounded-[2.5rem] border border-border shadow-xl transition-all duration-500" />
         
-        {/* Holographic Shimmer Overlay */}
         <motion.div 
-          className="absolute inset-0 rounded-[2.5rem] pointer-events-none z-20 overflow-hidden opacity-30 group-hover:opacity-40 transition-opacity duration-500"
+          className="absolute inset-0 rounded-[2.5rem] pointer-events-none z-20 overflow-hidden opacity-30 transition-opacity duration-500"
           style={{
             background: useTransform(
               [mouseXSpring, mouseYSpring],
@@ -213,18 +206,15 @@ function HolographicBadge({ image, title }: { image: string; title: string }) {
           }}
         />
 
-        {/* The Badge Image with Depth - Scaled to 98% for maximum impact and minimal glass halo */}
         <motion.img 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           src={image} 
           alt={title}
-          className="w-[98%] h-[98%] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.25)] relative z-10 p-2"
+          className="w-[98%] h-[98%] object-contain drop-shadow-2xl relative z-10 p-2"
           style={{ transform: "translateZ(80px)" }}
         />
-
-        {/* Inner subtle glow */}
         <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
       </motion.div>
     </div>
@@ -241,27 +231,27 @@ function ModuleSidebar({
   onSelect: (sub: Certification | null) => void;
 }) {
   return (
-    <div className="flex flex-col h-full bg-[color:var(--ink)]/[0.02] border-r border-[color:var(--ink)]/5 p-4 overflow-y-auto">
+    <div className="flex flex-col h-full bg-secondary/30 border-r border-border p-4 overflow-y-auto">
       <nav className="flex flex-col gap-1">
         {cert.pdfUrl && (
           <button
             onClick={() => onSelect(null)}
             className={cn(
-              "flex items-center gap-3 w-full text-left p-2.5 rounded-lg text-[12px] transition-all duration-200",
+              "flex items-center gap-3 w-full text-left p-2.5 rounded-lg text-[13px] transition-all duration-200",
               selectedSub === null
-                ? "bg-[color:var(--paper)] shadow-sm ring-1 ring-[color:var(--ink)]/10 font-medium text-[color:var(--ink)]"
-                : "hover:bg-[color:var(--ink)]/5 opacity-60 hover:opacity-100 text-[color:var(--ink)]"
+                ? "bg-background shadow-sm ring-1 ring-border font-medium text-foreground"
+                : "hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
             )}
           >
             <div className={cn(
               "w-1.5 h-1.5 rounded-full shrink-0",
-              selectedSub === null ? "bg-blue-500" : "bg-[color:var(--ink)]/20"
+              selectedSub === null ? "bg-primary" : "bg-muted-foreground/30"
             )} />
             {cert.groupLabel || "Overview"}
           </button>
         )}
 
-        <div className="mt-4 mb-2 px-2 text-[10px] font-bold uppercase tracking-widest opacity-40 text-[color:var(--ink)]">
+        <div className="mt-4 mb-2 px-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           {cert.itemLabel || "Modules"}
         </div>
         
@@ -273,15 +263,15 @@ function ModuleSidebar({
               key={sub.title}
               onClick={() => onSelect(sub)}
               className={cn(
-                "flex items-center gap-3 w-full text-left p-2.5 rounded-lg text-[12px] transition-all duration-200 group text-[color:var(--ink)]",
+                "flex items-center gap-3 w-full text-left p-2.5 rounded-lg text-[13px] transition-all duration-200 group",
                 isSelected
-                  ? "bg-[color:var(--paper)] shadow-sm ring-1 ring-[color:var(--ink)]/10 font-medium"
-                  : "hover:bg-[color:var(--ink)]/5 opacity-60 hover:opacity-100"
+                  ? "bg-background shadow-sm ring-1 ring-border font-medium text-foreground"
+                  : "hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
               )}
             >
               <div className={cn(
                 "w-1.5 h-1.5 rounded-full shrink-0 transition-colors",
-                isSelected ? "bg-blue-500" : "bg-[color:var(--ink)]/20"
+                isSelected ? "bg-primary" : "bg-muted-foreground/30"
               )} />
               <span className="truncate">{sub.title}</span>
             </button>
@@ -304,12 +294,12 @@ function Row({ cert }: { cert: Certification }) {
 
   return (
     <Modal>
-      <ModalTrigger className="grid w-full grid-cols-[1fr_max-content] gap-4 text-left text-[15px] py-3 hover:bg-[color:var(--ink)]/5 transition-colors">
-        <span className="truncate">{cert.title}</span>
-        <span className="opacity-60">{cert.year}</span>
+      <ModalTrigger className="grid w-full grid-cols-[1fr_max-content] gap-4 text-left text-[15px] py-4 hover:bg-secondary/40 transition-colors px-2 rounded-lg">
+        <span className="truncate font-medium">{cert.title}</span>
+        <span className="text-muted-foreground">{cert.year}</span>
       </ModalTrigger>
       <ModalContent className={cn(
-        "max-w-7xl bg-[color:var(--paper)] backdrop-blur-xl border border-[color:var(--ink)]/10 p-0 overflow-hidden text-[color:var(--ink)]",
+        "max-w-7xl bg-background backdrop-blur-xl border border-border p-0 overflow-hidden text-foreground",
         !cert.subCertificates && "max-w-4xl"
       )}>
         <div className={cn("grid h-full", cert.subCertificates ? "grid-cols-1 md:grid-cols-[280px_1fr]" : "grid-cols-1")}>
@@ -322,49 +312,46 @@ function Row({ cert }: { cert: Certification }) {
           )}
 
           <div className="flex-grow flex flex-col h-[90vh]">
-            {/* Header area inside content - Tightened */}
-            <div className="p-5 pb-3 border-b border-[color:var(--ink)]/5 bg-[color:var(--paper)]/50">
+            <div className="p-5 pb-4 border-b border-border bg-card">
               <div className="flex items-center gap-4">
-                <div className="p-1.5 bg-[color:var(--ink)]/5 rounded-xl border border-[color:var(--ink)]/10">
-                  <CertIcon name={cert.icon} className="h-4.5 w-4.5 opacity-80" />
+                <div className="p-2 bg-secondary rounded-xl border border-border/50 text-secondary-foreground">
+                  <CertIcon name={cert.icon} className="h-5 w-5" />
                 </div>
                 <div className="flex-grow">
-                  <ModalTitle className="text-base font-bold tracking-tight">{currentCert.title}</ModalTitle>
-                  <ModalDescription className="text-[11px] font-medium opacity-60">
+                  <ModalTitle className="text-lg font-bold tracking-tight">{currentCert.title}</ModalTitle>
+                  <ModalDescription className="text-[13px] font-medium text-muted-foreground mt-0.5">
                     {currentCert.issuer} · {currentCert.year}
                   </ModalDescription>
                 </div>
               </div>
             </div>
 
-            {/* Main Preview Area - Anchored to top to remove perceived extra space */}
-            <div className="flex-grow px-8 pb-8 pt-6 flex flex-col items-center justify-start bg-gradient-to-b from-transparent to-[color:var(--ink)]/[0.02]">
+            <div className="flex-grow px-8 pb-8 pt-6 flex flex-col items-center justify-start bg-secondary/10">
               {currentCert.pdfUrl ? (
-                <div className="w-full flex flex-col items-center space-y-4">
+                <div className="w-full flex flex-col items-center space-y-6">
                   <div className="w-full relative flex justify-center">
                     <CertificatePreview file={currentCert.pdfUrl} title={currentCert.title} />
                   </div>
                   
-                  {/* Unified button style for PDFs - matching badges */}
-                  <div className="flex items-center justify-center gap-6 px-2 w-full relative z-50">
+                  <div className="flex items-center justify-center gap-4 w-full relative z-50">
                     <a 
                       href={currentCert.pdfUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="group inline-flex items-center gap-3 px-8 py-3 border border-[color:var(--ink)]/10 bg-[color:var(--paper)]/50 backdrop-blur-sm text-[color:var(--ink)] rounded-full text-xs font-bold tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                      className="group inline-flex items-center gap-2 px-6 py-2.5 bg-background border border-border rounded-full text-sm font-semibold hover:bg-secondary transition-colors"
                     >
-                      FULL RESOLUTION PDF
-                      <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      View PDF
+                      <ExternalLink className="h-4 w-4" />
                     </a>
                     {currentCert.credentialUrl && (
                       <a 
                         href={currentCert.credentialUrl} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="group inline-flex items-center gap-3 px-8 py-3 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-xs font-bold tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                        className="group inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
                       >
-                        VERIFY CREDENTIAL
-                        <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        Verify
+                        <ExternalLink className="h-4 w-4" />
                       </a>
                     )}
                   </div>
@@ -374,40 +361,37 @@ function Row({ cert }: { cert: Certification }) {
                   <div className="w-full max-w-[600px] aspect-square relative">
                     <HolographicBadge image={currentCert.badgeUrl} title={currentCert.title} />
                   </div>
-                  <div className="w-full flex justify-center relative z-50 mt-6">
+                  <div className="w-full flex justify-center relative z-50 mt-8">
                     {currentCert.credentialUrl && (
                       <a 
                         href={currentCert.credentialUrl} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="group inline-flex items-center gap-3 px-8 py-3 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-xs font-bold tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                        className="group inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
                       >
-                        VERIFY CREDENTIAL
-                        <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        Verify Credential
+                        <ExternalLink className="h-4 w-4" />
                       </a>
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="flex-grow flex flex-col items-center justify-center py-20 px-10 text-center space-y-6">
-                  <div className="w-20 h-20 bg-[color:var(--ink)]/[0.03] rounded-3xl flex items-center justify-center border border-dashed border-[color:var(--ink)]/10">
-                    <CertIcon name={cert.icon} className="h-10 w-10 opacity-10" />
+                  <div className="w-20 h-20 bg-secondary rounded-3xl flex items-center justify-center border border-dashed border-border text-muted-foreground">
+                    <CertIcon name={cert.icon} className="h-10 w-10 opacity-30" />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium opacity-40">Credential document not available for preview.</p>
-                    {currentCert.credentialUrl && (
-                      <p className="text-xs opacity-30 italic">Verification available via external link below.</p>
-                    )}
+                    <p className="text-sm font-medium text-muted-foreground">Credential document not available for preview.</p>
                   </div>
                   {currentCert.credentialUrl && (
                     <a 
                       href={currentCert.credentialUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-3 px-8 py-3 bg-[color:var(--ink)] text-[color:var(--paper)] rounded-full text-xs font-bold tracking-widest shadow-md hover:opacity-90 transition-opacity"
+                      className="group inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm mt-4"
                     >
-                      VIEW CREDENTIAL
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      View Credential
+                      <ExternalLink className="h-4 w-4" />
                     </a>
                   )}
                 </div>
@@ -423,14 +407,11 @@ function Row({ cert }: { cert: Certification }) {
 export function CertificationsList() {
   return (
     <div className="space-y-2">
-      <div className="divide-y divide-[color:var(--ink)]/15">
+      <div className="divide-y divide-border">
         {certifications.map((c) => (
           <Row key={c.title} cert={c} />
         ))}
       </div>
-      <p className="font-mono text-[10px] mt-4 select-none" style={{ opacity: 0.3 }}>
-        └─ end of log ─┘
-      </p>
     </div>
   );
 }
