@@ -40,6 +40,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Header } from "@/components/layout/header";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -70,6 +72,7 @@ export default function RootLayout({
           }}
         />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <Header />
           <main className="flex-1">{children}</main>
           <Analytics />
         </ThemeProvider>

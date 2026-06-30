@@ -19,7 +19,7 @@ export function AboutTerminal() {
     
     const ctx = gsap.context(() => {
       gsap.fromTo(words, 
-        { opacity: 0.1, y: 10 },
+        { opacity: 0, y: 15 }, // Start completely invisible and slightly lower
         {
           opacity: 1,
           y: 0,
@@ -41,7 +41,7 @@ export function AboutTerminal() {
   }, [reduce]);
 
   // Keep it ultra minimal to focus purely on the scrollytelling effect
-  const minimalText = "I build for impact. Less talk, more action. Scroll down to see my work.";
+  const minimalText = "I could explain my entire tech stack, but you probably wouldn't read it anyway. Just scroll down and look at the pretty colors.";
   const wordsArray = minimalText.split(" ");
 
   return (

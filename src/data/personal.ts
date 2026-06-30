@@ -34,10 +34,10 @@ export const personalInfo = {
       { type: "secret", value: " (I also have a strangely deep relationship with console.log.)" },
     ],
     [
-      { type: "text", value: "I build for impact. " },
-      { type: "keyword", value: "Scroll down" },
-      { type: "text", value: " to see these projects in action." },
-    ]
+      { type: "text", value: "I could explain my entire tech stack, but you probably wouldn't read it anyway. Just " },
+      { type: "keyword", value: "scroll down" },
+      { type: "text", value: " and look at the pretty colors." },
+    ],
   ] satisfies Bio,
   email: "aziztebbeng@gmail.com",
   socialLinks: {
