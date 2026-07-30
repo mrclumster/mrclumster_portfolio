@@ -40,7 +40,7 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
           trigger: cardRef.current,
           start: "left 85%",
           end: "left 30%",
-          containerAnimation: ScrollTrigger.getAll().find(st => st.vars.id === "horizontal-pan"),
+          containerAnimation: ScrollTrigger.getById("horizontal-pan")?.animation,
           scrub: 1,
         }
       }
