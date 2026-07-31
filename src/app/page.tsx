@@ -36,9 +36,9 @@ export default function Home() {
       {/* DESIRE: Stacked Experience */}
       <section className="w-full relative z-40 bg-background py-32">
         <StickyStack cards={[
-          <div key="career" className="w-full h-full max-w-5xl mx-auto p-10 md:p-16 rounded-none bg-card border-[0.5px] border-primary shadow-[0_0_80px_rgba(138,255,0,0.15)] flex flex-col relative overflow-hidden group">
-            <div className="absolute -inset-2 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-700" />
-            <h2 className="text-xl font-bold tracking-widest text-primary mb-12 uppercase relative z-10">CAREER LOG</h2>
+          <div key="career" className="w-full h-full max-w-5xl mx-auto p-10 md:p-16 rounded-none bg-card border-[0.5px] border-red-500/30 border-l-4 border-l-red-500 shadow-[0_0_80px_rgba(239,68,68,0.2)] flex flex-col relative overflow-hidden group">
+            <div className="absolute -inset-2 bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-700" />
+            <h2 className="text-xl font-bold tracking-widest text-red-500 mb-12 uppercase relative z-10">CAREER LOG</h2>
             <div className="relative z-10"><ExperienceLog /></div>
           </div>
         ]} />

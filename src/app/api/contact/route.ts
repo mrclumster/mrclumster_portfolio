@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy_key_for_build");
 
 // Sanitization helper to strip HTML tags
 const stripHtml = (str: string) => str.replace(/<[^>]*>?/gm, '');
